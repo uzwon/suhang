@@ -3,9 +3,9 @@ import random
 from pathlib import Path
 
 
-# =========================================================
+# ============================================================
 # 1. 기본 설정
-# =========================================================
+# ============================================================
 
 st.set_page_config(
     page_title="NEURO NIGHT SHIFT",
@@ -16,432 +16,728 @@ st.set_page_config(
 IMAGE_FOLDER = Path("images")
 
 
-# =========================================================
-# 2. 디자인
-# =========================================================
+# ============================================================
+# 2. 전체 디자인
+# ============================================================
 
-st.markdown("""
+st.markdown(
+    """
 <style>
 
-/* 전체 배경 */
+/* ------------------------------------------------------------
+   전체 화면
+------------------------------------------------------------ */
+
 .stApp {
     background:
         linear-gradient(
-            180deg,
-            #0b1117 0%,
-            #121c24 45%,
-            #0a1015 100%
+            90deg,
+            #dfe8eb 0%,
+            #dfe8eb 72%,
+            #cbd8dc 72%,
+            #cbd8dc 100%
         );
-    color: #eaf2f5;
+
+    color: #243740;
 }
 
-/* 본문 폭 */
+
+/* ------------------------------------------------------------
+   병원 벽의 밤 창문
+------------------------------------------------------------ */
+
+.stApp::before {
+    content: "";
+
+    position: fixed;
+
+    top: 105px;
+    right: 32px;
+
+    width: 265px;
+    height: 220px;
+
+    border: 12px solid #eef4f6;
+    border-radius: 8px;
+
+    box-sizing: border-box;
+
+    background:
+
+        /* 달 */
+        radial-gradient(
+            circle at 77% 23%,
+            #fff5b8 0px,
+            #fff5b8 20px,
+            transparent 21px
+        ),
+
+        /* 별 */
+        radial-gradient(
+            circle at 15% 18%,
+            white 0px,
+            white 2px,
+            transparent 3px
+        ),
+
+        radial-gradient(
+            circle at 35% 34%,
+            white 0px,
+            white 2px,
+            transparent 3px
+        ),
+
+        radial-gradient(
+            circle at 54% 15%,
+            white 0px,
+            white 2px,
+            transparent 3px
+        ),
+
+        radial-gradient(
+            circle at 67% 42%,
+            white 0px,
+            white 2px,
+            transparent 3px
+        ),
+
+        radial-gradient(
+            circle at 25% 55%,
+            white 0px,
+            white 2px,
+            transparent 3px
+        ),
+
+        /* 밤하늘 */
+        linear-gradient(
+            180deg,
+            #071426 0%,
+            #102947 60%,
+            #1e405e 100%
+        );
+
+    box-shadow:
+        inset 0 0 0 3px #b4c5ca,
+        0 8px 24px rgba(0, 0, 0, 0.16);
+
+    z-index: 0;
+}
+
+
+/* 창문 세로 프레임 */
+.stApp::after {
+    content: "";
+
+    position: fixed;
+
+    top: 117px;
+    right: 157px;
+
+    width: 7px;
+    height: 196px;
+
+    background: #eef4f6;
+
+    z-index: 1;
+}
+
+
+/* ------------------------------------------------------------
+   본문 영역
+------------------------------------------------------------ */
+
 .block-container {
-    max-width: 1180px;
-    padding-top: 1.2rem;
+    position: relative;
+
+    z-index: 2;
+
+    max-width: 1030px;
+
+    margin-left: 25px;
+
+    margin-right: 315px;
+
+    padding-top: 1.5rem;
     padding-bottom: 4rem;
 }
 
-/* 제목 */
+
+/* ------------------------------------------------------------
+   제목
+------------------------------------------------------------ */
+
 .game-title {
-    font-size: 40px;
+    font-size: 42px;
+
     font-weight: 900;
-    color: #f5fbfd;
+
+    color: #20343e;
+
     letter-spacing: 2px;
-    line-height: 1.2;
+
+    margin-bottom: 2px;
 }
 
 .game-subtitle {
-    color: #98b0bc;
-    font-size: 14px;
-    margin-top: 4px;
+    color: #58707b;
+
+    font-size: 15px;
+
+    margin-bottom: 20px;
 }
 
-/* 상단 상태 카드 */
+
+/* ------------------------------------------------------------
+   상단 상태창
+------------------------------------------------------------ */
+
 .status-card {
-    background: #16232d;
-    border: 1px solid #314654;
-    border-radius: 15px;
-    padding: 14px;
+    background: #243943;
+
+    border: 1px solid #425d68;
+
+    border-radius: 13px;
+
+    padding: 13px;
+
     text-align: center;
-    color: #edf5f7;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+
+    box-shadow: 0 5px 16px rgba(35, 55, 65, 0.13);
 }
 
-/* 현재 위치 카드 */
+.status-card,
+.status-card * {
+    color: #ffffff !important;
+}
+
+
+/* ------------------------------------------------------------
+   현재 위치
+------------------------------------------------------------ */
+
 .location-box {
-    background: linear-gradient(135deg, #edf5f7 0%, #e3eef1 100%);
-    color: #243941;
-    border-radius: 16px;
-    border-left: 6px solid #6c98a8;
-    padding: 18px 20px;
-    margin-top: 18px;
-    margin-bottom: 18px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
-}
+    background: rgba(248, 251, 252, 0.96);
 
-/* 기본 패널 */
-.panel {
-    background: linear-gradient(180deg, #f7fbfc 0%, #edf4f6 100%);
-    color: #253941;
-    border-radius: 18px;
-    padding: 22px;
-    border: 1px solid #abc0c8;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-}
+    color: #263c45;
 
-/* 사진 카드 */
-.photo-card {
-    background: linear-gradient(180deg, #d9e8ec 0%, #cfe0e5 100%);
-    border: 1px solid #8da7b1;
-    border-radius: 18px;
-    min-height: 430px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #4f6670;
-    font-size: 100px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-}
+    border-left: 6px solid #6d9aaa;
 
-/* 검사 결과 */
-.exam-box {
-    background: #eaf1fa;
-    color: #2e495e;
-    border-left: 6px solid #668ab1;
-    border-radius: 12px;
-    padding: 18px;
-    margin-top: 15px;
-    line-height: 1.8;
-}
-
-/* 성공 박스 */
-.success-box {
-    background: #e8f7ee;
-    color: #2c503b;
-    border-left: 6px solid #5ca277;
-    border-radius: 12px;
-    padding: 18px;
-    margin-top: 15px;
-    line-height: 1.8;
-}
-
-/* 실패 박스 */
-.danger-box {
-    background: #faeaed;
-    color: #673942;
-    border-left: 6px solid #bf5b6b;
-    border-radius: 12px;
-    padding: 18px;
-    margin-top: 15px;
-    line-height: 1.8;
-}
-
-/* 물품 카드 */
-.item-card {
-    background: linear-gradient(180deg, #f7fbfc 0%, #edf4f6 100%);
-    color: #283d46;
     border-radius: 15px;
+
+    padding: 16px 19px;
+
+    margin-top: 18px;
+    margin-bottom: 15px;
+
+    box-shadow: 0 7px 20px rgba(40, 60, 70, 0.10);
+}
+
+.location-box * {
+    color: #263c45 !important;
+}
+
+
+/* ------------------------------------------------------------
+   일반 카드
+------------------------------------------------------------ */
+
+.panel {
+    background: rgba(249, 252, 253, 0.97);
+
+    border: 1px solid #aec1c8;
+
+    border-radius: 18px;
+
+    padding: 23px;
+
+    color: #263a43;
+
+    box-shadow: 0 8px 24px rgba(40, 60, 70, 0.12);
+}
+
+.panel * {
+    color: #263a43 !important;
+}
+
+
+/* ------------------------------------------------------------
+   환자 사진 영역
+------------------------------------------------------------ */
+
+.photo-card {
+    background:
+        linear-gradient(
+            180deg,
+            #e4edef 0%,
+            #d1e0e4 100%
+        );
+
+    min-height: 430px;
+
+    border: 1px solid #9eb2ba;
+
+    border-radius: 18px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    font-size: 100px;
+
+    color: #5b7079;
+
+    box-shadow: 0 8px 22px rgba(40, 60, 70, 0.10);
+}
+
+
+/* ------------------------------------------------------------
+   검사 결과
+------------------------------------------------------------ */
+
+.exam-box {
+    background: #eaf2fa;
+
+    border-left: 6px solid #6588ad;
+
+    border-radius: 13px;
+
     padding: 19px;
-    border: 1px solid #a8bcc4;
-    text-align: center;
-    min-height: 120px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.10);
+
+    color: #2e485d;
+
+    line-height: 1.9;
+
+    margin-top: 18px;
 }
 
-/* 인벤토리 */
+.exam-box * {
+    color: #2e485d !important;
+}
+
+
+/* ------------------------------------------------------------
+   성공
+------------------------------------------------------------ */
+
+.success-box {
+    background: #e9f7ef;
+
+    border-left: 6px solid #5ca078;
+
+    border-radius: 13px;
+
+    padding: 19px;
+
+    color: #2b503a;
+
+    line-height: 1.8;
+
+    margin-top: 18px;
+}
+
+.success-box * {
+    color: #2b503a !important;
+}
+
+
+/* ------------------------------------------------------------
+   실패
+------------------------------------------------------------ */
+
+.danger-box {
+    background: #fae9ec;
+
+    border-left: 6px solid #bf5a69;
+
+    border-radius: 13px;
+
+    padding: 19px;
+
+    color: #653941;
+
+    line-height: 1.8;
+
+    margin-top: 18px;
+}
+
+.danger-box * {
+    color: #653941 !important;
+}
+
+
+/* ------------------------------------------------------------
+   인벤토리
+------------------------------------------------------------ */
+
 .inventory {
-    background: linear-gradient(180deg, #1c2b35 0%, #18252e 100%);
-    color: #eef5f7;
-    border: 1px solid #405866;
+    background: #273b45;
+
+    border: 1px solid #435e6a;
+
     border-radius: 14px;
+
     padding: 14px 18px;
-    margin-top: 12px;
-    margin-bottom: 14px;
+
+    margin-bottom: 15px;
 }
 
-/* 지도 안 방 카드 */
+.inventory,
+.inventory * {
+    color: white !important;
+}
+
+
+/* ------------------------------------------------------------
+   물품 카드
+------------------------------------------------------------ */
+
+.item-card {
+    background: rgba(250, 253, 254, 0.97);
+
+    color: #253a43;
+
+    border: 1px solid #abc0c7;
+
+    border-radius: 15px;
+
+    padding: 20px;
+
+    text-align: center;
+
+    min-height: 120px;
+
+    box-shadow: 0 6px 18px rgba(40, 60, 70, 0.10);
+}
+
+.item-card * {
+    color: #253a43 !important;
+}
+
+
+/* ------------------------------------------------------------
+   지도 안의 장소
+------------------------------------------------------------ */
+
 .map-room {
     background: #eef4f6;
-    color: #243841;
-    border-radius: 13px;
+
+    color: #253940;
+
     border: 1px solid #adbec5;
-    padding: 15px;
+
+    border-radius: 12px;
+
+    padding: 13px;
+
     text-align: center;
+
     margin-bottom: 8px;
-    font-weight: 700;
-}
 
-/* 밤 창문 */
-.night-window-wrap {
-    background: linear-gradient(180deg, #eef4f6 0%, #e2edf0 100%);
-    border: 1px solid #b0c0c7;
-    border-radius: 18px;
-    padding: 14px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-    margin-top: 18px;
-    margin-bottom: 18px;
-}
-
-.night-window-title {
-    color: #2a4048;
     font-weight: 800;
-    margin-bottom: 12px;
-    font-size: 15px;
 }
 
-.night-window {
-    position: relative;
-    width: 100%;
-    height: 190px;
-    border-radius: 14px;
-    overflow: hidden;
-    background: linear-gradient(180deg, #07131f 0%, #11263d 55%, #1a3552 100%);
-    border: 6px solid #d8e5ea;
-    box-sizing: border-box;
+.map-room * {
+    color: #253940 !important;
 }
 
-.window-frame-v1, .window-frame-v2 {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 6px;
-    background: rgba(220,235,240,0.95);
-    left: 33.3%;
+
+/* ------------------------------------------------------------
+   Streamlit 기본 텍스트
+------------------------------------------------------------ */
+
+h1,
+h2,
+h3,
+h4 {
+    color: #243a43 !important;
 }
 
-.window-frame-v2 {
-    left: 66.6%;
+p,
+label {
+    color: #2a4049;
 }
 
-.window-frame-h {
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 6px;
-    top: 50%;
-    background: rgba(220,235,240,0.95);
-}
 
-.moon {
-    position: absolute;
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background: #fff6bf;
-    top: 22px;
-    right: 38px;
-    box-shadow: 0 0 22px rgba(255,244,180,0.75);
-}
+/* ------------------------------------------------------------
+   버튼
+------------------------------------------------------------ */
 
-.star {
-    position: absolute;
-    width: 4px;
-    height: 4px;
-    background: white;
-    border-radius: 50%;
-    opacity: 0.9;
-}
-
-.s1 { top: 30px; left: 50px; }
-.s2 { top: 52px; left: 150px; }
-.s3 { top: 74px; left: 245px; }
-.s4 { top: 38px; left: 310px; }
-.s5 { top: 64px; left: 420px; }
-.s6 { top: 95px; left: 520px; }
-.s7 { top: 118px; left: 120px; }
-.s8 { top: 100px; left: 360px; }
-
-.city {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 72px;
-    background:
-        linear-gradient(180deg, transparent 0%, transparent 25%, #0d1b28 26%, #0d1b28 100%);
-}
-
-.b1, .b2, .b3, .b4, .b5, .b6 {
-    position: absolute;
-    bottom: 0;
-    background: #102234;
-}
-
-.b1 { left: 18px;  width: 55px; height: 52px; }
-.b2 { left: 95px;  width: 70px; height: 86px; }
-.b3 { left: 182px; width: 48px; height: 64px; }
-.b4 { left: 252px; width: 78px; height: 104px; }
-.b5 { left: 350px; width: 65px; height: 72px; }
-.b6 { left: 438px; width: 92px; height: 96px; }
-
-.window-note {
-    margin-top: 10px;
-    color: #546a74;
-    font-size: 13px;
-}
-
-/* 버튼 */
 .stButton > button {
     width: 100%;
+
     min-height: 48px;
+
     border-radius: 10px;
+
     font-weight: 800;
+
+    border: 1px solid #94aab3;
 }
 
-/* alert text 가독성 */
-.stAlert {
-    color: #1f2f36;
-}
 
-/* 멀티셀렉트 텍스트 가독성 */
+/* ------------------------------------------------------------
+   multiselect 글씨
+------------------------------------------------------------ */
+
 div[data-baseweb="select"] * {
-    color: #22363f !important;
+    color: #253940 !important;
 }
 
-/* popover 안 글씨 */
-[data-testid="stPopover"] * {
-    color: #22363f;
+
+/* ------------------------------------------------------------
+   popover 내부
+------------------------------------------------------------ */
+
+[data-testid="stPopoverBody"] {
+    color: #253940;
 }
 
-/* 일반 텍스트 */
-p, li, div, label, span {
-    line-height: 1.6;
+
+/* ------------------------------------------------------------
+   작은 화면에서는 창문 숨김
+------------------------------------------------------------ */
+
+@media (max-width: 900px) {
+
+    .stApp::before,
+    .stApp::after {
+        display: none;
+    }
+
+    .block-container {
+        margin-right: auto;
+        margin-left: auto;
+        max-width: 95%;
+    }
 }
 
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True
+)
 
 
-# =========================================================
-# 3. 환자 데이터
-# =========================================================
+# ============================================================
+# 3. 환자 정보
+# ============================================================
 
 PATIENTS = [
+
     {
         "id": 1,
+
         "image": "patient01.png",
+
         "anomaly": False,
+
         "exam_text":
             "환자는 두통과 어지럼증을 호소합니다. "
-            "기본적인 신경학적 확인과 안정이 필요한 상태입니다.",
+            "신경계 상태를 확인하기 위한 기본 평가가 필요합니다.",
+
         "items": [
             "냉찜질 팩",
             "신경학적 검사 카드"
         ]
     },
+
+
     {
         "id": 2,
+
         "image": "patient02.png",
+
         "anomaly": True,
+
         "anomaly_reason":
-            "얼굴 사진에서 눈의 위치가 비정상적으로 배열된 변칙이 발견되었습니다.",
+            "환자의 얼굴에서 게임 설정상 비정상적인 형태의 변칙이 발견되었습니다.",
+
         "exam_text": "",
+
         "items": []
     },
+
+
     {
         "id": 3,
+
         "image": "patient03.png",
+
         "anomaly": False,
+
         "exam_text":
             "환자는 최근 기억력 변화를 호소하고 있습니다. "
-            "추가적인 인지 평가 준비가 필요합니다.",
+            "인지 상태를 확인하기 위한 평가 준비가 필요합니다.",
+
         "items": [
             "인지검사 카드",
             "MRI 검사 안내서"
         ]
     },
+
+
     {
         "id": 4,
+
         "image": "patient04.png",
+
         "anomaly": True,
+
         "anomaly_reason":
-            "얼굴 사진에서 좌우 얼굴 구조가 자연스럽지 않은 변칙이 발견되었습니다.",
+            "환자의 얼굴 구조가 자연스러운 사람의 얼굴과 다른 형태로 나타납니다.",
+
         "exam_text": "",
+
         "items": []
     },
+
+
     {
         "id": 5,
+
         "image": "patient05.png",
+
         "anomaly": False,
+
         "exam_text":
-            "환자는 손의 감각이 평소와 다르다고 호소합니다. "
-            "신경계 상태 확인을 위한 기본 검사가 필요합니다.",
+            "환자는 손의 감각이 평소와 다르다고 말합니다. "
+            "기본적인 감각 및 반사 확인이 필요합니다.",
+
         "items": [
             "감각검사 카드",
             "반사검사 도구"
         ]
     },
+
+
     {
         "id": 6,
+
         "image": "patient06.png",
+
         "anomaly": True,
+
         "anomaly_reason":
-            "사진 속 얼굴에 게임 설정상 존재할 수 없는 형태의 변칙이 나타납니다.",
+            "사진 속 얼굴에 게임 속 가상의 변칙이 나타나 있습니다.",
+
         "exam_text": "",
+
         "items": []
     }
+
 ]
 
 
-# =========================================================
+# ============================================================
 # 4. 물품 목록
-# =========================================================
+# ============================================================
 
 ALL_ITEMS = [
+
     "냉찜질 팩",
+
     "신경학적 검사 카드",
+
     "인지검사 카드",
+
     "MRI 검사 안내서",
+
     "감각검사 카드",
+
     "반사검사 도구"
+
 ]
 
 
-# =========================================================
+# ============================================================
 # 5. 게임 초기화
-# =========================================================
+# ============================================================
 
 def initialize_game():
-    order = list(range(len(PATIENTS)))
-    random.shuffle(order)
+
+    order = list(
+        range(
+            len(PATIENTS)
+        )
+    )
+
+    random.shuffle(
+        order
+    )
+
+    st.session_state.started = True
+
+    st.session_state.game_over = False
 
     st.session_state.order = order
+
     st.session_state.patient_number = 0
+
     st.session_state.location = "데스크"
+
     st.session_state.score = 0
+
     st.session_state.lives = 3
+
     st.session_state.inventory = []
-    st.session_state.started = True
-    st.session_state.game_over = False
+
     st.session_state.patient_admitted = False
+
     st.session_state.examined = False
+
     st.session_state.completed = False
+
     st.session_state.message = ""
 
 
-# =========================================================
+# ============================================================
 # 6. 현재 환자
-# =========================================================
+# ============================================================
 
 def current_patient():
-    if st.session_state.patient_number >= len(st.session_state.order):
+
+    if (
+        st.session_state.patient_number
+        >= len(st.session_state.order)
+    ):
+
         return None
 
-    patient_index = st.session_state.order[st.session_state.patient_number]
-    return PATIENTS[patient_index]
+
+    index = st.session_state.order[
+        st.session_state.patient_number
+    ]
 
 
-# =========================================================
-# 7. 이미지 표시
-# =========================================================
+    return PATIENTS[
+        index
+    ]
+
+
+# ============================================================
+# 7. 환자 사진
+# ============================================================
 
 def show_patient(patient):
-    path = IMAGE_FOLDER / patient["image"]
 
-    if path.exists():
-        st.image(str(path), use_container_width=True)
+    image_path = (
+        IMAGE_FOLDER
+        /
+        patient["image"]
+    )
+
+
+    if image_path.exists():
+
+        st.image(
+            str(image_path),
+            use_container_width=True
+        )
+
+
     else:
+
         st.markdown(
             """
             <div class="photo-card">
@@ -450,530 +746,1021 @@ def show_patient(patient):
             """,
             unsafe_allow_html=True
         )
-        st.caption("images 폴더에 환자 사진을 넣으면 여기에 표시됩니다.")
 
 
-# =========================================================
-# 8. 밤 창문 표시
-# =========================================================
-
-def render_night_window():
-    st.markdown(
-        """
-        <div class="night-window-wrap">
-            <div class="night-window-title">🌙 병원 창문 밖 야경</div>
-            <div class="night-window">
-                <div class="moon"></div>
-
-                <div class="star s1"></div>
-                <div class="star s2"></div>
-                <div class="star s3"></div>
-                <div class="star s4"></div>
-                <div class="star s5"></div>
-                <div class="star s6"></div>
-                <div class="star s7"></div>
-                <div class="star s8"></div>
-
-                <div class="window-frame-v1"></div>
-                <div class="window-frame-v2"></div>
-                <div class="window-frame-h"></div>
-
-                <div class="city">
-                    <div class="b1"></div>
-                    <div class="b2"></div>
-                    <div class="b3"></div>
-                    <div class="b4"></div>
-                    <div class="b5"></div>
-                    <div class="b6"></div>
-                </div>
-            </div>
-            <div class="window-note">
-                고요한 밤, 병원은 아직 깨어 있습니다.
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+        st.caption(
+            "images 폴더에 환자 이미지를 추가하면 여기에 표시됩니다."
+        )
 
 
-# =========================================================
-# 9. 장소 이동
-# =========================================================
+# ============================================================
+# 8. 방 이동
+# ============================================================
 
 def move_room(room):
+
     st.session_state.location = room
 
 
-# =========================================================
-# 10. 새로운 환자
-# =========================================================
+# ============================================================
+# 9. 다음 환자
+# ============================================================
 
 def next_patient():
+
     st.session_state.patient_number += 1
+
     st.session_state.location = "데스크"
+
     st.session_state.inventory = []
+
     st.session_state.patient_admitted = False
+
     st.session_state.examined = False
+
     st.session_state.completed = False
+
     st.session_state.message = ""
 
-    if st.session_state.patient_number >= len(st.session_state.order):
+
+    if (
+        st.session_state.patient_number
+        >= len(st.session_state.order)
+    ):
+
         st.session_state.game_over = True
 
 
-# =========================================================
-# 11. 데스크 판단
-# =========================================================
+# ============================================================
+# 10. 데스크 판단
+# ============================================================
 
 def desk_decision(choice):
+
     patient = current_patient()
+
+
+    # --------------------------------------------------------
+    # 병원 안으로 들이기
+    # --------------------------------------------------------
 
     if choice == "admit":
+
         if patient["anomaly"]:
+
             st.session_state.lives -= 1
-            st.session_state.message = "❌ 변칙 환자를 병원 안으로 들였습니다."
+
+            st.session_state.message = (
+                "❌ 변칙 환자를 병원 안으로 들였습니다."
+            )
+
+
             if st.session_state.lives <= 0:
+
                 st.session_state.game_over = True
+
+
         else:
+
             st.session_state.score += 100
+
             st.session_state.patient_admitted = True
+
             st.session_state.location = "진료실"
-            st.session_state.message = "✅ 정상 환자입니다. 환자가 진료실로 이동했습니다."
+
+            st.session_state.message = (
+                "✅ 정상 환자입니다. 환자가 진료실로 이동했습니다."
+            )
+
+
+    # --------------------------------------------------------
+    # 출입 차단
+    # --------------------------------------------------------
 
     elif choice == "block":
+
         if patient["anomaly"]:
+
             st.session_state.score += 150
+
             st.session_state.completed = True
-            st.session_state.message = "🚨 변칙 발견! 병원 출입을 차단했습니다."
+
+            st.session_state.message = (
+                "🚨 변칙 환자를 발견해 출입을 차단했습니다."
+            )
+
+
         else:
+
             st.session_state.lives -= 1
-            st.session_state.message = "❌ 정상 환자의 출입을 막았습니다."
+
+            st.session_state.message = (
+                "❌ 정상 환자의 출입을 막았습니다."
+            )
+
+
             if st.session_state.lives <= 0:
+
                 st.session_state.game_over = True
 
 
-# =========================================================
-# 12. 검사
-# =========================================================
+# ============================================================
+# 11. 환자 검사
+# ============================================================
 
 def examine_patient():
+
     st.session_state.examined = True
+
     st.session_state.score += 50
-    st.session_state.message = "🔍 검사가 완료되었습니다."
 
-
-# =========================================================
-# 13. 물품 가져오기
-# =========================================================
-
-def add_item(item):
-    if item not in st.session_state.inventory:
-        if len(st.session_state.inventory) >= 4:
-            st.warning("가방이 가득 찼습니다. 최대 4개까지 들 수 있습니다.")
-            return
-
-        st.session_state.inventory.append(item)
-        st.success(f"🎒 {item}을(를) 인벤토리에 넣었습니다.")
-    else:
-        st.warning("이미 가지고 있는 물품입니다.")
-
-
-# =========================================================
-# 14. 인벤토리에서 물품 적용
-# =========================================================
-
-def apply_items(selected_items):
-    patient = current_patient()
-    required = set(patient["items"])
-    selected = set(selected_items)
-
-    if len(selected_items) != 2:
-        st.warning("치료에 사용할 물품 2개를 선택하세요.")
-        return
-
-    if selected == required:
-        st.session_state.score += 200
-        st.session_state.completed = True
-        st.session_state.message = "✅ 필요한 물품을 정확하게 적용했습니다. 환자 진료가 완료되었습니다."
-    else:
-        st.session_state.lives -= 1
-        st.session_state.message = "❌ 필요한 물품 조합이 아닙니다."
-        if st.session_state.lives <= 0:
-            st.session_state.game_over = True
-
-
-# =========================================================
-# 15. Session State
-# =========================================================
-
-if "started" not in st.session_state:
-    st.session_state.started = False
-
-if "game_over" not in st.session_state:
-    st.session_state.game_over = False
-
-
-# =========================================================
-# 16. 제목
-# =========================================================
-
-left_title, right_title = st.columns([4, 1])
-
-with left_title:
-    st.markdown(
-        """
-        <div class="game-title">
-        🏥 NEURO NIGHT SHIFT
-        </div>
-
-        <div class="game-subtitle">
-        당신은 야간 근무를 맡은 의사입니다.
-        </div>
-        """,
-        unsafe_allow_html=True
+    st.session_state.message = (
+        "🔍 환자 검사가 완료되었습니다."
     )
 
 
-# =========================================================
-# 17. 시작 화면
-# =========================================================
+# ============================================================
+# 12. 물품 가져오기
+# ============================================================
+
+def add_item(item):
+
+    # 중복 방지
+    if item in st.session_state.inventory:
+
+        st.warning(
+            "이미 인벤토리에 있는 물품입니다."
+        )
+
+        return
+
+
+    # 최대 4개
+    if len(st.session_state.inventory) >= 4:
+
+        st.warning(
+            "인벤토리가 가득 찼습니다. 최대 4개의 물품만 가지고 다닐 수 있습니다."
+        )
+
+        return
+
+
+    st.session_state.inventory.append(
+        item
+    )
+
+    st.success(
+        f"🎒 {item}을(를) 인벤토리에 넣었습니다."
+    )
+
+
+# ============================================================
+# 13. 물품 적용
+# ============================================================
+
+def apply_items(selected_items):
+
+    patient = current_patient()
+
+
+    # 두 개를 선택하지 않은 경우
+    if len(selected_items) != 2:
+
+        st.warning(
+            "환자에게 적용할 물품 2개를 선택하세요."
+        )
+
+        return
+
+
+    required_items = set(
+        patient["items"]
+    )
+
+    selected_set = set(
+        selected_items
+    )
+
+
+    # 정답
+    if selected_set == required_items:
+
+        st.session_state.score += 200
+
+        st.session_state.completed = True
+
+        st.session_state.message = (
+            "✅ 필요한 물품 두 가지를 정확하게 적용했습니다. "
+            "환자 처치가 완료되었습니다."
+        )
+
+
+    # 오답
+    else:
+
+        st.session_state.lives -= 1
+
+        st.session_state.message = (
+            "❌ 이 환자에게 필요한 물품 조합이 아닙니다."
+        )
+
+
+        if st.session_state.lives <= 0:
+
+            st.session_state.game_over = True
+
+
+# ============================================================
+# 14. Session State 기본값
+# ============================================================
+
+if "started" not in st.session_state:
+
+    st.session_state.started = False
+
+
+if "game_over" not in st.session_state:
+
+    st.session_state.game_over = False
+
+
+# ============================================================
+# 15. 게임 제목
+# ============================================================
+
+st.markdown(
+    """
+    <div class="game-title">
+    🏥 NEURO NIGHT SHIFT
+    </div>
+
+    <div class="game-subtitle">
+    당신은 오늘 밤 병원의 당직 의사입니다.
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+
+# ============================================================
+# 16. 시작 화면
+# ============================================================
 
 if not st.session_state.started:
+
     st.markdown(
         """
         <div class="panel">
 
-        <h2 style="color:#233942;">🌙 오늘 밤, 당신은 당직 의사입니다.</h2>
+        <h2>🌙 야간 근무 안내</h2>
 
-        <div style="color:#2f4650;">
-        병원에 낯선 환자들이 찾아오기 시작했습니다.
-
-        <br><br>
-
-        데스크에서 환자의 <b>얼굴을 자세히 확인</b>하고
-        병원 안으로 들일지 판단하세요.
+        오늘 밤 당신은 병원의 당직 의사입니다.
 
         <br><br>
 
-        정상 환자는 진료실에서 검사하고,
-        필요한 물품을 직접 준비하여 적용해야 합니다.
+        병원 데스크에 환자들이 한 명씩 찾아옵니다.
 
         <br><br>
 
-        그러나 얼굴에 이상한 변칙이 있는 환자를
-        병원 안으로 들여서는 안 됩니다.
-        </div>
+        환자의 <b>얼굴을 자세히 관찰</b>한 뒤
+        병원 안으로 들일지 출입을 막을지 판단하세요.
+
+        <br><br>
+
+        정상 환자를 병원 안으로 들이면
+        진료실에서 검사를 실시할 수 있습니다.
+
+        <br><br>
+
+        검사 결과 필요한 물품 두 가지를 확인한 뒤,
+        병원 지도를 이용해 물품실로 이동하고
+        필요한 물품을 직접 가져오세요.
+
+        <br><br>
+
+        다시 진료실로 돌아와 인벤토리에서
+        올바른 두 물품을 선택하면 환자 처치가 완료됩니다.
 
         </div>
         """,
         unsafe_allow_html=True
     )
 
-    render_night_window()
 
     st.write("")
 
-    if st.button("🌙 당직 시작", use_container_width=True):
+
+    if st.button(
+        "🌙 야간 근무 시작",
+        use_container_width=True
+    ):
+
         initialize_game()
+
         st.rerun()
 
 
-# =========================================================
-# 18. 게임 종료
-# =========================================================
+# ============================================================
+# 17. 게임 종료
+# ============================================================
 
 elif st.session_state.game_over:
-    score = st.session_state.score
 
-    if score >= 900:
+    final_score = st.session_state.score
+
+
+    if final_score >= 900:
+
         grade = "S"
-    elif score >= 650:
+
+
+    elif final_score >= 650:
+
         grade = "A"
-    elif score >= 400:
+
+
+    elif final_score >= 400:
+
         grade = "B"
+
+
     else:
+
         grade = "C"
+
 
     st.markdown(
         f"""
-        <div class="panel" style="text-align:center;">
-        <h2 style="color:#233942;">🌅 당직 종료</h2>
+        <div class="panel"
+        style="text-align:center;">
 
-        <div style="
-        font-size:85px;
+        <h2>🌅 야간 근무 종료</h2>
+
+        <div
+        style="
+        font-size:90px;
         font-weight:900;
-        color:#527e91;
+        color:#557f91;
+        margin-top:15px;
+        margin-bottom:15px;
         ">
         {grade}
         </div>
 
-        <h2 style="color:#233942;">최종 점수 : {score}</h2>
+        <h2>
+        최종 점수 : {final_score}
+        </h2>
+
         </div>
         """,
         unsafe_allow_html=True
     )
 
-    render_night_window()
 
-    if st.button("🔄 다시 시작", use_container_width=True):
+    st.write("")
+
+
+    if st.button(
+        "🔄 다시 시작",
+        use_container_width=True
+    ):
+
         initialize_game()
+
         st.rerun()
 
 
-# =========================================================
-# 19. 게임 플레이
-# =========================================================
+# ============================================================
+# 18. 게임 플레이
+# ============================================================
 
 else:
+
     patient = current_patient()
 
-    # 상단 상태바
-    s1, s2, s3, s4 = st.columns([1, 1, 1, 1])
 
-    with s1:
-        st.markdown(
-            f"""
-            <div class="status-card">
-            PATIENT<br>
-            <b>{st.session_state.patient_number + 1}/{len(PATIENTS)}</b>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+    # ========================================================
+    # 상단 상태 표시
+    # ========================================================
 
-    with s2:
-        st.markdown(
-            f"""
-            <div class="status-card">
-            SCORE<br>
-            <b>{st.session_state.score}</b>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-    with s3:
-        hearts = "❤️" * st.session_state.lives
-        st.markdown(
-            f"""
-            <div class="status-card">
-            LIFE<br>
-            {hearts}
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-    with s4:
-        with st.popover("🗺️ 병원 지도", use_container_width=True):
-            st.markdown("### 🏥 병원 내부 지도")
-
-            st.markdown('<div class="map-room">🖥️ 데스크</div>', unsafe_allow_html=True)
-            if st.button("데스크로 이동", key="map_desk"):
-                move_room("데스크")
-                st.rerun()
-
-            st.markdown("↓")
-
-            c1, c2 = st.columns(2)
-
-            with c1:
-                st.markdown('<div class="map-room">🛏️ 진료실</div>', unsafe_allow_html=True)
-                if st.button("진료실로 이동", key="map_treatment"):
-                    move_room("진료실")
-                    st.rerun()
-
-            with c2:
-                st.markdown('<div class="map-room">📦 물품실</div>', unsafe_allow_html=True)
-                if st.button("물품실로 이동", key="map_supply"):
-                    move_room("물품실")
-                    st.rerun()
-
-    # 현재 위치 + 야간 창문
-    loc_col, window_col = st.columns([2.2, 1])
-
-    with loc_col:
-        st.markdown(
-            f"""
-            <div class="location-box">
-            📍 현재 위치 : <b>{st.session_state.location}</b>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-    with window_col:
-        render_night_window()
-
-    # 인벤토리
-    inventory_text = " · ".join(st.session_state.inventory) if st.session_state.inventory else "비어 있음"
-
-    st.markdown(
-        f"""
-        <div class="inventory">
-        🎒 <b>INVENTORY</b>&nbsp;&nbsp; {inventory_text}
-        </div>
-        """,
-        unsafe_allow_html=True
+    s1, s2, s3, s4 = st.columns(
+        [1, 1, 1, 1]
     )
 
-    # 메시지
-    if st.session_state.message:
-        st.info(st.session_state.message)
 
-    # =====================================================
-    # 데스크
-    # =====================================================
+    with s1:
 
-    if st.session_state.location == "데스크":
-        st.markdown("## 🖥️ 병원 데스크")
-        st.caption("환자의 얼굴만 보고 병원 안으로 들일지 판단하세요.")
+        st.markdown(
+            f"""
+            <div class="status-card">
 
-        show_patient(patient)
+            PATIENT<br>
 
-        if not st.session_state.patient_admitted and not st.session_state.completed:
-            st.write("")
-            b1, b2 = st.columns(2)
+            <b>
+            {st.session_state.patient_number + 1}
+            /
+            {len(PATIENTS)}
+            </b>
 
-            with b1:
-                if st.button("🏥 병원 안으로 들인다", use_container_width=True):
-                    desk_decision("admit")
-                    st.rerun()
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
-            with b2:
-                if st.button("🚨 출입을 막는다", use_container_width=True):
-                    desk_decision("block")
-                    st.rerun()
 
-        if st.session_state.completed and patient["anomaly"]:
+    with s2:
+
+        st.markdown(
+            f"""
+            <div class="status-card">
+
+            SCORE<br>
+
+            <b>
+            {st.session_state.score}
+            </b>
+
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+
+    with s3:
+
+        hearts = (
+            "❤️"
+            *
+            st.session_state.lives
+        )
+
+        st.markdown(
+            f"""
+            <div class="status-card">
+
+            LIFE<br>
+
+            {hearts}
+
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+
+    # ========================================================
+    # 병원 지도
+    # ========================================================
+
+    with s4:
+
+        with st.popover(
+            "🗺️ 병원 지도",
+            use_container_width=True
+        ):
+
             st.markdown(
-                f"""
-                <div class="success-box">
-                <b>🚨 변칙 환자 차단 완료</b><br><br>
-                {patient.get("anomaly_reason", "사진 속 변칙을 발견했습니다.")}
+                "### 🏥 병원 내부 지도"
+            )
+
+
+            # 데스크
+            st.markdown(
+                """
+                <div class="map-room">
+                🖥️ 데스크
                 </div>
                 """,
                 unsafe_allow_html=True
             )
 
-            if st.button("다음 환자 →", use_container_width=True):
-                next_patient()
+
+            if st.button(
+                "데스크로 이동",
+                key="map_desk",
+                use_container_width=True
+            ):
+
+                move_room(
+                    "데스크"
+                )
+
                 st.rerun()
 
-    # =====================================================
-    # 진료실
-    # =====================================================
+
+            st.markdown(
+                "↓"
+            )
+
+
+            room1, room2 = st.columns(2)
+
+
+            # 진료실
+            with room1:
+
+                st.markdown(
+                    """
+                    <div class="map-room">
+                    🛏️ 진료실
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+
+                if st.button(
+                    "진료실로 이동",
+                    key="map_treatment",
+                    use_container_width=True
+                ):
+
+                    move_room(
+                        "진료실"
+                    )
+
+                    st.rerun()
+
+
+            # 물품실
+            with room2:
+
+                st.markdown(
+                    """
+                    <div class="map-room">
+                    📦 물품실
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+
+                if st.button(
+                    "물품실로 이동",
+                    key="map_supply",
+                    use_container_width=True
+                ):
+
+                    move_room(
+                        "물품실"
+                    )
+
+                    st.rerun()
+
+
+    # ========================================================
+    # 현재 위치
+    # ========================================================
+
+    st.markdown(
+        f"""
+        <div class="location-box">
+
+        📍 현재 위치 :
+        <b>{st.session_state.location}</b>
+
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+    # ========================================================
+    # 인벤토리
+    # ========================================================
+
+    if st.session_state.inventory:
+
+        inventory_text = " · ".join(
+            st.session_state.inventory
+        )
+
+
+    else:
+
+        inventory_text = "비어 있음"
+
+
+    st.markdown(
+        f"""
+        <div class="inventory">
+
+        🎒 <b>INVENTORY</b>
+
+        &nbsp;&nbsp;
+
+        {inventory_text}
+
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+    # ========================================================
+    # 상태 메시지
+    # ========================================================
+
+    if st.session_state.message:
+
+        st.info(
+            st.session_state.message
+        )
+
+
+    # ========================================================
+    # 🖥️ 데스크
+    # ========================================================
+
+    if st.session_state.location == "데스크":
+
+        st.markdown(
+            "## 🖥️ 병원 데스크"
+        )
+
+
+        st.caption(
+            "환자의 얼굴만 보고 병원 안으로 들일지 판단하세요."
+        )
+
+
+        # 환자 얼굴
+        show_patient(
+            patient
+        )
+
+
+        # ----------------------------------------------------
+        # 아직 판단하지 않은 경우
+        # ----------------------------------------------------
+
+        if (
+            not st.session_state.patient_admitted
+            and
+            not st.session_state.completed
+        ):
+
+            st.write("")
+
+
+            decision1, decision2 = st.columns(
+                2
+            )
+
+
+            with decision1:
+
+                if st.button(
+                    "🏥 병원 안으로 들인다",
+                    use_container_width=True
+                ):
+
+                    desk_decision(
+                        "admit"
+                    )
+
+                    st.rerun()
+
+
+            with decision2:
+
+                if st.button(
+                    "🚨 출입을 막는다",
+                    use_container_width=True
+                ):
+
+                    desk_decision(
+                        "block"
+                    )
+
+                    st.rerun()
+
+
+        # ----------------------------------------------------
+        # 변칙 환자 차단 성공
+        # ----------------------------------------------------
+
+        if (
+            st.session_state.completed
+            and
+            patient["anomaly"]
+        ):
+
+            st.markdown(
+                f"""
+                <div class="success-box">
+
+                <b>
+                🚨 변칙 환자 차단 완료
+                </b>
+
+                <br><br>
+
+                {patient.get(
+                    "anomaly_reason",
+                    "얼굴에서 변칙을 발견했습니다."
+                )}
+
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+
+            if st.button(
+                "다음 환자 →",
+                use_container_width=True
+            ):
+
+                next_patient()
+
+                st.rerun()
+
+
+    # ========================================================
+    # 🛏️ 진료실
+    # ========================================================
 
     elif st.session_state.location == "진료실":
-        st.markdown("## 🛏️ 진료실")
+
+        st.markdown(
+            "## 🛏️ 진료실"
+        )
+
+
+        # ----------------------------------------------------
+        # 환자가 없는 경우
+        # ----------------------------------------------------
 
         if not st.session_state.patient_admitted:
-            st.warning("현재 진료실에 들어온 환자가 없습니다.")
+
+            st.warning(
+                "현재 진료실에 들어온 환자가 없습니다."
+            )
+
+
+        # ----------------------------------------------------
+        # 환자가 있는 경우
+        # ----------------------------------------------------
+
         else:
-            left, right = st.columns([1, 1.1])
 
-            with left:
-                show_patient(patient)
+            patient_col, info_col = st.columns(
+                [1, 1.05]
+            )
 
-            with right:
+
+            with patient_col:
+
+                show_patient(
+                    patient
+                )
+
+
+            with info_col:
+
                 st.markdown(
                     f"""
                     <div class="panel">
-                    <h3 style="color:#233942;">👤 환자 #{patient["id"]:02d}</h3>
 
-                    <div style="color:#304853;">
+                    <h3>
+                    👤 환자 #{patient["id"]:02d}
+                    </h3>
+
                     환자가 진료실에서 기다리고 있습니다.
 
                     <br><br>
 
-                    먼저 환자를 검사해 필요한 물품을 확인하세요.
-                    </div>
+                    <b>
+                    먼저 환자를 검사해 주세요.
+                    </b>
+
                     </div>
                     """,
                     unsafe_allow_html=True
                 )
 
+
+            # ------------------------------------------------
+            # 검사 전
+            # ------------------------------------------------
+
             if not st.session_state.examined:
-                if st.button("🔍 환자 검사", use_container_width=True):
+
+                st.write("")
+
+
+                if st.button(
+                    "🔍 환자 검사",
+                    use_container_width=True
+                ):
+
                     examine_patient()
+
                     st.rerun()
 
+
+            # ------------------------------------------------
+            # 검사 완료
+            # ------------------------------------------------
+
             else:
-                item1 = patient["items"][0]
-                item2 = patient["items"][1]
+
+                required_item1 = patient[
+                    "items"
+                ][0]
+
+                required_item2 = patient[
+                    "items"
+                ][1]
+
 
                 st.markdown(
                     f"""
                     <div class="exam-box">
-                    <b>🔍 검사 결과</b><br><br>
+
+                    <b>
+                    🔍 검사 결과
+                    </b>
+
+                    <br><br>
+
                     {patient["exam_text"]}
 
                     <br><br>
 
-                    <b>필요한 물품</b><br><br>
-                    ① {item1}<br>
-                    ② {item2}
+                    <b>
+                    필요한 물품
+                    </b>
+
+                    <br><br>
+
+                    ① {required_item1}
+
+                    <br>
+
+                    ② {required_item2}
+
                     </div>
                     """,
                     unsafe_allow_html=True
                 )
 
+
+                # --------------------------------------------
+                # 이미 치료 완료
+                # --------------------------------------------
+
                 if st.session_state.completed:
+
                     st.markdown(
                         """
                         <div class="success-box">
-                        ✅ 환자 진료가 완료되었습니다.
+
+                        ✅ 환자 처치가 완료되었습니다.
+
                         </div>
                         """,
                         unsafe_allow_html=True
                     )
 
-                    if st.button("다음 환자 →", use_container_width=True):
+
+                    if st.button(
+                        "다음 환자 →",
+                        use_container_width=True
+                    ):
+
                         next_patient()
+
                         st.rerun()
 
+
+                # --------------------------------------------
+                # 치료 전
+                # --------------------------------------------
+
                 else:
+
+                    st.write("")
+
+
                     if not st.session_state.inventory:
-                        st.warning("🎒 인벤토리가 비어 있습니다. 지도에서 물품실로 이동하세요.")
+
+                        st.warning(
+                            "🎒 현재 인벤토리가 비어 있습니다. "
+                            "위쪽 병원 지도에서 물품실로 이동하세요."
+                        )
+
+
                     else:
-                        st.markdown("### 🎒 환자에게 적용할 물품 선택")
+
+                        st.markdown(
+                            "### 🎒 환자에게 적용할 물품"
+                        )
+
 
                         selected_items = st.multiselect(
-                            "인벤토리에서 2개를 선택하세요.",
+                            "인벤토리에서 정확히 2개의 물품을 선택하세요.",
                             options=st.session_state.inventory,
                             max_selections=2
                         )
 
-                        if st.button("🩺 선택한 물품 적용", use_container_width=True):
-                            apply_items(selected_items)
+
+                        if st.button(
+                            "🩺 선택한 물품 적용",
+                            use_container_width=True
+                        ):
+
+                            apply_items(
+                                selected_items
+                            )
+
                             st.rerun()
 
-    # =====================================================
-    # 물품실
-    # =====================================================
+
+    # ========================================================
+    # 📦 물품실
+    # ========================================================
 
     elif st.session_state.location == "물품실":
-        st.markdown("## 📦 치료 물품실")
-        st.caption("필요하다고 생각하는 물품을 인벤토리에 담으세요.")
 
-        rows = [ALL_ITEMS[i:i + 3] for i in range(0, len(ALL_ITEMS), 3)]
+        st.markdown(
+            "## 📦 치료 물품실"
+        )
 
-        for row_index, row in enumerate(rows):
-            columns = st.columns(len(row))
 
-            for index, item in enumerate(row):
-                with columns[index]:
+        st.caption(
+            "검사 결과를 기억하고 필요한 물품을 직접 선택하세요."
+        )
+
+
+        # 물품을 3개씩 배치
+        item_rows = [
+
+            ALL_ITEMS[
+                i:i + 3
+            ]
+
+            for i in range(
+                0,
+                len(ALL_ITEMS),
+                3
+            )
+
+        ]
+
+
+        for row_number, row in enumerate(
+            item_rows
+        ):
+
+            columns = st.columns(
+                len(row)
+            )
+
+
+            for item_number, item in enumerate(
+                row
+            ):
+
+                with columns[
+                    item_number
+                ]:
+
                     st.markdown(
                         f"""
                         <div class="item-card">
-                        <div style="font-size:32px;">🧰</div>
-                        <br>
-                        <b>{item}</b>
+
+                        <div
+                        style="
+                        font-size:36px;
+                        margin-bottom:10px;
+                        ">
+                        🧰
+                        </div>
+
+                        <b>
+                        {item}
+                        </b>
+
                         </div>
                         """,
                         unsafe_allow_html=True
                     )
 
-                    if st.button("🎒 가져가기", key=f"item_{row_index}_{index}", use_container_width=True):
-                        add_item(item)
+
+                    if st.button(
+                        "🎒 가져가기",
+                        key=(
+                            f"item_"
+                            f"{row_number}_"
+                            f"{item_number}"
+                        ),
+                        use_container_width=True
+                    ):
+
+                        add_item(
+                            item
+                        )
+
                         st.rerun()
