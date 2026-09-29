@@ -1,4 +1,6 @@
 import streamlit as st
+import random
+from pathlib import Path
 
 
 # ============================================================
@@ -6,8 +8,8 @@ import streamlit as st
 # ============================================================
 
 st.set_page_config(
-    page_title="BBB PASS LAB",
-    page_icon="🧠",
+    page_title="NEURO CHECK-IN",
+    page_icon="🏥",
     layout="wide"
 )
 
@@ -20,258 +22,230 @@ st.markdown(
     """
 <style>
 
-/* 전체 기본 글꼴 */
-html, body, [class*="css"], .stApp {
-    font-family: "Trebuchet MS", "Arial Rounded MT Bold", "Malgun Gothic", sans-serif;
-}
-
 /* 전체 배경 */
 .stApp {
     background:
         linear-gradient(
             135deg,
-            #f7fbff 0%,
-            #eef5ff 45%,
-            #f7f5ff 100%
+            #101821 0%,
+            #17232f 45%,
+            #0c141c 100%
         );
 }
 
-/* 본문 크기 */
+/* 전체 본문 */
 .block-container {
-    max-width: 1150px;
+    max-width: 1100px;
     padding-top: 2.5rem;
     padding-bottom: 4rem;
 }
 
+
 /* 상단 작은 글씨 */
-.top-label {
+.game-label {
     text-align: center;
-    color: #6f7db7;
+    color: #6eb5c9;
+    letter-spacing: 5px;
     font-size: 13px;
-    letter-spacing: 4px;
     font-weight: 800;
     margin-bottom: 8px;
 }
 
+
 /* 메인 제목 */
-.main-title {
+.game-title {
     text-align: center;
-    color: #24345d;
-    font-size: 47px;
-    font-weight: 900;
-    margin-bottom: 8px;
-    letter-spacing: -1px;
-}
-
-/* 부제목 */
-.subtitle {
-    text-align: center;
-    color: #73809c;
-    font-size: 16px;
-    margin-bottom: 28px;
-}
-
-/* 구분선 */
-.title-line {
-    width: 60px;
-    height: 3px;
-    background: #7586d9;
-    border-radius: 10px;
-    margin: 0 auto 35px auto;
-}
-
-/* 기본 카드 */
-.info-card {
-    background: rgba(255,255,255,0.94);
-    border: 1px solid #dae3f7;
-    border-radius: 18px;
-    padding: 22px;
-    box-shadow: 0 8px 25px rgba(63, 86, 140, 0.08);
-    margin-bottom: 15px;
-}
-
-/* 상단 소개 박스 - 밝은 노란색 */
-.intro-box {
-    background: #fff9d9;
-    border-left: 6px solid #f1d65c;
-    border-radius: 14px;
-    padding: 20px 22px;
-    line-height: 1.9;
-    color: #5d5a35;
-    margin-top: 18px;
-    margin-bottom: 14px;
-}
-
-/* 결과 카드 */
-.result-card {
-    background: white;
-    border: 1px solid #dbe3f6;
-    border-radius: 20px;
-    padding: 28px;
-    margin-top: 20px;
-    box-shadow: 0 10px 30px rgba(55, 76, 125, 0.09);
-}
-
-/* 결과 점수 */
-.score-number {
-    text-align: center;
-    font-size: 52px;
-    color: #3d4f99;
+    color: #f3f7f8;
+    font-size: 48px;
     font-weight: 900;
     margin-bottom: 5px;
 }
 
-/* 결과 등급 */
-.score-label {
+
+/* 부제목 */
+.game-subtitle {
     text-align: center;
-    color: #69769c;
-    font-size: 18px;
-    font-weight: 700;
+    color: #91a7b5;
+    font-size: 16px;
+    margin-bottom: 25px;
 }
 
-/* 좋은 요소 */
-.good-box {
-    background: #effaf5;
-    border-left: 5px solid #59a884;
+
+/* 경고선 */
+.warning-line {
+    width: 90px;
+    height: 3px;
+    margin: 0 auto 30px auto;
     border-radius: 10px;
-    padding: 16px 18px;
-    margin-top: 12px;
-    line-height: 1.8;
+    background: #bc4d5e;
 }
 
-/* 불리한 요소 */
-.bad-box {
-    background: #fff3f4;
-    border-left: 5px solid #cf7380;
-    border-radius: 10px;
-    padding: 16px 18px;
-    margin-top: 12px;
-    line-height: 1.8;
-}
 
-/* 비교 설명 박스 */
-.compare-box {
-    background: #f6f8ff;
-    border-left: 5px solid #798de3;
-    border-radius: 10px;
-    padding: 18px 20px;
-    line-height: 1.9;
-    margin-top: 16px;
-}
-
-/* 학습용 주의 박스 */
-.notice-box {
-    background: #fffbea;
-    border-left: 5px solid #d9b84f;
-    border-radius: 10px;
-    padding: 17px 20px;
-    line-height: 1.8;
-    margin-top: 18px;
-}
-
-/* BBB 그림 박스 */
-.diagram-wrap {
-    background: white;
-    border: 1px solid #dbe3f6;
+/* 시작 설명 박스 */
+.intro-box {
+    background: rgba(239, 247, 249, 0.96);
+    color: #233842;
     border-radius: 18px;
-    padding: 20px;
-    margin-top: 18px;
-    margin-bottom: 20px;
-    box-shadow: 0 8px 20px rgba(63, 86, 140, 0.06);
+    padding: 26px 30px;
+    line-height: 1.9;
+    border: 1px solid #85aeb9;
+    margin-bottom: 22px;
 }
 
-.diagram-title {
-    text-align: center;
-    color: #44558f;
-    font-weight: 800;
-    margin-bottom: 14px;
-    font-size: 18px;
+
+/* 근무 규칙 */
+.rule-box {
+    background: #172832;
+    color: #dce8eb;
+    border-left: 5px solid #d1a54b;
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin-top: 16px;
+    line-height: 1.8;
 }
 
-.diagram-row {
+
+/* 환자 카드 */
+.patient-card {
+    background: rgba(242, 247, 248, 0.98);
+    color: #23343d;
+    border-radius: 18px;
+    padding: 24px;
+    border: 1px solid #8fafba;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.28);
+}
+
+
+/* 환자 번호 */
+.case-number {
+    color: #3f7888;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 3px;
+}
+
+
+/* 환자 이름 */
+.patient-name {
+    font-size: 29px;
+    font-weight: 900;
+    color: #192c34;
+    margin-top: 7px;
+    margin-bottom: 17px;
+}
+
+
+/* 정보 */
+.patient-info {
+    background: #e8f0f2;
+    border-radius: 12px;
+    padding: 18px;
+    line-height: 1.9;
+    color: #354d57;
+}
+
+
+/* 기록 카드 */
+.record-box {
+    background: #f7f2df;
+    color: #514d38;
+    border: 1px solid #d9ce9d;
+    border-radius: 12px;
+    padding: 18px;
+    line-height: 1.9;
+    margin-top: 14px;
+}
+
+
+/* 이미지 없을 때 */
+.image-placeholder {
+    width: 100%;
+    min-height: 330px;
+    background:
+        linear-gradient(
+            145deg,
+            #d8e7eb,
+            #b9d0d7
+        );
+    border: 1px solid #91aab3;
+    border-radius: 18px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
+    justify-content: center;
+    color: #46626c;
+    font-size: 85px;
+    margin-bottom: 10px;
 }
 
-.diagram-box {
-    flex: 1;
-    min-width: 180px;
-    text-align: center;
-    padding: 16px;
-    border-radius: 14px;
-    font-weight: 700;
-    line-height: 1.7;
-}
 
-.blood-box {
-    background: #ffe7ea;
-    border: 2px solid #e39ca9;
-    color: #8b4350;
-}
-
-.bbb-box {
-    background: #e8f0ff;
-    border: 2px solid #9eb7ea;
-    color: #41598f;
-}
-
-.brain-box {
-    background: #e9f9ef;
-    border: 2px solid #9fd6af;
-    color: #427254;
-}
-
-.arrow-box {
-    font-size: 28px;
-    font-weight: 900;
-    color: #7685c5;
-    min-width: 40px;
-    text-align: center;
-}
-
-.diagram-note {
-    margin-top: 14px;
-    background: #f8faff;
+/* 결과 정답 */
+.correct-box {
+    background: #e8f7ef;
+    border-left: 6px solid #4b9a70;
+    color: #274a36;
     border-radius: 12px;
-    padding: 14px 16px;
+    padding: 20px;
     line-height: 1.8;
-    color: #5f6d8a;
+    margin-top: 20px;
 }
 
-/* 푸터 */
-.footer {
-    text-align: center;
-    color: #98a2b8;
-    font-size: 12px;
-    margin-top: 50px;
+
+/* 결과 오답 */
+.wrong-box {
+    background: #fbeaec;
+    border-left: 6px solid #bd5967;
+    color: #65343b;
+    border-radius: 12px;
+    padding: 20px;
+    line-height: 1.8;
+    margin-top: 20px;
 }
+
+
+/* 의료 설명 */
+.medical-box {
+    background: #eaf1fb;
+    border-left: 6px solid #668ab6;
+    color: #30485e;
+    border-radius: 12px;
+    padding: 20px;
+    line-height: 1.8;
+    margin-top: 14px;
+}
+
+
+/* 상태바 */
+.status-box {
+    background: rgba(224, 238, 241, 0.96);
+    border-radius: 14px;
+    padding: 15px;
+    text-align: center;
+    color: #243a42;
+    font-weight: 800;
+}
+
 
 /* 버튼 */
 .stButton > button {
     width: 100%;
-    height: 52px;
+    min-height: 53px;
     border-radius: 10px;
-    border: none;
-    background: #45599e;
-    color: white;
     font-weight: 800;
 }
 
-.stButton > button:hover {
-    background: #354781;
-    color: white;
-    border: none;
+
+/* 제목들 */
+h1, h2, h3 {
+    color: #edf5f7 !important;
 }
 
-/* metric 카드 */
-div[data-testid="stMetric"] {
-    background: white;
-    border: 1px solid #dce4f5;
-    border-radius: 14px;
-    padding: 17px;
+
+/* footer */
+.footer {
+    text-align: center;
+    color: #708894;
+    margin-top: 45px;
+    font-size: 12px;
 }
 
 </style>
@@ -281,842 +255,986 @@ div[data-testid="stMetric"] {
 
 
 # ============================================================
-# 3. 점수 계산 함수
+# 3. 게임에 사용할 환자 데이터
+# ============================================================
+#
+# anomaly가 True인 경우:
+# 실제 질환이 있어서가 아니라
+# "기록상 존재할 수 없는 오류"가 있는 가상의 변칙 환자입니다.
+#
+# 실제 질환이 있는 환자를 변칙으로 분류하지 않습니다.
 # ============================================================
 
-def calculate_bbb_score(
-    molecular_weight,
-    lipid_solubility,
-    polarity,
-    charge,
-    hydrogen_bond
-):
-    """
-    입력한 분자 특성을 바탕으로
-    BBB 통과에 유리한 정도를 0~100점으로 계산합니다.
+PATIENTS = [
 
-    이 점수는 실제 의학적 예측값이 아니라
-    학습용 단순 규칙 기반 모델입니다.
-    """
+    {
+        "id": 1,
 
-    score = 0
+        "name": "환자 A",
 
-    # ① 분자량
-    if molecular_weight <= 400:
-        score += 25
-    elif molecular_weight <= 500:
-        score += 18
-    elif molecular_weight <= 600:
-        score += 8
-    else:
-        score += 0
+        "age": 54,
 
-    # ② 지용성
-    if lipid_solubility == "중간":
-        score += 20
-    elif lipid_solubility == "높음":
-        score += 15
-    elif lipid_solubility == "낮음":
-        score += 5
+        "image": "images/patient01.png",
 
-    # ③ 극성
-    if polarity == "낮음":
-        score += 20
-    elif polarity == "중간":
-        score += 10
-    elif polarity == "높음":
-        score += 0
+        "symptom": "갑자기 시작된 심한 두통",
 
-    # ④ 전하
-    if charge == "전하 없음":
-        score += 20
-    elif charge == "전하 있음":
-        score += 0
+        "consciousness": "명료",
 
-    # ⑤ 수소 결합 가능성
-    if hydrogen_bond == "낮음":
-        score += 15
-    elif hydrogen_bond == "중간":
-        score += 8
-    elif hydrogen_bond == "높음":
-        score += 0
+        "exam": "신경학적 평가 및 영상검사 예정",
 
-    return score
+        "record":
+            "접수 번호 N-2104 / 환자 팔찌 N-2104",
+
+        "action": "진료실 입장",
+
+        "anomaly": False,
+
+        "answer_explanation":
+            "접수 기록과 환자 정보에 변칙적인 오류가 없습니다. "
+            "증상이 있으므로 의료진의 평가를 받을 수 있도록 진료실로 보내야 합니다.",
+
+        "medical":
+            "갑작스러운 심한 두통은 여러 원인과 관련될 수 있으므로 의료진의 평가가 필요합니다. "
+            "이 게임에서는 질환을 직접 진단하지 않고, 적절한 진료 과정으로 연결하는 것을 학습합니다."
+    },
+
+
+    {
+        "id": 2,
+
+        "name": "환자 B",
+
+        "age": 38,
+
+        "image": "images/patient02.png",
+
+        "symptom": "두통과 어지럼증",
+
+        "consciousness": "명료",
+
+        "exam": "추가 문진 필요",
+
+        "record":
+            "접수 번호 N-3817 / 환자 팔찌 N-3187",
+
+        "action": "변칙 차단",
+
+        "anomaly": True,
+
+        "answer_explanation":
+            "접수 기록의 번호는 N-3817인데 환자 팔찌에는 N-3187이 적혀 있습니다. "
+            "환자 확인 정보가 일치하지 않는 변칙 기록입니다.",
+
+        "medical":
+            "실제 의료기관에서도 환자 확인은 매우 중요합니다. "
+            "이름이나 등록번호 같은 정보를 확인하는 과정은 환자 안전과 연결됩니다."
+    },
+
+
+    {
+        "id": 3,
+
+        "name": "환자 C",
+
+        "age": 17,
+
+        "image": "images/patient03.png",
+
+        "symptom": "반복되는 두통",
+
+        "consciousness": "명료",
+
+        "exam": "초기 문진 정보 부족",
+
+        "record":
+            "통증 위치와 발생 시간에 대한 정보가 기록되지 않음",
+
+        "action": "추가 검사",
+
+        "anomaly": False,
+
+        "answer_explanation":
+            "환자의 정보 자체에는 변칙이 없지만 증상에 대한 정보가 부족합니다. "
+            "바로 분류하기보다 추가 확인이 필요합니다.",
+
+        "medical":
+            "환자 평가에서는 증상이 언제 시작됐는지, 어디가 아픈지, 얼마나 지속되는지 등 "
+            "구체적인 정보를 확인하는 과정이 중요합니다."
+    },
+
+
+    {
+        "id": 4,
+
+        "name": "환자 D",
+
+        "age": 63,
+
+        "image": "images/patient04.png",
+
+        "symptom": "보행이 불편하고 두통이 있음",
+
+        "consciousness": "명료",
+
+        "exam": "뇌 영상검사 자료 제출",
+
+        "record":
+            "기록 작성일: 2049년 11월 41일",
+
+        "action": "변칙 차단",
+
+        "anomaly": True,
+
+        "answer_explanation":
+            "기록 날짜가 존재할 수 없는 날짜인 '11월 41일'로 적혀 있습니다. "
+            "의료 기록 자체에 변칙이 있습니다.",
+
+        "medical":
+            "실제 의료 기록에서는 날짜, 환자 정보, 검사 결과가 정확하게 기록되어야 합니다. "
+            "기록 오류는 다른 환자의 자료와 혼동되는 문제를 만들 수 있습니다."
+    },
+
+
+    {
+        "id": 5,
+
+        "name": "환자 E",
+
+        "age": 72,
+
+        "image": "images/patient05.png",
+
+        "symptom": "최근 기억력이 저하된 것 같다고 호소",
+
+        "consciousness": "명료",
+
+        "exam": "신경인지 평가 예정",
+
+        "record":
+            "접수 정보 및 환자 팔찌 일치",
+
+        "action": "진료실 입장",
+
+        "anomaly": False,
+
+        "answer_explanation":
+            "기록에서 이상한 점은 발견되지 않았습니다. "
+            "증상에 대한 적절한 평가가 필요하므로 진료실로 안내합니다.",
+
+        "medical":
+            "기억력 변화에는 여러 원인이 있을 수 있습니다. "
+            "실제 의료에서는 문진과 인지기능 평가 등을 통해 원인을 확인합니다."
+    },
+
+
+    {
+        "id": 6,
+
+        "name": "환자 F",
+
+        "age": 45,
+
+        "image": "images/patient06.png",
+
+        "symptom": "팔의 감각이 평소와 다름",
+
+        "consciousness": "명료",
+
+        "exam": "신경학적 검사 필요",
+
+        "record":
+            "접수 시간 02:21 / 퇴원 시간 01:43",
+
+        "action": "변칙 차단",
+
+        "anomaly": True,
+
+        "answer_explanation":
+            "접수하기도 전에 퇴원한 것으로 기록되어 있어 시간 순서가 맞지 않습니다.",
+
+        "medical":
+            "의료 기록에서는 검사, 처치, 입퇴원 과정의 시간 순서가 정확해야 합니다. "
+            "기록의 시간 정보도 중요한 확인 요소입니다."
+    },
+
+
+    {
+        "id": 7,
+
+        "name": "환자 G",
+
+        "age": 28,
+
+        "image": "images/patient07.png",
+
+        "symptom": "목 부위 불편감과 손 저림",
+
+        "consciousness": "명료",
+
+        "exam": "증상 범위 확인 필요",
+
+        "record":
+            "손 저림이 어느 손에서 나타나는지 기록되지 않음",
+
+        "action": "추가 검사",
+
+        "anomaly": False,
+
+        "answer_explanation":
+            "기록에 변칙적인 오류는 없지만 어느 쪽 손에 증상이 있는지 등 "
+            "판단에 필요한 정보가 부족합니다.",
+
+        "medical":
+            "신경계 증상을 평가할 때는 어느 부위에 증상이 나타나는지, "
+            "한쪽인지 양쪽인지 등을 확인하는 과정이 중요합니다."
+    },
+
+
+    {
+        "id": 8,
+
+        "name": "환자 H",
+
+        "age": 31,
+
+        "image": "images/patient08.png",
+
+        "symptom": "지속적인 어지럼증",
+
+        "consciousness": "명료",
+
+        "exam": "진료 대기",
+
+        "record":
+            "환자 사진 파일명: patient_H / 기록상 사진 파일명: patient_Q",
+
+        "action": "변칙 차단",
+
+        "anomaly": True,
+
+        "answer_explanation":
+            "환자 사진과 기록에 연결된 사진 파일명이 서로 다릅니다. "
+            "다른 환자의 기록일 가능성이 있는 변칙입니다.",
+
+        "medical":
+            "검사 영상이나 환자 사진을 다른 환자의 기록과 잘못 연결하면 "
+            "심각한 오류가 발생할 수 있어 정확한 환자 확인이 중요합니다."
+    },
+
+
+    {
+        "id": 9,
+
+        "name": "환자 I",
+
+        "age": 14,
+
+        "image": "images/patient09.png",
+
+        "symptom": "운동 후 일시적인 두통",
+
+        "consciousness": "명료",
+
+        "exam": "보호자와 함께 방문",
+
+        "record":
+            "기본 정보 정상 / 추가 문진 예정",
+
+        "action": "진료실 입장",
+
+        "anomaly": False,
+
+        "answer_explanation":
+            "기록에서 변칙은 발견되지 않았습니다. "
+            "증상에 대해 의료진이 평가할 수 있도록 진료실로 안내합니다.",
+
+        "medical":
+            "같은 두통이라도 발생 상황과 지속 시간 등 여러 정보를 함께 확인해야 합니다."
+    },
+
+
+    {
+        "id": 10,
+
+        "name": "환자 J",
+
+        "age": 59,
+
+        "image": "images/patient10.png",
+
+        "symptom": "최근 균형을 잡기 어렵다고 느낌",
+
+        "consciousness": "명료",
+
+        "exam": "신경학적 평가 예정",
+
+        "record":
+            "나이: 59세 / 출생연도: 2019년",
+
+        "action": "변칙 차단",
+
+        "anomaly": True,
+
+        "answer_explanation":
+            "현재 나이와 출생연도가 서로 맞지 않습니다. "
+            "환자 기본 정보가 논리적으로 일치하지 않는 변칙입니다.",
+
+        "medical":
+            "환자의 나이, 생년월일 같은 기본 정보는 검사 결과와 진료 기록을 "
+            "정확한 사람에게 연결하기 위해 반드시 확인해야 합니다."
+    }
+
+]
 
 
 # ============================================================
-# 4. 점수에 따른 등급 함수
+# 4. 게임 상태 초기화 함수
 # ============================================================
 
-def classify_score(score):
+def initialize_game():
 
-    if score >= 80:
-        return "통과에 매우 유리한 조건", "🟢"
-    elif score >= 60:
-        return "통과에 비교적 유리한 조건", "🟡"
-    elif score >= 40:
-        return "통과 여부가 제한적인 조건", "🟠"
-    else:
-        return "통과에 불리한 조건", "🔴"
-
-
-# ============================================================
-# 5. 요인 분석 함수
-# ============================================================
-
-def analyze_factors(
-    molecular_weight,
-    lipid_solubility,
-    polarity,
-    charge,
-    hydrogen_bond
-):
-
-    favorable = []
-    unfavorable = []
-
-    # 분자량
-    if molecular_weight <= 500:
-        favorable.append(
-            "분자량이 비교적 작아 혈뇌장벽의 세포막을 통과하는 데 상대적으로 유리합니다."
-        )
-    else:
-        unfavorable.append(
-            "분자량이 커질수록 세포막을 직접 통과하기 어려워 혈뇌장벽 통과에 불리할 수 있습니다."
-        )
-
-    # 지용성
-    if lipid_solubility in ["중간", "높음"]:
-        favorable.append(
-            "지용성이 있어 혈뇌장벽을 이루는 지질성 세포막을 통과하는 데 상대적으로 유리합니다."
-        )
-    else:
-        unfavorable.append(
-            "지용성이 낮아 지질막을 통한 수동 확산에 불리할 수 있습니다."
-        )
-
-    # 극성
-    if polarity == "낮음":
-        favorable.append(
-            "극성이 낮아 물보다는 지질막을 통과하는 방향에 조금 더 유리합니다."
-        )
-    elif polarity == "높음":
-        unfavorable.append(
-            "극성이 높으면 물과 잘 상호작용하므로 지질성 막을 직접 통과하기 어려울 수 있습니다."
-        )
-
-    # 전하
-    if charge == "전하 없음":
-        favorable.append(
-            "전하를 띠지 않아 세포막 내부의 소수성 환경을 통과하는 데 상대적으로 유리합니다."
-        )
-    else:
-        unfavorable.append(
-            "전하를 띤 분자는 막 내부로 들어가기 어려워 혈뇌장벽 통과에 불리할 수 있습니다."
-        )
-
-    # 수소 결합
-    if hydrogen_bond == "낮음":
-        favorable.append(
-            "수소 결합 가능성이 낮아 물 분자와의 상호작용이 상대적으로 적어 막 투과에 유리할 수 있습니다."
-        )
-    elif hydrogen_bond == "높음":
-        unfavorable.append(
-            "수소 결합 가능성이 높으면 물과 더 강하게 상호작용하여 지질막을 통과하는 데 불리할 수 있습니다."
-        )
-
-    return favorable, unfavorable
-
-
-# ============================================================
-# 6. 비교 설명 함수
-# ============================================================
-
-def compare_molecules_detail(
-    name_a,
-    weight_a,
-    lipid_a,
-    polarity_a,
-    charge_a,
-    hydrogen_a,
-    name_b,
-    weight_b,
-    lipid_b,
-    polarity_b,
-    charge_b,
-    hydrogen_b
-):
-    """
-    두 분자를 항목별로 비교해서
-    왜 한 분자가 더 유리한지 설명합니다.
-    """
-
-    reasons_a = []
-    reasons_b = []
-
-    # 분자량 비교
-    if weight_a < weight_b:
-        reasons_a.append(
-            f"분자량이 더 작습니다 ({weight_a} Da < {weight_b} Da). 일반적으로 더 작은 분자가 막 통과에 상대적으로 유리합니다."
-        )
-    elif weight_b < weight_a:
-        reasons_b.append(
-            f"분자량이 더 작습니다 ({weight_b} Da < {weight_a} Da). 일반적으로 더 작은 분자가 막 통과에 상대적으로 유리합니다."
-        )
-
-    # 지용성 비교
-    lipid_rank = {"낮음": 1, "중간": 3, "높음": 2}
-    if lipid_rank[lipid_a] > lipid_rank[lipid_b]:
-        reasons_a.append(
-            f"지용성 조건이 더 유리합니다 ({lipid_a}). 지질성 세포막을 통과하는 데 상대적으로 도움이 됩니다."
-        )
-    elif lipid_rank[lipid_b] > lipid_rank[lipid_a]:
-        reasons_b.append(
-            f"지용성 조건이 더 유리합니다 ({lipid_b}). 지질성 세포막을 통과하는 데 상대적으로 도움이 됩니다."
-        )
-
-    # 극성 비교
-    polarity_rank = {"낮음": 3, "중간": 2, "높음": 1}
-    if polarity_rank[polarity_a] > polarity_rank[polarity_b]:
-        reasons_a.append(
-            f"극성이 더 낮습니다 ({polarity_a}). 극성이 낮은 분자는 지질막 투과에 상대적으로 유리합니다."
-        )
-    elif polarity_rank[polarity_b] > polarity_rank[polarity_a]:
-        reasons_b.append(
-            f"극성이 더 낮습니다 ({polarity_b}). 극성이 낮은 분자는 지질막 투과에 상대적으로 유리합니다."
-        )
-
-    # 전하 비교
-    charge_rank = {"전하 없음": 2, "전하 있음": 1}
-    if charge_rank[charge_a] > charge_rank[charge_b]:
-        reasons_a.append(
-            "전하를 띠지 않습니다. 전하가 없는 분자는 막 내부의 소수성 환경을 통과하는 데 상대적으로 유리합니다."
-        )
-    elif charge_rank[charge_b] > charge_rank[charge_a]:
-        reasons_b.append(
-            "전하를 띠지 않습니다. 전하가 없는 분자는 막 내부의 소수성 환경을 통과하는 데 상대적으로 유리합니다."
-        )
-
-    # 수소 결합 비교
-    hydrogen_rank = {"낮음": 3, "중간": 2, "높음": 1}
-    if hydrogen_rank[hydrogen_a] > hydrogen_rank[hydrogen_b]:
-        reasons_a.append(
-            f"수소 결합 가능성이 더 낮습니다 ({hydrogen_a}). 수소 결합 가능성이 낮을수록 막 투과에 유리할 수 있습니다."
-        )
-    elif hydrogen_rank[hydrogen_b] > hydrogen_rank[hydrogen_a]:
-        reasons_b.append(
-            f"수소 결합 가능성이 더 낮습니다 ({hydrogen_b}). 수소 결합 가능성이 낮을수록 막 투과에 유리할 수 있습니다."
-        )
-
-    return reasons_a, reasons_b
-
-
-# ============================================================
-# 7. 결과 출력 함수
-# ============================================================
-
-def show_result(
-    name,
-    molecular_weight,
-    lipid_solubility,
-    polarity,
-    charge,
-    hydrogen_bond
-):
-
-    score = calculate_bbb_score(
-        molecular_weight,
-        lipid_solubility,
-        polarity,
-        charge,
-        hydrogen_bond
+    patient_order = list(
+        range(len(PATIENTS))
     )
 
-    level, icon = classify_score(score)
+    # 게임을 시작할 때 환자 순서를 랜덤으로 섞음
+    random.shuffle(patient_order)
 
-    favorable, unfavorable = analyze_factors(
-        molecular_weight,
-        lipid_solubility,
-        polarity,
-        charge,
-        hydrogen_bond
-    )
+    st.session_state.patient_order = patient_order
+
+    st.session_state.current_case = 0
+
+    st.session_state.score = 0
+
+    st.session_state.lives = 3
+
+    st.session_state.answered = False
+
+    st.session_state.last_choice = None
+
+    st.session_state.game_started = True
+
+    st.session_state.game_over = False
+
+
+# ============================================================
+# 5. 다음 환자로 이동하는 함수
+# ============================================================
+
+def next_patient():
+
+    st.session_state.current_case += 1
+
+    st.session_state.answered = False
+
+    st.session_state.last_choice = None
+
+    # 모든 환자를 확인했거나 기회를 모두 사용한 경우
+    if (
+        st.session_state.current_case
+        >= len(st.session_state.patient_order)
+        or st.session_state.lives <= 0
+    ):
+
+        st.session_state.game_over = True
+
+
+# ============================================================
+# 6. 사용자 선택 확인 함수
+# ============================================================
+
+def check_answer(choice, patient):
+
+    # 이미 답을 선택했다면 중복 처리하지 않음
+    if st.session_state.answered:
+        return
+
+    st.session_state.last_choice = choice
+
+    st.session_state.answered = True
+
+
+    # 정답
+    if choice == patient["action"]:
+
+        if choice == "변칙 차단":
+            st.session_state.score += 150
+
+        elif choice == "추가 검사":
+            st.session_state.score += 120
+
+        else:
+            st.session_state.score += 100
+
+
+    # 오답
+    else:
+
+        st.session_state.lives -= 1
+
+
+# ============================================================
+# 7. 상단 게임 제목
+# ============================================================
+
+st.markdown(
+    '<div class="game-label">NIGHT SHIFT · NEUROLOGY UNIT</div>',
+    unsafe_allow_html=True
+)
+
+st.markdown(
+    '<div class="game-title">🏥 NEURO CHECK-IN</div>',
+    unsafe_allow_html=True
+)
+
+st.markdown(
+    '<div class="game-subtitle">야간 신경계 환자 접수실</div>',
+    unsafe_allow_html=True
+)
+
+st.markdown(
+    '<div class="warning-line"></div>',
+    unsafe_allow_html=True
+)
+
+
+# ============================================================
+# 8. 처음 실행할 때 Session State 준비
+# ============================================================
+
+if "game_started" not in st.session_state:
+
+    st.session_state.game_started = False
+
+
+if "game_over" not in st.session_state:
+
+    st.session_state.game_over = False
+
+
+# ============================================================
+# 9. 게임 시작 화면
+# ============================================================
+
+if not st.session_state.game_started:
 
     st.markdown(
-        f"""
-<div class="result-card">
-
-<div style="text-align:center; color:#7986a8; font-weight:700;">
-{name}
-</div>
-
-<div class="score-number">
-{score}
-</div>
-
-<div class="score-label">
-{icon} {level}
-</div>
-
-</div>
-""",
-        unsafe_allow_html=True
-    )
-
-    st.progress(score)
-
-    m1, m2, m3, m4, m5 = st.columns(5)
-
-    with m1:
-        st.metric("분자량", f"{molecular_weight} Da")
-    with m2:
-        st.metric("지용성", lipid_solubility)
-    with m3:
-        st.metric("극성", polarity)
-    with m4:
-        st.metric("전하", charge)
-    with m5:
-        st.metric("수소 결합", hydrogen_bond)
-
-    if favorable:
-        good_text = ""
-        for factor in favorable:
-            good_text += f"✓ {factor}<br>"
-
-        st.markdown(
-            f"""
-<div class="good-box">
-<b>🟢 BBB 통과에 상대적으로 유리한 요소</b><br><br>
-{good_text}
-</div>
-""",
-            unsafe_allow_html=True
-        )
-
-    if unfavorable:
-        bad_text = ""
-        for factor in unfavorable:
-            bad_text += f"• {factor}<br>"
-
-        st.markdown(
-            f"""
-<div class="bad-box">
-<b>🔴 BBB 통과에 상대적으로 불리한 요소</b><br><br>
-{bad_text}
-</div>
-""",
-            unsafe_allow_html=True
-        )
-
-    return score
-
-
-# ============================================================
-# 8. 공통 입력 함수
-# ============================================================
-
-def molecule_input(prefix):
-
-    name = st.text_input(
-        "분자 이름",
-        placeholder="예: 분자 A",
-        key=f"{prefix}_name"
-    )
-
-    molecular_weight = st.slider(
-        "⚖️ 분자량 (Da)",
-        min_value=100,
-        max_value=1000,
-        value=350,
-        step=10,
-        key=f"{prefix}_weight"
-    )
-
-    lipid_solubility = st.selectbox(
-        "💧 지용성",
-        ["선택하세요", "낮음", "중간", "높음"],
-        key=f"{prefix}_lipid"
-    )
-
-    polarity = st.selectbox(
-        "🧲 극성",
-        ["선택하세요", "낮음", "중간", "높음"],
-        key=f"{prefix}_polarity"
-    )
-
-    charge = st.selectbox(
-        "⚡ 전하",
-        ["선택하세요", "전하 없음", "전하 있음"],
-        key=f"{prefix}_charge"
-    )
-
-    hydrogen_bond = st.selectbox(
-        "🔗 수소 결합 가능성",
-        ["선택하세요", "낮음", "중간", "높음"],
-        key=f"{prefix}_hydrogen"
-    )
-
-    return (
-        name,
-        molecular_weight,
-        lipid_solubility,
-        polarity,
-        charge,
-        hydrogen_bond
-    )
-
-
-# ============================================================
-# 9. 입력값 검증 함수
-# ============================================================
-
-def validate_input(
-    name,
-    lipid_solubility,
-    polarity,
-    charge,
-    hydrogen_bond
-):
-
-    if not name.strip():
-        st.warning("⚠️ 분자 이름을 입력해 주세요.")
-        return False
-
-    if lipid_solubility == "선택하세요":
-        st.warning("⚠️ 지용성을 선택해 주세요.")
-        return False
-
-    if polarity == "선택하세요":
-        st.warning("⚠️ 극성을 선택해 주세요.")
-        return False
-
-    if charge == "선택하세요":
-        st.warning("⚠️ 전하 여부를 선택해 주세요.")
-        return False
-
-    if hydrogen_bond == "선택하세요":
-        st.warning("⚠️ 수소 결합 가능성을 선택해 주세요.")
-        return False
-
-    return True
-
-
-# ============================================================
-# 10. 상단 화면
-# ============================================================
-
-st.markdown(
-    '<div class="top-label">BLOOD-BRAIN BARRIER LEARNING LAB</div>',
-    unsafe_allow_html=True
-)
-
-st.markdown(
-    '<div class="main-title">🧠 BBB PASS LAB</div>',
-    unsafe_allow_html=True
-)
-
-st.markdown(
-    """
-<div class="subtitle">
-분자의 특성을 바꾸면서 혈뇌장벽 통과에 어떤 조건이 영향을 주는지 알아보는 교육용 시뮬레이터
-</div>
-""",
-    unsafe_allow_html=True
-)
-
-st.markdown(
-    '<div class="title-line"></div>',
-    unsafe_allow_html=True
-)
-
-
-# ============================================================
-# 11. 상단 프로그램 설명 박스
-# ============================================================
-
-st.markdown(
-    """
+        """
 <div class="intro-box">
 
-<b>📌 이 프로그램은 무엇인가요?</b><br><br>
+<b>📋 야간 근무 지침</b><br><br>
 
-이 프로그램은 <b>혈뇌장벽(BBB, Blood-Brain Barrier)</b>을 주제로,
-분자의 여러 특성에 따라 BBB 통과에 얼마나 유리한지 학습해 보는
-<b>교육용 시뮬레이터</b>입니다.
+당신은 오늘 밤 신경계 진료 병동의 접수 담당자입니다.
 
-사용자는 분자량, 지용성, 극성, 전하, 수소 결합 가능성을 입력하고
-그 결과를 점수와 설명으로 확인할 수 있습니다.
-또한 두 분자를 비교하여 <b>어떤 특성이 더 유리하게 작용하는지</b>도 볼 수 있습니다.
+그런데 현재 병원 전산 시스템에서
+<b>정체를 알 수 없는 기록 오류</b>가 발견되고 있습니다.
+
+환자의 사진, 접수 기록, 증상 정보를 자세히 확인하세요.
 
 <br><br>
 
-⚠️ 이 프로그램은 실제 약물 개발이나 임상 판단을 위한 예측 도구가 아니라,
-<b>혈뇌장벽과 분자 특성의 관계를 이해하기 위한 학습용 프로그램</b>입니다.
+정상적으로 진료가 필요한 환자는
+<b>🏥 진료실로 안내</b>하고,
 
-</div>
-""",
-    unsafe_allow_html=True
-)
+정보가 부족한 환자는
+<b>🔍 추가 검사</b>를 선택하세요.
 
+접수 기록에 존재할 수 없는 오류가 발견된다면
+<b>🚨 변칙 차단</b>을 선택해야 합니다.
 
-# ============================================================
-# 12. 탭 구성
-# 순서: BBB 원리 학습 → 분자 분석 → 두 분자 비교
-# ============================================================
-
-tab1, tab2, tab3 = st.tabs(
-    [
-        "📚 BBB 원리 학습",
-        "🔬 분자 분석",
-        "⚖️ 두 분자 비교"
-    ]
-)
-
-
-# ============================================================
-# TAB 1. BBB 원리 학습
-# ============================================================
-
-with tab1:
-
-    st.subheader("📚 혈뇌장벽과 분자 특성")
-
-    st.markdown(
-        """
-### 🧠 1. 혈뇌장벽(BBB)이란?
-
-혈뇌장벽은 혈액 속의 물질이 뇌 조직으로 들어가는 과정을 선택적으로 조절하는 장벽입니다.  
-뇌는 우리 몸에서 매우 중요한 기관이기 때문에, 모든 물질이 자유롭게 드나들면
-뇌의 환경이 쉽게 흔들릴 수 있습니다. 그래서 혈뇌장벽은 뇌를 보호하기 위해
-필요한 물질은 선별적으로 통과시키고, 해로운 물질이나 불필요한 물질은 제한합니다.
-
-혈뇌장벽은 주로 **모세혈관 내피세포**, 그 사이를 단단히 붙여 주는 **밀착연접(tight junction)**,
-그리고 주변의 **성상세포(astrocyte)** 등의 도움으로 유지됩니다.
-이 구조 덕분에 혈액 속 물질이 뇌로 무분별하게 들어가는 것이 어렵습니다.
-
-쉽게 말하면, 혈뇌장벽은 **뇌를 보호하는 엄격한 출입문**과 같습니다.
-
----
-"""
-    )
-
-    st.markdown(
-        """
-<div class="diagram-wrap">
-<div class="diagram-title">🖼️ 혈뇌장벽 간단 도식</div>
-
-<div class="diagram-row">
-    <div class="diagram-box blood-box">
-        혈액 속 물질<br>
-        산소, 영양소, 약물, 독성 물질
-    </div>
-    <div class="arrow-box">→</div>
-    <div class="diagram-box bbb-box">
-        혈뇌장벽(BBB)<br>
-        내피세포 + 밀착연접<br>
-        선택적으로 통과 조절
-    </div>
-    <div class="arrow-box">→</div>
-    <div class="diagram-box brain-box">
-        뇌 조직<br>
-        신경세포가 안정적으로 작동해야 하는 공간
-    </div>
-</div>
-
-<div class="diagram-note">
-BBB는 혈액 속 모든 물질을 뇌로 보내는 것이 아니라,
-일부는 통과시키고 일부는 막으면서 뇌의 내부 환경을 안정적으로 유지합니다.
-</div>
 </div>
 """,
         unsafe_allow_html=True
     )
 
+
     st.markdown(
         """
-### ⚖️ 2. 분자량과 BBB 통과
+<div class="rule-box">
 
-분자량은 분자의 크기를 어느 정도 나타내는 값입니다.  
-일반적으로 분자량이 너무 크면 혈뇌장벽을 이루는 세포막을 직접 통과하기 어려워집니다.
-즉, **작은 분자일수록 상대적으로 BBB 통과에 유리**한 경향이 있습니다.
+<b>⚠️ 중요 규칙</b><br><br>
 
----
+• 실제 질환이나 장애는 '변칙'이 아닙니다.<br>
 
-### 💧 3. 지용성과 BBB 통과
+• 변칙은 환자의 <b>기록, 번호, 날짜, 시간 등의 비정상적인 오류</b>를 의미합니다.<br>
 
-혈뇌장벽을 이루는 세포막은 지질 성분을 포함하고 있습니다.  
-그래서 어느 정도 **지용성(지방에 잘 섞이는 성질)**이 있는 분자는
-막을 통과하는 데 상대적으로 유리할 수 있습니다.
+• 환자의 증상만 보고 질병을 직접 진단하지 마세요.<br>
 
-하지만 지용성이 무조건 높다고 다 좋은 것은 아니고,
-이 프로그램에서는 학습용으로 **중간~높은 지용성**을 더 유리하게 반영했습니다.
+• 총 10명의 환자를 안전하게 분류하면 근무가 종료됩니다.<br>
 
----
+• 잘못 분류할 수 있는 기회는 총 3번입니다.
 
-### 🧲 4. 극성과 BBB 통과
-
-극성이 높은 분자는 물과 잘 상호작용합니다.  
-하지만 세포막은 지질성 구조이기 때문에,
-극성이 너무 높으면 막을 통과하는 것이 어려워질 수 있습니다.
-
-즉, **극성이 낮은 분자가 BBB를 직접 통과하는 데 상대적으로 유리**합니다.
-
----
-
-### ⚡ 5. 전하와 BBB 통과
-
-전하를 띠는 분자는 막 내부의 소수성 환경을 통과하기가 어렵습니다.  
-그래서 **전하를 띠지 않는 중성 분자**가
-BBB를 통한 수동 확산에 더 유리한 경우가 많습니다.
-
----
-
-### 🔗 6. 수소 결합 가능성과 BBB 통과
-
-수소 결합 가능성이 높은 분자는 주변의 물 분자와 더 강하게 상호작용할 수 있습니다.  
-이런 성질은 물 환경에서는 도움이 될 수 있지만,
-지질성 세포막을 직접 통과하는 데에는 불리하게 작용할 수 있습니다.
-
-즉, **수소 결합 가능성이 낮을수록 BBB 통과에 상대적으로 유리할 수 있습니다.**
-
----
-
-### 🚨 7. 실제 BBB는 더 복잡합니다
-
-실제 혈뇌장벽 통과는 이 프로그램에서 다루는 요소 외에도
-여러 조건의 영향을 받습니다.
-
-- 특정 운반체 단백질의 존재
-- 능동 수송
-- 배출 수송체
-- 분자의 정확한 구조
-- 단백질 결합 정도
-- 체내 대사
-
-따라서 이 프로그램의 결과는 **실제 의학적 예측이 아니라 학습용 참고 결과**입니다.
-"""
+</div>
+""",
+        unsafe_allow_html=True
     )
 
 
+    st.markdown("")
+
+    if st.button(
+        "🌙 야간 근무 시작",
+        use_container_width=True
+    ):
+
+        initialize_game()
+
+        st.rerun()
+
+
 # ============================================================
-# TAB 2. 단일 분자 분석
+# 10. 게임 진행 화면
 # ============================================================
 
-with tab2:
+elif (
+    st.session_state.game_started
+    and not st.session_state.game_over
+):
 
-    st.subheader("🔬 분자 특성 분석")
-    st.write("분자의 특성을 입력하고 BBB 통과에 유리한 정도를 확인해 보세요.")
+    # 현재 환자 불러오기
+    patient_index = st.session_state.patient_order[
+        st.session_state.current_case
+    ]
 
-    single_input = molecule_input("single")
+    patient = PATIENTS[
+        patient_index
+    ]
 
-    if st.button("🧠 BBB 조건 분석하기", key="single_button"):
 
-        (
-            name,
-            molecular_weight,
-            lipid_solubility,
-            polarity,
-            charge,
-            hydrogen_bond
-        ) = single_input
+    # --------------------------------------------------------
+    # 상태 표시
+    # --------------------------------------------------------
 
-        if validate_input(
-            name,
-            lipid_solubility,
-            polarity,
-            charge,
-            hydrogen_bond
-        ):
+    s1, s2, s3 = st.columns(3)
 
-            if molecular_weight >= 800:
-                st.info(
-                    "ℹ️ 매우 큰 분자에서는 단순한 물리화학적 특성만으로 BBB 통과를 설명하기 어렵습니다."
-                )
 
-            show_result(
-                name,
-                molecular_weight,
-                lipid_solubility,
-                polarity,
-                charge,
-                hydrogen_bond
+    with s1:
+
+        st.markdown(
+            f"""
+<div class="status-box">
+
+CASE<br>
+{st.session_state.current_case + 1} / {len(PATIENTS)}
+
+</div>
+""",
+            unsafe_allow_html=True
+        )
+
+
+    with s2:
+
+        st.markdown(
+            f"""
+<div class="status-box">
+
+SCORE<br>
+{st.session_state.score}
+
+</div>
+""",
+            unsafe_allow_html=True
+        )
+
+
+    with s3:
+
+        hearts = "❤️" * st.session_state.lives
+
+        st.markdown(
+            f"""
+<div class="status-box">
+
+남은 기회<br>
+{hearts}
+
+</div>
+""",
+            unsafe_allow_html=True
+        )
+
+
+    st.markdown("")
+
+
+    # --------------------------------------------------------
+    # 환자 정보 영역
+    # --------------------------------------------------------
+
+    image_col, info_col = st.columns(
+        [1, 1.15]
+    )
+
+
+    # --------------------------------------------------------
+    # 환자 이미지
+    # --------------------------------------------------------
+
+    with image_col:
+
+        image_path = Path(
+            patient["image"]
+        )
+
+
+        # 이미지가 실제로 존재하면 보여 줌
+        if image_path.exists():
+
+            st.image(
+                str(image_path),
+                use_container_width=True
             )
 
 
+        # 아직 이미지가 없으면 임시 환자 아이콘 표시
+        else:
+
+            st.markdown(
+                """
+<div class="image-placeholder">
+
+👤
+
+</div>
+""",
+                unsafe_allow_html=True
+            )
+
+            st.caption(
+                "환자 이미지 준비 중"
+            )
+
+
+    # --------------------------------------------------------
+    # 환자 기록
+    # --------------------------------------------------------
+
+    with info_col:
+
+        st.markdown(
+            f"""
+<div class="patient-card">
+
+<div class="case-number">
+PATIENT FILE · #{patient["id"]:02d}
+</div>
+
+<div class="patient-name">
+{patient["name"]}
+</div>
+
+<div class="patient-info">
+
+<b>나이</b><br>
+{patient["age"]}세
+
+<br><br>
+
+<b>주호소</b><br>
+{patient["symptom"]}
+
+<br><br>
+
+<b>의식 상태</b><br>
+{patient["consciousness"]}
+
+<br><br>
+
+<b>예정 검사 / 평가</b><br>
+{patient["exam"]}
+
+</div>
+
+<div class="record-box">
+
+<b>📁 접수 기록</b><br><br>
+
+{patient["record"]}
+
+</div>
+
+</div>
+""",
+            unsafe_allow_html=True
+        )
+
+
+    # --------------------------------------------------------
+    # 사용자가 아직 답하지 않은 경우
+    # --------------------------------------------------------
+
+    if not st.session_state.answered:
+
+        st.markdown("### 🔎 이 환자를 어떻게 처리하시겠습니까?")
+
+
+        b1, b2, b3 = st.columns(3)
+
+
+        with b1:
+
+            if st.button(
+                "🏥 진료실 입장",
+                use_container_width=True
+            ):
+
+                check_answer(
+                    "진료실 입장",
+                    patient
+                )
+
+                st.rerun()
+
+
+        with b2:
+
+            if st.button(
+                "🔍 추가 검사",
+                use_container_width=True
+            ):
+
+                check_answer(
+                    "추가 검사",
+                    patient
+                )
+
+                st.rerun()
+
+
+        with b3:
+
+            if st.button(
+                "🚨 변칙 차단",
+                use_container_width=True
+            ):
+
+                check_answer(
+                    "변칙 차단",
+                    patient
+                )
+
+                st.rerun()
+
+
+    # --------------------------------------------------------
+    # 사용자가 답을 선택한 후
+    # --------------------------------------------------------
+
+    else:
+
+        correct = (
+            st.session_state.last_choice
+            == patient["action"]
+        )
+
+
+        # 정답
+        if correct:
+
+            st.markdown(
+                f"""
+<div class="correct-box">
+
+<b>✅ 판단 성공</b><br><br>
+
+선택한 처리:
+<b>{st.session_state.last_choice}</b>
+
+<br><br>
+
+{patient["answer_explanation"]}
+
+</div>
+""",
+                unsafe_allow_html=True
+            )
+
+
+        # 오답
+        else:
+
+            st.markdown(
+                f"""
+<div class="wrong-box">
+
+<b>❌ 판단 실패</b><br><br>
+
+선택한 처리:
+<b>{st.session_state.last_choice}</b>
+
+<br><br>
+
+올바른 처리:
+<b>{patient["action"]}</b>
+
+<br><br>
+
+{patient["answer_explanation"]}
+
+</div>
+""",
+                unsafe_allow_html=True
+            )
+
+
+        # 의료 학습 설명
+        st.markdown(
+            f"""
+<div class="medical-box">
+
+<b>🧠 MEDICAL NOTE</b><br><br>
+
+{patient["medical"]}
+
+</div>
+""",
+            unsafe_allow_html=True
+        )
+
+
+        st.markdown("")
+
+
+        if st.button(
+            "다음 환자 →",
+            use_container_width=True
+        ):
+
+            next_patient()
+
+            st.rerun()
+
+
 # ============================================================
-# TAB 3. 두 분자 비교
+# 11. 게임 종료 화면
 # ============================================================
 
-with tab3:
+elif st.session_state.game_over:
 
-    st.subheader("⚖️ 두 분자의 조건 비교")
-    st.write(
-        "두 분자의 특성을 각각 입력하면 어떤 분자가 BBB 통과에 상대적으로 유리한지 비교할 수 있습니다."
+    st.markdown("## 🌅 야간 근무 종료")
+
+
+    score = st.session_state.score
+
+
+    # 점수에 따른 결과
+    if score >= 1100:
+
+        grade = "S"
+
+        message = (
+            "뛰어난 관찰력으로 대부분의 환자를 정확하게 분류했습니다."
+        )
+
+
+    elif score >= 800:
+
+        grade = "A"
+
+        message = (
+            "환자 정보와 기록을 꼼꼼하게 확인했습니다."
+        )
+
+
+    elif score >= 500:
+
+        grade = "B"
+
+        message = (
+            "몇 가지 기록을 놓쳤지만 근무를 무사히 마쳤습니다."
+        )
+
+
+    else:
+
+        grade = "C"
+
+        message = (
+            "환자 기록을 조금 더 세심하게 관찰할 필요가 있습니다."
+        )
+
+
+    st.markdown(
+        f"""
+<div class="patient-card" style="text-align:center;">
+
+<div class="case-number">
+NIGHT SHIFT REPORT
+</div>
+
+<div style="
+font-size:70px;
+font-weight:900;
+color:#315e6b;
+margin-top:15px;
+">
+{grade}
+</div>
+
+<div style="
+font-size:25px;
+font-weight:900;
+margin-bottom:20px;
+">
+최종 점수 {score}
+</div>
+
+<div style="
+line-height:1.8;
+color:#52656d;
+">
+{message}
+</div>
+
+</div>
+""",
+        unsafe_allow_html=True
     )
 
-    col1, col2 = st.columns(2)
 
-    with col1:
-        st.markdown("### 🅰️ 분자 A")
-        molecule_a = molecule_input("A")
+    st.markdown(
+        """
+<div class="medical-box">
 
-    with col2:
-        st.markdown("### 🅱️ 분자 B")
-        molecule_b = molecule_input("B")
+<b>📚 오늘의 근무에서 배운 점</b><br><br>
 
-    if st.button("⚖️ 두 분자 비교하기", key="compare_button"):
+환자 분류에서는 단순히 증상만 보는 것이 아니라,
+환자의 기본 정보와 기록이 서로 일치하는지 확인하는 과정도 중요합니다.
 
-        (
-            name_a,
-            weight_a,
-            lipid_a,
-            polarity_a,
-            charge_a,
-            hydrogen_a
-        ) = molecule_a
+또한 실제 질환이 있다는 이유로 환자를 '비정상'으로 판단해서는 안 되며,
+증상이 있는 환자는 의료진의 적절한 평가로 연결해야 합니다.
 
-        (
-            name_b,
-            weight_b,
-            lipid_b,
-            polarity_b,
-            charge_b,
-            hydrogen_b
-        ) = molecule_b
-
-        valid_a = validate_input(
-            name_a,
-            lipid_a,
-            polarity_a,
-            charge_a,
-            hydrogen_a
-        )
-
-        valid_b = validate_input(
-            name_b,
-            lipid_b,
-            polarity_b,
-            charge_b,
-            hydrogen_b
-        )
-
-        if valid_a and valid_b:
-
-            if name_a.strip() == name_b.strip():
-                st.warning("⚠️ 비교하기 쉽도록 서로 다른 분자 이름을 입력해 주세요.")
-            else:
-                score_a = calculate_bbb_score(
-                    weight_a,
-                    lipid_a,
-                    polarity_a,
-                    charge_a,
-                    hydrogen_a
-                )
-
-                score_b = calculate_bbb_score(
-                    weight_b,
-                    lipid_b,
-                    polarity_b,
-                    charge_b,
-                    hydrogen_b
-                )
-
-                st.markdown("---")
-                st.subheader("📊 비교 결과")
-
-                result1, result2 = st.columns(2)
-
-                with result1:
-                    level_a, icon_a = classify_score(score_a)
-                    st.metric(label=f"🅰️ {name_a}", value=f"{score_a}점")
-                    st.progress(score_a)
-                    st.caption(f"{icon_a} {level_a}")
-
-                with result2:
-                    level_b, icon_b = classify_score(score_b)
-                    st.metric(label=f"🅱️ {name_b}", value=f"{score_b}점")
-                    st.progress(score_b)
-                    st.caption(f"{icon_b} {level_b}")
-
-                reasons_a, reasons_b = compare_molecules_detail(
-                    name_a, weight_a, lipid_a, polarity_a, charge_a, hydrogen_a,
-                    name_b, weight_b, lipid_b, polarity_b, charge_b, hydrogen_b
-                )
-
-                if score_a > score_b:
-                    difference = score_a - score_b
-
-                    st.success(
-                        f"🧠 이 학습 모델에서는 **{name_a}**가 **{name_b}**보다 BBB 통과에 더 유리한 조건을 **{difference}점 더 많이** 갖고 있습니다."
-                    )
-
-                    reason_text = ""
-                    for reason in reasons_a:
-                        reason_text += f"✓ {reason}<br>"
-
-                    if reason_text == "":
-                        reason_text = "✓ 여러 조건이 조금씩 더 유리하게 작용했습니다.<br>"
-
-                    st.markdown(
-                        f"""
-<div class="compare-box">
-<b>왜 {name_a}가 더 잘 통과할 가능성이 높을까요?</b><br><br>
-{reason_text}
 </div>
 """,
-                        unsafe_allow_html=True
-                    )
+        unsafe_allow_html=True
+    )
 
-                elif score_b > score_a:
-                    difference = score_b - score_a
 
-                    st.success(
-                        f"🧠 이 학습 모델에서는 **{name_b}**가 **{name_a}**보다 BBB 통과에 더 유리한 조건을 **{difference}점 더 많이** 갖고 있습니다."
-                    )
+    st.markdown("")
 
-                    reason_text = ""
-                    for reason in reasons_b:
-                        reason_text += f"✓ {reason}<br>"
 
-                    if reason_text == "":
-                        reason_text = "✓ 여러 조건이 조금씩 더 유리하게 작용했습니다.<br>"
+    if st.button(
+        "🔄 다시 근무하기",
+        use_container_width=True
+    ):
 
-                    st.markdown(
-                        f"""
-<div class="compare-box">
-<b>왜 {name_b}가 더 잘 통과할 가능성이 높을까요?</b><br><br>
-{reason_text}
-</div>
-""",
-                        unsafe_allow_html=True
-                    )
+        initialize_game()
 
-                else:
-                    st.info("두 분자의 BBB 통과 조건 점수가 같습니다.")
-
-                    st.markdown(
-                        """
-<div class="compare-box">
-<b>왜 점수가 같을까요?</b><br><br>
-두 분자의 분자량, 지용성, 극성, 전하, 수소 결합 가능성이
-이 학습 모델에서 비슷한 수준으로 작용했기 때문입니다.
-</div>
-""",
-                        unsafe_allow_html=True
-                    )
+        st.rerun()
 
 
 # ============================================================
-# 13. Footer
+# 12. Footer
 # ============================================================
 
 st.markdown(
     """
 <div class="footer">
 
-BBB PASS LAB · BLOOD-BRAIN BARRIER LEARNING SIMULATOR<br><br>
+NEURO CHECK-IN · EDUCATIONAL HOSPITAL GAME<br><br>
 
-교육 목적으로 제작된 규칙 기반 학습 모델입니다.
+의학적 진단을 위한 프로그램이 아닌 교육용 게임입니다.
 
 </div>
 """,
