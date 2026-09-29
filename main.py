@@ -1,1951 +1,1348 @@
-import pygame
-import sys
+import streamlit as st
 import random
 from pathlib import Path
 
 
-# ============================================================
-# NEURO NIGHT SHIFT
-# 신경계 병원 야간 근무 게임
-# ============================================================
+# =========================================================
+# 1. 페이지 설정
+# =========================================================
 
-pygame.init()
-
-
-# ============================================================
-# 1. 기본 화면 설정
-# ============================================================
-
-WIDTH = 1200
-HEIGHT = 720
-
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("NEURO NIGHT SHIFT")
-
-clock = pygame.time.Clock()
-
-FPS = 60
-
-
-# ============================================================
-# 2. 색상
-# ============================================================
-
-BG = (29, 37, 45)
-FLOOR = (201, 211, 214)
-WALL = (91, 108, 116)
-
-WHITE = (245, 247, 248)
-BLACK = (25, 29, 31)
-
-BLUE = (74, 118, 158)
-LIGHT_BLUE = (153, 193, 213)
-
-GREEN = (88, 154, 115)
-LIGHT_GREEN = (178, 221, 193)
-
-RED = (176, 72, 82)
-LIGHT_RED = (238, 184, 190)
-
-YELLOW = (218, 182, 86)
-CREAM = (244, 235, 207)
-
-PURPLE = (130, 112, 170)
-
-GRAY = (120, 132, 138)
-DARK_GRAY = (59, 71, 78)
-
-PLAYER_COLOR = (68, 139, 190)
-PATIENT_COLOR = (204, 156, 139)
-
-
-# ============================================================
-# 3. 글꼴
-# ============================================================
-
-font_big = pygame.font.SysFont(
-    "malgungothic",
-    42,
-    bold=True
-)
-
-font_title = pygame.font.SysFont(
-    "malgungothic",
-    29,
-    bold=True
-)
-
-font = pygame.font.SysFont(
-    "malgungothic",
-    21
-)
-
-font_small = pygame.font.SysFont(
-    "malgungothic",
-    17
+st.set_page_config(
+    page_title="NEURO NIGHT SHIFT",
+    page_icon="🏥",
+    layout="wide"
 )
 
 
-# ============================================================
-# 4. 병원 맵 공간
-# ============================================================
+# =========================================================
+# 2. CSS
+# =========================================================
 
-# 접수대
-reception = pygame.Rect(
-    410,
-    100,
-    300,
-    90
-)
+st.markdown("""
+<style>
 
-# 진료실
-treatment_room = pygame.Rect(
-    820,
-    90,
-    310,
-    230
-)
+.stApp {
+    background:
+        radial-gradient(circle at top, #1c2833 0%, #0d141b 70%);
+    color: white;
+}
 
-# 물품실
-supply_room = pygame.Rect(
-    60,
-    390,
-    280,
-    240
-)
+.block-container {
+    max-width: 1150px;
+    padding-top: 2rem;
+    padding-bottom: 4rem;
+}
 
-# 변칙 환자 격리구역
-quarantine = pygame.Rect(
-    840,
-    440,
-    280,
-    180
-)
+.game-title {
+    text-align:center;
+    font-size:48px;
+    font-weight:900;
+    color:#f4f7f8;
+    letter-spacing:2px;
+}
 
-# 병원 입구
-entrance = pygame.Rect(
-    520,
-    650,
-    160,
-    60
-)
+.game-subtitle {
+    text-align:center;
+    color:#8ba5b3;
+    margin-bottom:25px;
+}
 
-# 환자 진료 위치
-patient_bed_position = pygame.Vector2(
-    955,
-    230
-)
+.top-status {
+    background:#17222c;
+    border:1px solid #334653;
+    border-radius:14px;
+    padding:15px;
+    text-align:center;
+    color:#eef5f7;
+}
 
-# 환자 접수 위치
-patient_reception_position = pygame.Vector2(
-    560,
-    230
-)
+.location-box {
+    background:#eaf3f5;
+    color:#263c46;
+    border-radius:16px;
+    padding:18px;
+    margin:18px 0;
+    border-left:6px solid #6897a7;
+}
+
+.patient-box {
+    background:#f5f7f8;
+    color:#23343c;
+    border-radius:18px;
+    padding:22px;
+    border:1px solid #a5bbc4;
+    min-height:350px;
+}
+
+.record-box {
+    background:#fff7dd;
+    color:#544c32;
+    border-left:5px solid #d9b84f;
+    padding:18px;
+    border-radius:12px;
+    margin-top:15px;
+    line-height:1.8;
+}
+
+.success-box {
+    background:#e9f7ef;
+    color:#28513b;
+    border-left:6px solid #60a87d;
+    padding:18px;
+    border-radius:12px;
+    margin-top:15px;
+}
+
+.danger-box {
+    background:#fae9ec;
+    color:#643840;
+    border-left:6px solid #c25c69;
+    padding:18px;
+    border-radius:12px;
+    margin-top:15px;
+}
+
+.info-box {
+    background:#eaf1fb;
+    color:#30495e;
+    border-left:6px solid #658ab5;
+    padding:18px;
+    border-radius:12px;
+    margin-top:15px;
+}
+
+.inventory-box {
+    background:#202e39;
+    border:1px solid #405767;
+    border-radius:14px;
+    padding:15px;
+    color:#f5f6f7;
+}
+
+.room-card {
+    background:#17242e;
+    border:1px solid #334b59;
+    border-radius:14px;
+    padding:16px;
+    color:#e8f0f2;
+    text-align:center;
+    min-height:100px;
+}
+
+.stButton > button {
+    width:100%;
+    min-height:48px;
+    border-radius:10px;
+    font-weight:800;
+}
+
+hr {
+    border-color:#334550;
+}
+
+</style>
+""", unsafe_allow_html=True)
 
 
-# ============================================================
-# 5. 플레이어
-# ============================================================
+# =========================================================
+# 3. 이미지 경로
+# =========================================================
 
-player = pygame.Rect(
-    560,
-    540,
-    38,
-    46
-)
-
-player_speed = 4
+IMAGE_FOLDER = Path("images")
 
 
-# ============================================================
-# 6. 환자 데이터
-# ============================================================
+# =========================================================
+# 4. 환자 데이터
+# =========================================================
 
-PATIENT_DATA = [
+PATIENTS = [
 
     {
+        "id": 1,
         "name": "환자 A",
         "age": 19,
+        "image": "patient01.png",
 
-        "symptom":
-            "두통과 어지럼증을 호소하고 있습니다.",
+        "symptom": "두통과 어지럼증을 호소함",
 
         "record":
-            "접수번호 N-1204 / 팔찌번호 N-1204",
+            "접수번호 N-1204 / 환자 팔찌 N-1204",
 
-        "anomaly": False,
+        "correct_action": "admit",
 
-        "needs_more_check": False,
+        "required_item": "신경학적 검사 키트",
 
-        "item": "냉찜질 팩",
-
-        "image": "assets/patient01.png",
+        "reason":
+            "접수 기록과 환자 확인 정보가 정상적으로 일치합니다.",
 
         "medical_note":
-            "두통은 원인이 다양하므로 증상만으로 판단하지 않고 "
-            "추가적인 의료진 평가가 필요합니다."
+            "두통과 어지럼증은 여러 원인과 관련될 수 있으므로 "
+            "증상만으로 판단하지 않고 의료진의 평가가 필요합니다."
     },
 
 
     {
+        "id": 2,
         "name": "환자 B",
         "age": 46,
+        "image": "patient02.png",
 
-        "symptom":
-            "손끝 감각이 평소와 다르다고 합니다.",
+        "symptom": "손끝 감각이 평소와 다르다고 호소함",
 
         "record":
-            "접수번호 N-3817 / 팔찌번호 N-3187",
+            "접수번호 N-3817 / 환자 팔찌 N-3187",
 
-        "anomaly": True,
+        "correct_action": "block",
 
-        "needs_more_check": False,
+        "required_item": None,
 
-        "item": None,
-
-        "image": "assets/patient02.png",
+        "reason":
+            "접수번호와 환자 팔찌 번호가 서로 다릅니다. "
+            "기록상 변칙이 발견되었습니다.",
 
         "medical_note":
-            "접수번호와 환자 팔찌 번호가 일치하지 않습니다. "
-            "의료기관에서는 정확한 환자 확인이 매우 중요합니다."
+            "실제 의료기관에서도 환자 확인 정보가 정확히 일치하는지 "
+            "확인하는 과정은 환자 안전과 관련됩니다."
     },
 
 
     {
+        "id": 3,
         "name": "환자 C",
         "age": 17,
+        "image": "patient03.png",
 
-        "symptom":
-            "반복적으로 두통을 느낀다고 합니다.",
+        "symptom": "반복되는 두통을 호소함",
 
         "record":
-            "통증 발생 시간과 위치에 대한 기록이 없습니다.",
+            "증상의 발생 시간과 위치가 기록되어 있지 않음",
 
-        "anomaly": False,
+        "correct_action": "check",
 
-        "needs_more_check": True,
+        "required_item": "문진 기록지",
 
-        "item": "신경학적 체크리스트",
+        "extra_record":
+            "추가 문진 결과: 두통 발생 시간과 위치가 확인되었으며 "
+            "환자 확인 정보에는 이상이 없습니다.",
 
-        "image": "assets/patient03.png",
+        "reason":
+            "초기 기록만으로는 필요한 정보가 부족하므로 추가 확인이 필요합니다.",
 
         "medical_note":
-            "증상이 언제 시작됐는지, 어느 부위에서 나타나는지 등의 "
-            "정보가 부족하면 추가 확인이 필요합니다."
+            "신경계 증상을 평가할 때는 발생 시점, 위치, 지속 시간 등을 "
+            "구체적으로 확인하는 과정이 중요합니다."
     },
 
 
     {
+        "id": 4,
         "name": "환자 D",
         "age": 63,
+        "image": "patient04.png",
 
-        "symptom":
-            "보행이 평소보다 불편하다고 합니다.",
+        "symptom": "보행이 평소보다 불편하다고 호소함",
 
         "record":
-            "검사 예정일 : 2026년 11월 41일",
+            "검사 예정일: 2026년 11월 41일",
 
-        "anomaly": True,
+        "correct_action": "block",
 
-        "needs_more_check": False,
+        "required_item": None,
 
-        "item": None,
-
-        "image": "assets/patient04.png",
+        "reason":
+            "11월 41일은 존재하지 않는 날짜입니다. "
+            "환자의 질환이 아니라 기록 자체에 변칙이 있습니다.",
 
         "medical_note":
-            "11월 41일은 존재할 수 없는 날짜입니다. "
-            "환자의 질환이 아니라 기록 자체에 변칙이 있는 경우입니다."
+            "의료 기록의 날짜와 시간은 정확해야 하며 "
+            "기록 오류가 다른 환자 정보와의 혼동으로 이어질 수 있습니다."
     },
 
 
     {
+        "id": 5,
         "name": "환자 E",
         "age": 72,
+        "image": "patient05.png",
 
-        "symptom":
-            "최근 기억력 변화를 느낀다고 합니다.",
+        "symptom": "최근 기억력 변화를 느낀다고 말함",
 
         "record":
-            "환자 정보와 접수 기록이 정상적으로 일치합니다.",
+            "환자 정보와 접수 기록이 모두 일치함",
 
-        "anomaly": False,
+        "correct_action": "admit",
 
-        "needs_more_check": False,
+        "required_item": "MRI 검사 안내서",
 
-        "item": "MRI 검사 안내서",
-
-        "image": "assets/patient05.png",
+        "reason":
+            "접수 기록에 변칙적인 오류가 없으므로 "
+            "의료진의 평가를 받을 수 있도록 진료실로 안내합니다.",
 
         "medical_note":
-            "기억력 변화는 다양한 원인과 관련될 수 있어 "
-            "진료와 평가를 통해 원인을 확인해야 합니다."
+            "기억력 변화는 다양한 원인과 관련될 수 있으며 "
+            "실제 의료에서는 문진과 여러 검사를 통해 원인을 확인합니다."
     },
 
 
     {
+        "id": 6,
         "name": "환자 F",
         "age": 31,
+        "image": "patient06.png",
 
-        "symptom":
-            "지속적인 어지럼증을 호소합니다.",
+        "symptom": "지속적인 어지럼증을 호소함",
 
         "record":
-            "접수시간 02:21 / 퇴원시간 01:43",
+            "접수 시간 02:21 / 퇴원 시간 01:43",
 
-        "anomaly": True,
+        "correct_action": "block",
 
-        "needs_more_check": False,
+        "required_item": None,
 
-        "item": None,
-
-        "image": "assets/patient06.png",
+        "reason":
+            "접수하기 전 이미 퇴원한 것으로 기록되어 있어 "
+            "시간 순서가 논리적으로 맞지 않습니다.",
 
         "medical_note":
-            "접수하기 전에 퇴원한 것으로 기록되어 있어 "
-            "시간 순서가 논리적으로 맞지 않습니다."
-    }
+            "의료 기록에서는 검사, 처치, 입퇴원 과정의 시간 순서도 "
+            "중요한 확인 요소입니다."
+    },
 
 ]
 
 
-# ============================================================
-# 7. 게임 상태 변수
-# ============================================================
+# =========================================================
+# 5. 게임 초기화
+# =========================================================
 
-score = 0
-lives = 3
+def initialize_game():
 
-current_patient_index = 0
+    order = list(range(len(PATIENTS)))
 
-game_over = False
-game_started = False
+    random.shuffle(order)
 
-show_record = False
-show_message = False
+    st.session_state.started = True
 
-message = ""
+    st.session_state.order = order
 
-current_patient = None
+    st.session_state.case_number = 0
 
-patient_rect = pygame.Rect(
-    560,
-    680,
-    38,
-    46
-)
+    st.session_state.location = "접수실"
 
-patient_state = "entering"
+    st.session_state.score = 0
 
-# entering
-# reception
-# treatment
-# waiting_item
-# completed
-# leaving
-# quarantine
+    st.session_state.lives = 3
 
-inventory = None
+    st.session_state.inventory = []
 
-needed_item = None
+    st.session_state.record_open = False
 
-decision_made = False
+    st.session_state.patient_status = "reception"
 
-additional_check_done = False
+    st.session_state.extra_checked = False
 
-patient_order = list(
-    range(len(PATIENT_DATA))
-)
+    st.session_state.result_message = ""
 
-random.shuffle(patient_order)
+    st.session_state.game_over = False
 
 
-# ============================================================
-# 8. 이미지 불러오기 함수
-# ============================================================
+# =========================================================
+# 6. 현재 환자
+# =========================================================
 
-def load_patient_image(path):
+def get_current_patient():
 
-    image_path = Path(path)
-
-    if not image_path.exists():
+    if st.session_state.case_number >= len(st.session_state.order):
         return None
 
-    try:
-
-        image = pygame.image.load(
-            str(image_path)
-        ).convert_alpha()
-
-        image = pygame.transform.smoothscale(
-            image,
-            (210, 210)
-        )
-
-        return image
-
-    except pygame.error:
-
-        return None
-
-
-# ============================================================
-# 9. 텍스트 함수
-# ============================================================
-
-def draw_text(
-    text,
-    x,
-    y,
-    color=BLACK,
-    selected_font=None
-):
-
-    if selected_font is None:
-        selected_font = font
-
-    surface = selected_font.render(
-        text,
-        True,
-        color
-    )
-
-    screen.blit(
-        surface,
-        (x, y)
-    )
-
-
-def draw_center_text(
-    text,
-    center_x,
-    y,
-    color=WHITE,
-    selected_font=None
-):
-
-    if selected_font is None:
-        selected_font = font
-
-    surface = selected_font.render(
-        text,
-        True,
-        color
-    )
-
-    rect = surface.get_rect(
-        center=(center_x, y)
-    )
-
-    screen.blit(
-        surface,
-        rect
-    )
-
-
-# ============================================================
-# 10. 환자 불러오기
-# ============================================================
-
-def load_next_patient():
-
-    global current_patient
-    global patient_rect
-    global patient_state
-    global show_record
-    global decision_made
-    global additional_check_done
-    global needed_item
-    global inventory
-
-    if current_patient_index >= len(patient_order):
-        return False
-
-    data_index = patient_order[
-        current_patient_index
+    index = st.session_state.order[
+        st.session_state.case_number
     ]
 
-    current_patient = PATIENT_DATA[
-        data_index
-    ]
-
-    patient_rect.x = 560
-    patient_rect.y = 680
-
-    patient_state = "entering"
-
-    show_record = False
-
-    decision_made = False
-
-    additional_check_done = False
-
-    needed_item = None
-
-    inventory = None
-
-    return True
+    return PATIENTS[index]
 
 
-# ============================================================
-# 11. 게임 초기화
-# ============================================================
+# =========================================================
+# 7. 환자 이미지 표시
+# =========================================================
 
-def reset_game():
+def show_patient_image(patient):
 
-    global score
-    global lives
-    global current_patient_index
-    global game_over
-    global game_started
-    global patient_order
-    global inventory
+    path = IMAGE_FOLDER / patient["image"]
 
-    score = 0
-    lives = 3
+    if path.exists():
 
-    current_patient_index = 0
-
-    game_over = False
-    game_started = True
-
-    inventory = None
-
-    patient_order = list(
-        range(len(PATIENT_DATA))
-    )
-
-    random.shuffle(
-        patient_order
-    )
-
-    load_next_patient()
-
-
-# ============================================================
-# 12. 거리 판정
-# ============================================================
-
-def near_object(
-    rect1,
-    rect2,
-    distance=75
-):
-
-    expanded = rect2.inflate(
-        distance,
-        distance
-    )
-
-    return expanded.colliderect(
-        rect1
-    )
-
-
-# ============================================================
-# 13. 플레이어 이동
-# ============================================================
-
-def move_player():
-
-    keys = pygame.key.get_pressed()
-
-    dx = 0
-    dy = 0
-
-    if keys[pygame.K_a] or keys[pygame.K_LEFT]:
-        dx -= player_speed
-
-    if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
-        dx += player_speed
-
-    if keys[pygame.K_w] or keys[pygame.K_UP]:
-        dy -= player_speed
-
-    if keys[pygame.K_s] or keys[pygame.K_DOWN]:
-        dy += player_speed
-
-
-    player.x += dx
-    player.y += dy
-
-
-    # 화면 밖 이동 방지
-    player.x = max(
-        10,
-        min(
-            player.x,
-            WIDTH - player.width - 10
-        )
-    )
-
-    player.y = max(
-        70,
-        min(
-            player.y,
-            HEIGHT - player.height - 10
-        )
-    )
-
-
-# ============================================================
-# 14. 환자 NPC 이동
-# ============================================================
-
-def move_patient():
-
-    global patient_state
-
-    if current_patient is None:
-        return
-
-
-    # --------------------------------------------------------
-    # 병원 입구 -> 접수대
-    # --------------------------------------------------------
-
-    if patient_state == "entering":
-
-        target = patient_reception_position
-
-        current = pygame.Vector2(
-            patient_rect.x,
-            patient_rect.y
+        st.image(
+            str(path),
+            use_container_width=True
         )
 
-        direction = target - current
+    else:
 
-        if direction.length() > 5:
-
-            direction = direction.normalize()
-
-            patient_rect.x += direction.x * 2
-            patient_rect.y += direction.y * 2
-
-        else:
-
-            patient_rect.x = int(target.x)
-            patient_rect.y = int(target.y)
-
-            patient_state = "reception"
-
-
-    # --------------------------------------------------------
-    # 접수대 -> 진료실
-    # --------------------------------------------------------
-
-    elif patient_state == "treatment":
-
-        target = patient_bed_position
-
-        current = pygame.Vector2(
-            patient_rect.x,
-            patient_rect.y
+        st.markdown(
+            """
+            <div style="
+                height:360px;
+                background:#d8e4e8;
+                border-radius:18px;
+                display:flex;
+                justify-content:center;
+                align-items:center;
+                font-size:100px;
+                color:#536a74;
+            ">
+                👤
+            </div>
+            """,
+            unsafe_allow_html=True
         )
 
-        direction = target - current
-
-        if direction.length() > 5:
-
-            direction = direction.normalize()
-
-            patient_rect.x += direction.x * 2
-
-            patient_rect.y += direction.y * 2
-
-        else:
-
-            patient_rect.x = int(target.x)
-            patient_rect.y = int(target.y)
-
-            patient_state = "waiting_item"
-
-
-    # --------------------------------------------------------
-    # 종료 후 밖으로 이동
-    # --------------------------------------------------------
-
-    elif patient_state == "leaving":
-
-        target = pygame.Vector2(
-            580,
-            760
-        )
-
-        current = pygame.Vector2(
-            patient_rect.x,
-            patient_rect.y
-        )
-
-        direction = target - current
-
-        if direction.length() > 5:
-
-            direction = direction.normalize()
-
-            patient_rect.x += direction.x * 3
-
-            patient_rect.y += direction.y * 3
-
-
-# ============================================================
-# 15. 맵 그리기
-# ============================================================
-
-def draw_map():
-
-    screen.fill(
-        FLOOR
-    )
-
-
-    # --------------------------------------------------------
-    # 바닥 구역선
-    # --------------------------------------------------------
-
-    pygame.draw.rect(
-        screen,
-        WALL,
-        (0, 60, WIDTH, 12)
-    )
-
-
-    # --------------------------------------------------------
-    # 접수대
-    # --------------------------------------------------------
-
-    pygame.draw.rect(
-        screen,
-        BLUE,
-        reception,
-        border_radius=12
-    )
-
-    draw_center_text(
-        "RECEPTION",
-        reception.centerx,
-        reception.centery,
-        WHITE,
-        font_title
-    )
-
-
-    # --------------------------------------------------------
-    # 진료실
-    # --------------------------------------------------------
-
-    pygame.draw.rect(
-        screen,
-        LIGHT_GREEN,
-        treatment_room,
-        border_radius=14
-    )
-
-    pygame.draw.rect(
-        screen,
-        GREEN,
-        treatment_room,
-        4,
-        border_radius=14
-    )
-
-    draw_text(
-        "🩺 진료실",
-        840,
-        110,
-        BLACK,
-        font_title
-    )
-
-
-    # 병상
-    pygame.draw.rect(
-        screen,
-        WHITE,
-        (930, 190, 150, 70),
-        border_radius=12
-    )
-
-    draw_text(
-        "BED",
-        982,
-        212,
-        GRAY,
-        font_small
-    )
-
-
-    # --------------------------------------------------------
-    # 물품실
-    # --------------------------------------------------------
-
-    pygame.draw.rect(
-        screen,
-        CREAM,
-        supply_room,
-        border_radius=14
-    )
-
-    pygame.draw.rect(
-        screen,
-        YELLOW,
-        supply_room,
-        4,
-        border_radius=14
-    )
-
-    draw_text(
-        "📦 물품실",
-        90,
-        415,
-        BLACK,
-        font_title
-    )
-
-
-    # 선반
-    for y in [
-        480,
-        535,
-        590
-    ]:
-
-        pygame.draw.rect(
-            screen,
-            YELLOW,
-            (100, y, 190, 28),
-            border_radius=5
+        st.caption(
+            "이미지를 추가하면 여기에 환자 사진이 표시됩니다."
         )
 
 
-    # --------------------------------------------------------
-    # 격리 구역
-    # --------------------------------------------------------
+# =========================================================
+# 8. 환자 판단
+# =========================================================
 
-    pygame.draw.rect(
-        screen,
-        LIGHT_RED,
-        quarantine,
-        border_radius=14
-    )
+def judge_patient(action):
 
-    pygame.draw.rect(
-        screen,
-        RED,
-        quarantine,
-        4,
-        border_radius=14
-    )
+    patient = get_current_patient()
 
-    draw_text(
-        "⚠ 기록 확인 구역",
-        865,
-        465,
-        BLACK,
-        font_title
-    )
+    correct = patient["correct_action"]
 
 
-    # --------------------------------------------------------
-    # 입구
-    # --------------------------------------------------------
+    if action == correct:
 
-    pygame.draw.rect(
-        screen,
-        LIGHT_BLUE,
-        entrance,
-        border_radius=12
-    )
+        if action == "block":
 
-    draw_center_text(
-        "병원 입구",
-        entrance.centerx,
-        675,
-        BLACK,
-        font
-    )
+            st.session_state.score += 150
+
+            st.session_state.patient_status = "completed"
+
+            st.session_state.result_message = (
+                "🚨 변칙 기록 발견! 올바르게 차단했습니다."
+            )
 
 
-# ============================================================
-# 16. 플레이어 그리기
-# ============================================================
+        elif action == "check":
 
-def draw_player():
+            st.session_state.score += 100
 
-    pygame.draw.rect(
-        screen,
-        PLAYER_COLOR,
-        player,
-        border_radius=9
-    )
+            st.session_state.patient_status = "need_record_room"
 
-    pygame.draw.circle(
-        screen,
-        (236, 202, 180),
-        (
-            player.centerx,
-            player.y + 10
-        ),
-        9
-    )
-
-    draw_center_text(
-        "YOU",
-        player.centerx,
-        player.y - 11,
-        DARK_GRAY,
-        font_small
-    )
+            st.session_state.result_message = (
+                "🔍 추가 확인이 필요합니다. "
+                "기록 확인실로 이동하세요."
+            )
 
 
-# ============================================================
-# 17. 환자 그리기
-# ============================================================
+        elif action == "admit":
 
-def draw_patient():
+            st.session_state.score += 100
 
-    if current_patient is None:
-        return
+            st.session_state.patient_status = "treatment"
 
-
-    pygame.draw.rect(
-        screen,
-        PATIENT_COLOR,
-        patient_rect,
-        border_radius=9
-    )
-
-    pygame.draw.circle(
-        screen,
-        (238, 204, 184),
-        (
-            patient_rect.centerx,
-            patient_rect.y + 10
-        ),
-        9
-    )
-
-    draw_center_text(
-        current_patient["name"],
-        patient_rect.centerx,
-        patient_rect.y - 12,
-        DARK_GRAY,
-        font_small
-    )
+            st.session_state.result_message = (
+                "🏥 정상 접수입니다. "
+                "환자가 진료실로 이동했습니다."
+            )
 
 
-# ============================================================
-# 18. 상단 HUD
-# ============================================================
+    else:
 
-def draw_hud():
+        st.session_state.lives -= 1
 
-    pygame.draw.rect(
-        screen,
-        BG,
-        (0, 0, WIDTH, 60)
-    )
-
-    draw_text(
-        "NEURO NIGHT SHIFT",
-        20,
-        15,
-        WHITE,
-        font_title
-    )
-
-    draw_text(
-        f"CASE {current_patient_index + 1}/{len(PATIENT_DATA)}",
-        560,
-        18,
-        WHITE,
-        font
-    )
-
-    draw_text(
-        f"SCORE {score}",
-        760,
-        18,
-        WHITE,
-        font
-    )
-
-    hearts = "♥ " * lives
-
-    draw_text(
-        hearts,
-        980,
-        17,
-        LIGHT_RED,
-        font
-    )
+        st.session_state.result_message = (
+            "❌ 판단이 올바르지 않습니다. "
+            "기록을 다시 살펴보세요."
+        )
 
 
-# ============================================================
-# 19. 도움말
-# ============================================================
+        if st.session_state.lives <= 0:
+            st.session_state.game_over = True
 
-def draw_help():
 
-    help_text = ""
+# =========================================================
+# 9. 다음 환자
+# =========================================================
 
-    if patient_state == "reception" and near_object(
-        player,
-        patient_rect
+def next_patient():
+
+    st.session_state.case_number += 1
+
+    st.session_state.location = "접수실"
+
+    st.session_state.record_open = False
+
+    st.session_state.patient_status = "reception"
+
+    st.session_state.extra_checked = False
+
+    st.session_state.result_message = ""
+
+    st.session_state.inventory = []
+
+
+    if st.session_state.case_number >= len(
+        st.session_state.order
     ):
 
-        help_text = "E : 환자 기록 확인"
+        st.session_state.game_over = True
 
 
-    elif patient_state == "waiting_item":
+# =========================================================
+# 10. 위치 이동
+# =========================================================
 
-        if needed_item and near_object(
-            player,
-            supply_room
-        ):
+def move_to(room):
 
-            help_text = (
-                f"E : {needed_item} 가져오기"
-            )
+    st.session_state.location = room
 
 
-        elif inventory and near_object(
-            player,
-            patient_rect
-        ):
+# =========================================================
+# 11. 물품 획득
+# =========================================================
 
-            help_text = (
-                "E : 환자에게 물품 전달"
-            )
+def get_supply(item):
 
+    if item is None:
 
-    if help_text:
-
-        pygame.draw.rect(
-            screen,
-            BG,
-            (
-                390,
-                640,
-                420,
-                52
-            ),
-            border_radius=12
-        )
-
-        draw_center_text(
-            help_text,
-            600,
-            666,
-            WHITE,
-            font
-        )
-
-
-# ============================================================
-# 20. 환자 기록 창
-# ============================================================
-
-def draw_patient_record():
-
-    if not show_record:
-        return
-
-
-    overlay = pygame.Surface(
-        (WIDTH, HEIGHT),
-        pygame.SRCALPHA
-    )
-
-    overlay.fill(
-        (0, 0, 0, 155)
-    )
-
-    screen.blit(
-        overlay,
-        (0, 0)
-    )
-
-
-    panel = pygame.Rect(
-        190,
-        85,
-        820,
-        550
-    )
-
-    pygame.draw.rect(
-        screen,
-        WHITE,
-        panel,
-        border_radius=22
-    )
-
-
-    pygame.draw.rect(
-        screen,
-        BLUE,
-        (
-            panel.x,
-            panel.y,
-            panel.width,
-            65
-        ),
-        border_top_left_radius=22,
-        border_top_right_radius=22
-    )
-
-
-    draw_text(
-        "PATIENT CHECK-IN RECORD",
-        225,
-        104,
-        WHITE,
-        font_title
-    )
-
-
-    # --------------------------------------------------------
-    # 환자 사진
-    # --------------------------------------------------------
-
-    patient_image = load_patient_image(
-        current_patient["image"]
-    )
-
-
-    if patient_image:
-
-        screen.blit(
-            patient_image,
-            (
-                235,
-                190
-            )
-        )
-
-
-    else:
-
-        pygame.draw.rect(
-            screen,
-            LIGHT_BLUE,
-            (
-                235,
-                190,
-                210,
-                210
-            ),
-            border_radius=15
-        )
-
-        draw_center_text(
-            "환자 사진",
-            340,
-            290,
-            DARK_GRAY,
-            font_title
-        )
-
-
-    # --------------------------------------------------------
-    # 환자 정보
-    # --------------------------------------------------------
-
-    draw_text(
-        current_patient["name"],
-        490,
-        185,
-        BLACK,
-        font_title
-    )
-
-
-    draw_text(
-        f"나이 : {current_patient['age']}세",
-        490,
-        235
-    )
-
-
-    draw_text(
-        "증상",
-        490,
-        285,
-        BLUE,
-        font
-    )
-
-
-    draw_text(
-        current_patient["symptom"],
-        490,
-        320,
-        BLACK,
-        font_small
-    )
-
-
-    draw_text(
-        "접수 기록",
-        490,
-        370,
-        BLUE,
-        font
-    )
-
-
-    draw_text(
-        current_patient["record"],
-        490,
-        405,
-        BLACK,
-        font_small
-    )
-
-
-    # --------------------------------------------------------
-    # 선택 버튼 안내
-    # --------------------------------------------------------
-
-    pygame.draw.rect(
-        screen,
-        LIGHT_GREEN,
-        (
-            225,
-            485,
-            220,
-            60
-        ),
-        border_radius=10
-    )
-
-    draw_center_text(
-        "1  진료실 입장",
-        335,
-        515,
-        BLACK,
-        font
-    )
-
-
-    pygame.draw.rect(
-        screen,
-        CREAM,
-        (
-            490,
-            485,
-            220,
-            60
-        ),
-        border_radius=10
-    )
-
-    draw_center_text(
-        "2  추가 확인",
-        600,
-        515,
-        BLACK,
-        font
-    )
-
-
-    pygame.draw.rect(
-        screen,
-        LIGHT_RED,
-        (
-            755,
-            485,
-            220,
-            60
-        ),
-        border_radius=10
-    )
-
-    draw_center_text(
-        "3  변칙 차단",
-        865,
-        515,
-        BLACK,
-        font
-    )
-
-
-    draw_center_text(
-        "ESC : 기록 닫기",
-        600,
-        590,
-        GRAY,
-        font_small
-    )
-
-
-# ============================================================
-# 21. 메시지 창
-# ============================================================
-
-def draw_message_box():
-
-    if not show_message:
-        return
-
-
-    pygame.draw.rect(
-        screen,
-        BG,
-        (
-            280,
-            570,
-            640,
-            90
-        ),
-        border_radius=14
-    )
-
-    draw_center_text(
-        message,
-        600,
-        615,
-        WHITE,
-        font_small
-    )
-
-
-# ============================================================
-# 22. 환자 처리 판정
-# ============================================================
-
-def choose_patient_action(choice):
-
-    global score
-    global lives
-    global show_record
-    global patient_state
-    global decision_made
-    global needed_item
-    global message
-    global show_message
-    global additional_check_done
-
-    if decision_made:
-        return
-
-
-    correct_choice = None
-
-
-    if current_patient["anomaly"]:
-
-        correct_choice = "quarantine"
-
-
-    elif current_patient["needs_more_check"]:
-
-        correct_choice = "check"
-
-
-    else:
-
-        correct_choice = "treatment"
-
-
-    # --------------------------------------------------------
-    # 정답
-    # --------------------------------------------------------
-
-    if choice == correct_choice:
-
-        score += 100
-
-        decision_made = True
-
-        show_record = False
-
-        if choice == "quarantine":
-
-            patient_state = "quarantine"
-
-            score += 50
-
-            message = (
-                "변칙 기록을 발견했습니다! +150점"
-            )
-
-            show_message = True
-
-
-        elif choice == "check":
-
-            additional_check_done = True
-
-            patient_state = "treatment"
-
-            needed_item = current_patient[
-                "item"
-            ]
-
-            message = (
-                "추가 확인이 필요합니다. "
-                "환자를 진료실로 안내합니다."
-            )
-
-            show_message = True
-
-
-        elif choice == "treatment":
-
-            patient_state = "treatment"
-
-            needed_item = current_patient[
-                "item"
-            ]
-
-            message = (
-                "정상 접수입니다. "
-                "환자가 진료실로 이동합니다."
-            )
-
-            show_message = True
-
-
-    # --------------------------------------------------------
-    # 오답
-    # --------------------------------------------------------
-
-    else:
-
-        lives -= 1
-
-        message = (
-            "판단이 올바르지 않습니다. "
-            "환자 기록을 다시 확인하세요."
-        )
-
-        show_message = True
-
-
-# ============================================================
-# 23. 물품 획득
-# ============================================================
-
-def collect_item():
-
-    global inventory
-    global message
-    global show_message
-
-    if needed_item is None:
-
-        message = (
+        st.warning(
             "현재 필요한 물품이 없습니다."
         )
 
-        show_message = True
+        return
+
+
+    if item in st.session_state.inventory:
+
+        st.warning(
+            "이미 가지고 있는 물품입니다."
+        )
 
         return
 
 
-    if inventory is None:
+    st.session_state.inventory.append(item)
 
-        inventory = needed_item
-
-        message = (
-            f"{needed_item}을(를) 가져왔습니다."
-        )
-
-        show_message = True
-
-
-    else:
-
-        message = (
-            "이미 물품을 가지고 있습니다."
-        )
-
-        show_message = True
-
-
-# ============================================================
-# 24. 환자에게 물품 적용
-# ============================================================
-
-def apply_item_to_patient():
-
-    global inventory
-    global patient_state
-    global score
-    global message
-    global show_message
-
-    if inventory != needed_item:
-
-        message = (
-            "필요한 물품을 먼저 가져오세요."
-        )
-
-        show_message = True
-
-        return
-
-
-    inventory = None
-
-    score += 100
-
-    patient_state = "leaving"
-
-    message = (
-        f"{needed_item} 전달 완료! +100점"
+    st.success(
+        f"🎒 {item}을(를) 획득했습니다."
     )
 
-    show_message = True
+
+# =========================================================
+# 12. 진료 물품 적용
+# =========================================================
+
+def use_item():
+
+    patient = get_current_patient()
+
+    required_item = patient["required_item"]
 
 
-# ============================================================
-# 25. 다음 환자
-# ============================================================
+    if required_item not in st.session_state.inventory:
 
-def finish_current_patient():
+        st.warning(
+            f"📦 먼저 물품실에서 "
+            f"'{required_item}'을(를) 가져오세요."
+        )
 
-    global current_patient_index
-    global game_over
+        return
 
-    current_patient_index += 1
 
-    if (
-        current_patient_index
-        >= len(patient_order)
-        or lives <= 0
+    st.session_state.inventory.remove(
+        required_item
+    )
+
+    st.session_state.score += 100
+
+    st.session_state.patient_status = "completed"
+
+    st.session_state.result_message = (
+        f"✅ {required_item} 준비 완료! "
+        "환자의 진료 준비가 끝났습니다."
+    )
+
+
+# =========================================================
+# 13. 상태 초기 설정
+# =========================================================
+
+if "started" not in st.session_state:
+
+    st.session_state.started = False
+
+
+if "game_over" not in st.session_state:
+
+    st.session_state.game_over = False
+
+
+# =========================================================
+# 14. 제목
+# =========================================================
+
+st.markdown(
+    '<div class="game-title">🏥 NEURO NIGHT SHIFT</div>',
+    unsafe_allow_html=True
+)
+
+st.markdown(
+    '<div class="game-subtitle">'
+    '야간 신경계 병원 · 기록 변칙 탐지 게임'
+    '</div>',
+    unsafe_allow_html=True
+)
+
+
+# =========================================================
+# 15. 시작 화면
+# =========================================================
+
+if not st.session_state.started:
+
+    st.markdown(
+        """
+        <div class="patient-box">
+
+        <h2>🌙 야간 근무 시작</h2>
+
+        당신은 오늘 밤 신경계 병동의 접수 담당자입니다.
+
+        병원 전산 시스템에서 원인을 알 수 없는
+        <b>기록 변칙</b>이 발생하고 있습니다.
+
+        환자의 사진과 기록을 확인하세요.
+
+        정상적인 환자는 진료실로 보내고,
+        정보가 부족하면 추가 확인을 진행하세요.
+
+        기록에 존재할 수 없는 오류가 있다면
+        변칙 환자의 접수를 차단해야 합니다.
+
+        <br><br>
+
+        <b>※ 실제 질환이 있다는 이유로 변칙 환자가 되는 것은 아닙니다.</b><br>
+        변칙은 게임 속 기록이나 사진에 존재하는 가상의 오류입니다.
+
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+    st.write("")
+
+
+    if st.button(
+        "🌙 야간 근무 시작",
+        use_container_width=True
     ):
 
-        game_over = True
+        initialize_game()
 
-        return
-
-
-    load_next_patient()
+        st.rerun()
 
 
-# ============================================================
-# 26. 시작 화면
-# ============================================================
+# =========================================================
+# 16. 게임 종료
+# =========================================================
 
-def draw_start_screen():
+elif st.session_state.game_over:
 
-    screen.fill(
-        BG
-    )
+    score = st.session_state.score
 
 
-    draw_center_text(
-        "NEURO NIGHT SHIFT",
-        WIDTH // 2,
-        170,
-        WHITE,
-        font_big
-    )
-
-
-    draw_center_text(
-        "야간 신경계 병원 근무",
-        WIDTH // 2,
-        225,
-        LIGHT_BLUE,
-        font_title
-    )
-
-
-    draw_center_text(
-        "환자의 기록을 확인하고 병원 안을 직접 이동하세요.",
-        WIDTH // 2,
-        310,
-        WHITE,
-        font
-    )
-
-
-    draw_center_text(
-        "정상 환자는 진료실로, 기록 변칙은 차단해야 합니다.",
-        WIDTH // 2,
-        350,
-        WHITE,
-        font
-    )
-
-
-    draw_center_text(
-        "진료 환자에게 필요한 물품은 물품실에서 직접 가져오세요.",
-        WIDTH // 2,
-        390,
-        WHITE,
-        font
-    )
-
-
-    pygame.draw.rect(
-        screen,
-        BLUE,
-        (
-            430,
-            470,
-            340,
-            75
-        ),
-        border_radius=14
-    )
-
-
-    draw_center_text(
-        "SPACE : 야간 근무 시작",
-        WIDTH // 2,
-        507,
-        WHITE,
-        font_title
-    )
-
-
-    draw_center_text(
-        "이동 : WASD / 방향키   |   상호작용 : E",
-        WIDTH // 2,
-        610,
-        GRAY,
-        font_small
-    )
-
-
-# ============================================================
-# 27. 게임 종료 화면
-# ============================================================
-
-def draw_game_over():
-
-    screen.fill(
-        BG
-    )
-
-
-    if score >= 900:
-
+    if score >= 750:
         grade = "S"
 
-        comment = (
-            "뛰어난 관찰력으로 야간 근무를 마쳤습니다!"
-        )
-
-
-    elif score >= 650:
-
+    elif score >= 550:
         grade = "A"
 
-        comment = (
-            "환자 기록을 꼼꼼하게 확인했습니다."
-        )
-
-
-    elif score >= 400:
-
+    elif score >= 350:
         grade = "B"
 
-        comment = (
-            "몇몇 기록을 놓쳤지만 근무를 완료했습니다."
+    else:
+        grade = "C"
+
+
+    st.markdown(
+        f"""
+        <div class="patient-box"
+             style="text-align:center;">
+
+        <h2>🌅 NIGHT SHIFT COMPLETE</h2>
+
+        <div style="
+            font-size:90px;
+            font-weight:900;
+            color:#497d91;
+        ">
+            {grade}
+        </div>
+
+        <h2>최종 점수 {score}</h2>
+
+        야간 근무가 종료되었습니다.
+
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+    st.write("")
+
+
+    if st.button(
+        "🔄 다시 근무하기",
+        use_container_width=True
+    ):
+
+        initialize_game()
+
+        st.rerun()
+
+
+# =========================================================
+# 17. 실제 게임
+# =========================================================
+
+else:
+
+    patient = get_current_patient()
+
+
+    # -----------------------------------------------------
+    # 상태창
+    # -----------------------------------------------------
+
+    c1, c2, c3, c4 = st.columns(4)
+
+
+    with c1:
+
+        st.markdown(
+            f"""
+            <div class="top-status">
+            CASE<br>
+            <b>
+            {st.session_state.case_number + 1}
+            /
+            {len(PATIENTS)}
+            </b>
+            </div>
+            """,
+            unsafe_allow_html=True
         )
 
+
+    with c2:
+
+        st.markdown(
+            f"""
+            <div class="top-status">
+            SCORE<br>
+            <b>{st.session_state.score}</b>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+
+    with c3:
+
+        hearts = "❤️" * st.session_state.lives
+
+        st.markdown(
+            f"""
+            <div class="top-status">
+            남은 기회<br>
+            {hearts}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+
+    with c4:
+
+        st.markdown(
+            f"""
+            <div class="top-status">
+            현재 위치<br>
+            <b>{st.session_state.location}</b>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+
+    # -----------------------------------------------------
+    # 병원 지도
+    # -----------------------------------------------------
+
+    st.markdown("### 🗺️ 병원 이동")
+
+
+    r1, r2, r3, r4 = st.columns(4)
+
+
+    with r1:
+
+        if st.button(
+            "🖥️ 접수실",
+            use_container_width=True
+        ):
+
+            move_to("접수실")
+            st.rerun()
+
+
+    with r2:
+
+        if st.button(
+            "📁 기록 확인실",
+            use_container_width=True
+        ):
+
+            move_to("기록 확인실")
+            st.rerun()
+
+
+    with r3:
+
+        if st.button(
+            "📦 물품실",
+            use_container_width=True
+        ):
+
+            move_to("물품실")
+            st.rerun()
+
+
+    with r4:
+
+        if st.button(
+            "🛏️ 진료실",
+            use_container_width=True
+        ):
+
+            move_to("진료실")
+            st.rerun()
+
+
+    # -----------------------------------------------------
+    # 인벤토리
+    # -----------------------------------------------------
+
+    if st.session_state.inventory:
+
+        items = " · ".join(
+            st.session_state.inventory
+        )
 
     else:
 
-        grade = "C"
+        items = "비어 있음"
 
-        comment = (
-            "환자 기록을 조금 더 자세히 살펴보세요."
+
+    st.markdown(
+        f"""
+        <div class="inventory-box">
+        🎒 <b>INVENTORY</b><br>
+        {items}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+    # =====================================================
+    # 접수실
+    # =====================================================
+
+    if st.session_state.location == "접수실":
+
+        st.markdown(
+            '<div class="location-box">'
+            '🖥️ <b>현재 위치 : 접수실</b><br>'
+            '환자의 사진과 접수 기록을 확인하세요.'
+            '</div>',
+            unsafe_allow_html=True
         )
 
 
-    draw_center_text(
-        "NIGHT SHIFT COMPLETE",
-        WIDTH // 2,
-        150,
-        WHITE,
-        font_big
-    )
-
-
-    draw_center_text(
-        grade,
-        WIDTH // 2,
-        290,
-        LIGHT_BLUE,
-        pygame.font.SysFont(
-            "arial",
-            95,
-            bold=True
+        left, right = st.columns(
+            [1, 1.2]
         )
-    )
 
 
-    draw_center_text(
-        f"FINAL SCORE : {score}",
-        WIDTH // 2,
-        390,
-        WHITE,
-        font_title
-    )
+        with left:
+
+            show_patient_image(
+                patient
+            )
 
 
-    draw_center_text(
-        comment,
-        WIDTH // 2,
-        445,
-        WHITE,
-        font
-    )
+        with right:
+
+            st.markdown(
+                f"""
+                <div class="patient-box">
+
+                <b>PATIENT FILE #{patient["id"]:02d}</b>
+
+                <h2>{patient["name"]}</h2>
+
+                <b>나이</b><br>
+                {patient["age"]}세
+
+                <br><br>
+
+                <b>주호소</b><br>
+                {patient["symptom"]}
+
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
 
-    draw_center_text(
-        "R : 다시 근무하기",
-        WIDTH // 2,
-        550,
-        YELLOW,
-        font_title
-    )
+        if st.session_state.patient_status == "reception":
+
+            if st.button(
+                "📋 접수 기록 확인",
+                use_container_width=True
+            ):
+
+                st.session_state.record_open = True
+
+                st.rerun()
 
 
-# ============================================================
-# 28. 메인 게임 루프
-# ============================================================
+            if st.session_state.record_open:
 
-running = True
+                st.markdown(
+                    f"""
+                    <div class="record-box">
 
+                    <b>📁 접수 기록</b><br><br>
 
-while running:
+                    {patient["record"]}
 
-    # --------------------------------------------------------
-    # 이벤트 처리
-    # --------------------------------------------------------
-
-    for event in pygame.event.get():
-
-        if event.type == pygame.QUIT:
-
-            running = False
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
 
-        if event.type == pygame.KEYDOWN:
-
-            # ------------------------------------------------
-            # 시작 화면
-            # ------------------------------------------------
-
-            if not game_started:
-
-                if event.key == pygame.K_SPACE:
-
-                    reset_game()
+                st.markdown(
+                    "### 어떻게 처리하시겠습니까?"
+                )
 
 
-            # ------------------------------------------------
-            # 게임 종료 화면
-            # ------------------------------------------------
-
-            elif game_over:
-
-                if event.key == pygame.K_r:
-
-                    reset_game()
+                b1, b2, b3 = st.columns(3)
 
 
-            # ------------------------------------------------
-            # 실제 플레이
-            # ------------------------------------------------
+                with b1:
 
-            else:
+                    if st.button(
+                        "🏥 진료실 입장",
+                        use_container_width=True
+                    ):
 
-                # 기록창 ESC 닫기
-                if event.key == pygame.K_ESCAPE:
-
-                    show_record = False
-
-
-                # 기록창 선택
-                if show_record:
-
-                    if event.key == pygame.K_1:
-
-                        choose_patient_action(
-                            "treatment"
+                        judge_patient(
+                            "admit"
                         )
 
+                        st.rerun()
 
-                    elif event.key == pygame.K_2:
 
-                        choose_patient_action(
+                with b2:
+
+                    if st.button(
+                        "🔍 추가 확인",
+                        use_container_width=True
+                    ):
+
+                        judge_patient(
                             "check"
                         )
 
-
-                    elif event.key == pygame.K_3:
-
-                        choose_patient_action(
-                            "quarantine"
-                        )
+                        st.rerun()
 
 
-                # E키 상호작용
-                elif event.key == pygame.K_e:
+                with b3:
 
-                    # 접수 환자 확인
-                    if (
-                        patient_state
-                        == "reception"
-                        and near_object(
-                            player,
-                            patient_rect
-                        )
+                    if st.button(
+                        "🚨 변칙 차단",
+                        use_container_width=True
                     ):
 
-                        show_record = True
-
-
-                    # 물품실
-                    elif (
-                        patient_state
-                        == "waiting_item"
-                        and near_object(
-                            player,
-                            supply_room
+                        judge_patient(
+                            "block"
                         )
-                    ):
 
-                        collect_item()
-
-
-                    # 환자에게 물품 전달
-                    elif (
-                        patient_state
-                        == "waiting_item"
-                        and inventory
-                        and near_object(
-                            player,
-                            patient_rect
-                        )
-                    ):
-
-                        apply_item_to_patient()
+                        st.rerun()
 
 
-    # ========================================================
-    # 화면별 처리
-    # ========================================================
+        # 변칙 차단 완료
+        elif st.session_state.patient_status == "completed":
 
-    if not game_started:
+            st.markdown(
+                f"""
+                <div class="success-box">
 
-        draw_start_screen()
+                {st.session_state.result_message}
 
+                <br><br>
 
-    elif game_over:
+                <b>판단 근거</b><br>
+                {patient["reason"]}
 
-        draw_game_over()
-
-
-    else:
-
-        # ----------------------------------------------------
-        # 플레이어 이동
-        # ----------------------------------------------------
-
-        if not show_record:
-
-            move_player()
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
 
-        # ----------------------------------------------------
-        # 환자 NPC 이동
-        # ----------------------------------------------------
+            st.markdown(
+                f"""
+                <div class="info-box">
 
-        move_patient()
+                <b>🧠 MEDICAL NOTE</b><br><br>
+
+                {patient["medical_note"]}
+
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
 
-        # ----------------------------------------------------
-        # 환자 퇴장 완료 판정
-        # ----------------------------------------------------
+            if st.button(
+                "다음 환자 접수 →",
+                use_container_width=True
+            ):
+
+                next_patient()
+
+                st.rerun()
+
+
+        else:
+
+            st.info(
+                st.session_state.result_message
+            )
+
+
+    # =====================================================
+    # 기록 확인실
+    # =====================================================
+
+    elif st.session_state.location == "기록 확인실":
+
+        st.markdown(
+            '<div class="location-box">'
+            '📁 <b>현재 위치 : 기록 확인실</b><br>'
+            '부족한 환자 기록을 추가로 확인할 수 있습니다.'
+            '</div>',
+            unsafe_allow_html=True
+        )
+
 
         if (
-            patient_state == "leaving"
-            and patient_rect.y > HEIGHT + 10
+            st.session_state.patient_status
+            == "need_record_room"
         ):
 
-            finish_current_patient()
+            st.markdown(
+                f"""
+                <div class="patient-box">
 
+                <h3>📂 {patient["name"]} 추가 기록</h3>
 
-        # ----------------------------------------------------
-        # 변칙 환자 처리 후 잠시 다음 환자로
-        # ----------------------------------------------------
+                현재 환자의 초기 기록에는
+                필요한 정보가 부족합니다.
 
-        if patient_state == "quarantine":
-
-            patient_rect.x += 3
-
-            if patient_rect.x > WIDTH + 30:
-
-                finish_current_patient()
-
-
-        # ----------------------------------------------------
-        # 남은 기회가 0
-        # ----------------------------------------------------
-
-        if lives <= 0:
-
-            game_over = True
-
-
-        # ----------------------------------------------------
-        # 화면 그리기
-        # ----------------------------------------------------
-
-        draw_map()
-
-        draw_patient()
-
-        draw_player()
-
-        draw_hud()
-
-        draw_help()
-
-
-        # 인벤토리
-        if inventory:
-
-            pygame.draw.rect(
-                screen,
-                BG,
-                (
-                    25,
-                    90,
-                    320,
-                    48
-                ),
-                border_radius=10
-            )
-
-            draw_text(
-                f"🎒 {inventory}",
-                45,
-                102,
-                WHITE,
-                font_small
+                </div>
+                """,
+                unsafe_allow_html=True
             )
 
 
-        draw_patient_record()
+            if st.button(
+                "🔍 추가 기록 조회",
+                use_container_width=True
+            ):
 
-        draw_message_box()
+                st.session_state.extra_checked = True
+
+                st.session_state.score += 50
 
 
-    pygame.display.flip()
+            if st.session_state.extra_checked:
 
-    clock.tick(FPS)
+                st.markdown(
+                    f"""
+                    <div class="record-box">
+
+                    <b>추가 확인 결과</b><br><br>
+
+                    {patient.get(
+                        "extra_record",
+                        "추가 기록이 확인되었습니다."
+                    )}
+
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
 
-pygame.quit()
-sys.exit()
+                if st.button(
+                    "🏥 진료실로 안내",
+                    use_container_width=True
+                ):
+
+                    st.session_state.patient_status = (
+                        "treatment"
+                    )
+
+                    st.session_state.result_message = (
+                        "추가 확인이 끝났습니다. "
+                        "이제 필요한 물품을 준비하세요."
+                    )
+
+                    move_to(
+                        "물품실"
+                    )
+
+                    st.rerun()
+
+
+        else:
+
+            st.info(
+                "현재 추가 확인이 필요한 환자가 없습니다."
+            )
+
+
+    # =====================================================
+    # 물품실
+    # =====================================================
+
+    elif st.session_state.location == "물품실":
+
+        st.markdown(
+            '<div class="location-box">'
+            '📦 <b>현재 위치 : 물품실</b><br>'
+            '환자에게 필요한 물품을 직접 선택하세요.'
+            '</div>',
+            unsafe_allow_html=True
+        )
+
+
+        st.markdown("### 📦 물품 선반")
+
+
+        item1, item2, item3 = st.columns(3)
+
+
+        with item1:
+
+            st.markdown(
+                """
+                <div class="room-card">
+                🧠<br><br>
+                신경학적 검사 키트
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+            if st.button(
+                "검사 키트 가져오기",
+                use_container_width=True
+            ):
+
+                get_supply(
+                    "신경학적 검사 키트"
+                )
+
+
+        with item2:
+
+            st.markdown(
+                """
+                <div class="room-card">
+                📄<br><br>
+                MRI 검사 안내서
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+            if st.button(
+                "MRI 안내서 가져오기",
+                use_container_width=True
+            ):
+
+                get_supply(
+                    "MRI 검사 안내서"
+                )
+
+
+        with item3:
+
+            st.markdown(
+                """
+                <div class="room-card">
+                📝<br><br>
+                문진 기록지
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+            if st.button(
+                "문진 기록지 가져오기",
+                use_container_width=True
+            ):
+
+                get_supply(
+                    "문진 기록지"
+                )
+
+
+        if (
+            st.session_state.patient_status
+            == "treatment"
+        ):
+
+            st.info(
+                f"현재 환자에게 필요한 물품: "
+                f"**{patient['required_item']}**"
+            )
+
+
+    # =====================================================
+    # 진료실
+    # =====================================================
+
+    elif st.session_state.location == "진료실":
+
+        st.markdown(
+            '<div class="location-box">'
+            '🛏️ <b>현재 위치 : 진료실</b><br>'
+            '진료를 기다리는 환자에게 필요한 준비물을 전달하세요.'
+            '</div>',
+            unsafe_allow_html=True
+        )
+
+
+        if (
+            st.session_state.patient_status
+            == "treatment"
+        ):
+
+            left, right = st.columns(
+                [1, 1.2]
+            )
+
+
+            with left:
+
+                show_patient_image(
+                    patient
+                )
+
+
+            with right:
+
+                st.markdown(
+                    f"""
+                    <div class="patient-box">
+
+                    <h2>🛏️ {patient["name"]}</h2>
+
+                    환자가 진료를 기다리고 있습니다.
+
+                    <br><br>
+
+                    <b>필요한 준비물</b><br>
+
+                    📦 {patient["required_item"]}
+
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+
+            if st.button(
+                "🎒 가지고 있는 물품 전달",
+                use_container_width=True
+            ):
+
+                use_item()
+
+                st.rerun()
+
+
+        elif (
+            st.session_state.patient_status
+            == "completed"
+        ):
+
+            st.markdown(
+                f"""
+                <div class="success-box">
+
+                {st.session_state.result_message}
+
+                <br><br>
+
+                <b>판단 근거</b><br>
+                {patient["reason"]}
+
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+
+            st.markdown(
+                f"""
+                <div class="info-box">
+
+                <b>🧠 MEDICAL NOTE</b><br><br>
+
+                {patient["medical_note"]}
+
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+
+            if st.button(
+                "다음 환자 접수 →",
+                use_container_width=True
+            ):
+
+                next_patient()
+
+                st.rerun()
+
+
+        else:
+
+            st.info(
+                "현재 진료실에서 기다리는 환자가 없습니다."
+            )
