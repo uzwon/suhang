@@ -369,10 +369,10 @@ function resetGame() {
     const s = findTile("S");
 
     player = {
-        x: s.x * TILE + 2,
-        y: s.y * TILE - 2,
-        w: 28,
-        h: 34,
+        x: s.x * TILE + 1,
+        y: s.y * TILE - 5,
+        w: 30,
+        h: 38,
         speed: 2.35,
         facing: "down",
         walking: false,
@@ -525,7 +525,6 @@ function isBlockedTile(tx, ty) {
     const ch = MAP[ty][tx];
 
     if (isObstacle(ch)) return true;
-
     if (ch === "C" && !state.hasKeycard) return true;
     if (ch === "D" && !state.powerOn) return true;
 
@@ -656,6 +655,7 @@ function interact() {
             state.powerOn = true;
             ghosts[1].active = true;
             ghosts[2].active = true;
+
             setMessage("⚡ 발전기가 작동했어! 병원 전원이 복구되었어.");
             addLog("비상 발전기를 복구했습니다.");
             addLog("추가 순찰 그림자가 움직이기 시작했습니다.");
@@ -674,6 +674,7 @@ function interact() {
             setMessage("🚪 보안 구역이 잠겨 있어. 먼저 전원을 복구해야 해.");
             return;
         }
+
         state.hasMasterKey = true;
         setMessage("🗝️ 마스터 키를 손에 넣었어! 이제 엘리베이터를 사용할 수 있을지도 몰라.");
         addLog("원장실 안쪽에서 마스터 키를 확보했습니다.");
@@ -705,7 +706,7 @@ function interact() {
     }
 
     if (isNearTile("C") && !state.hasKeycard) {
-        setMessage("🪪 이 파란 보안문을 열려면 출입카드가 필요해.");
+        setMessage("🪪 이 보안문을 열려면 출입카드가 필요해.");
         return;
     }
 
@@ -751,8 +752,8 @@ function checkGameOver() {
 
 function resetPlayerPosition() {
     const s = findTile("S");
-    player.x = s.x * TILE + 2;
-    player.y = s.y * TILE - 2;
+    player.x = s.x * TILE + 1;
+    player.y = s.y * TILE - 5;
 }
 
 function rectsOverlap(a, b) {
@@ -982,80 +983,92 @@ function drawPlayer() {
         return;
     }
 
-    drawPixelRect(x + 4, y + 29, 20, 4, "rgba(25,45,55,0.28)");
+    /* 바닥 그림자 */
+    drawPixelRect(x + 4, y + 33, 22, 4, "rgba(20,35,45,0.22)");
 
-    const hair = "#5a382b";
+    /* 검은 외곽선 */
+    drawPixelRect(x + 6, y + 0, 18, 5, "#26343a");
+    drawPixelRect(x + 4, y + 4, 22, 7, "#26343a");
+    drawPixelRect(x + 3, y + 10, 24, 9, "#26343a");
+    drawPixelRect(x + 8, y + 19, 14, 14, "#26343a");
+    drawPixelRect(x + 5, y + 20, 5, 10, "#26343a");
+    drawPixelRect(x + 21, y + 20, 5, 10, "#26343a");
+    drawPixelRect(x + 8, y + 32, 6, 5, "#26343a");
+    drawPixelRect(x + 16, y + 32, 6, 5, "#26343a");
 
-    drawPixelRect(x + 7, y + 1, 13, 4, hair);
-    drawPixelRect(x + 5, y + 4, 17, 5, hair);
-    drawPixelRect(x + 4, y + 7, 4, 7, hair);
-    drawPixelRect(x + 19, y + 7, 4, 7, hair);
+    /* 머리카락 */
+    drawPixelRect(x + 7, y + 1, 16, 4, "#5b392c");
+    drawPixelRect(x + 5, y + 5, 20, 4, "#6b4636");
+    drawPixelRect(x + 5, y + 9, 4, 6, "#5b392c");
+    drawPixelRect(x + 21, y + 9, 4, 6, "#5b392c");
 
-    drawPixelRect(x + 7, y + 7, 13, 9, "#f3c5a5");
+    /* 얼굴 */
+    drawPixelRect(x + 9, y + 8, 12, 9, "#f3c5a5");
 
-    drawPixelRect(x + 5, y + 9, 2, 4, "#e8b493");
-    drawPixelRect(x + 20, y + 9, 2, 4, "#e8b493");
+    /* 귀 */
+    drawPixelRect(x + 7, y + 10, 2, 4, "#e6b08e");
+    drawPixelRect(x + 21, y + 10, 2, 4, "#e6b08e");
 
+    /* 눈/입 */
     if (player.facing === "down") {
-        drawPixelRect(x + 9, y + 10, 2, 2, "#2d3538");
-        drawPixelRect(x + 16, y + 10, 2, 2, "#2d3538");
-        drawPixelRect(x + 12, y + 14, 4, 1, "#a76e68");
+        drawPixelRect(x + 11, y + 11, 2, 2, "#222");
+        drawPixelRect(x + 17, y + 11, 2, 2, "#222");
+        drawPixelRect(x + 14, y + 15, 3, 1, "#b6736d");
+    } else if (player.facing === "left") {
+        drawPixelRect(x + 10, y + 11, 2, 2, "#222");
+        drawPixelRect(x + 8, y + 14, 2, 1, "#b6736d");
+    } else if (player.facing === "right") {
+        drawPixelRect(x + 18, y + 11, 2, 2, "#222");
+        drawPixelRect(x + 20, y + 14, 2, 1, "#b6736d");
+    } else if (player.facing === "up") {
+        drawPixelRect(x + 11, y + 10, 2, 1, "#222");
+        drawPixelRect(x + 17, y + 10, 2, 1, "#222");
     }
 
-    if (player.facing === "left") {
-        drawPixelRect(x + 8, y + 10, 2, 2, "#2d3538");
-        drawPixelRect(x + 6, y + 13, 2, 1, "#a76e68");
-    }
+    /* 목 */
+    drawPixelRect(x + 13, y + 17, 4, 3, "#edb899");
 
-    if (player.facing === "right") {
-        drawPixelRect(x + 17, y + 10, 2, 2, "#2d3538");
-        drawPixelRect(x + 19, y + 13, 2, 1, "#a76e68");
-    }
+    /* 안쪽 옷 */
+    drawPixelRect(x + 11, y + 20, 9, 9, "#63a7b8");
 
-    if (player.facing === "up") {
-        drawPixelRect(x + 9, y + 9, 2, 1, "#2d3538");
-        drawPixelRect(x + 16, y + 9, 2, 1, "#2d3538");
-    }
+    /* 흰 가운 */
+    drawPixelRect(x + 7, y + 20, 5, 12, "#f9fcfd");
+    drawPixelRect(x + 19, y + 20, 5, 12, "#f9fcfd");
+    drawPixelRect(x + 12, y + 20, 3, 12, "#ffffff");
+    drawPixelRect(x + 17, y + 20, 2, 12, "#ffffff");
 
-    drawPixelRect(x + 11, y + 16, 6, 3, "#e9b695");
+    /* 가운 경계 */
+    drawPixelRect(x + 15, y + 20, 1, 12, "#b7cdd4");
+    drawPixelRect(x + 16, y + 20, 1, 12, "#b7cdd4");
 
-    drawPixelRect(x + 8, y + 18, 11, 8, "#63a6b4");
+    /* 명찰 */
+    drawPixelRect(x + 19, y + 22, 4, 3, "#81b8d6");
 
-    drawPixelRect(x + 4, y + 18, 6, 10, "#f4f7f7");
-    drawPixelRect(x + 17, y + 18, 6, 10, "#f4f7f7");
-    drawPixelRect(x + 9, y + 18, 3, 10, "#ffffff");
-    drawPixelRect(x + 15, y + 18, 3, 10, "#ffffff");
+    /* 팔 */
+    drawPixelRect(x + 5, y + 21, 2, 8, "#f7fbfc");
+    drawPixelRect(x + 24, y + 21, 2, 8, "#f7fbfc");
 
-    drawPixelRect(x + 12, y + 18, 1, 10, "#b9cdd2");
-    drawPixelRect(x + 14, y + 18, 1, 10, "#b9cdd2");
+    /* 손 */
+    drawPixelRect(x + 5, y + 29, 2, 3, "#efbd9b");
+    drawPixelRect(x + 24, y + 29, 2, 3, "#efbd9b");
 
-    drawPixelRect(x + 17, y + 20, 4, 3, "#80b7d2");
-
-    drawPixelRect(x + 2, y + 19, 3, 8, "#f4f7f7");
-    drawPixelRect(x + 22, y + 19, 3, 8, "#f4f7f7");
-
-    drawPixelRect(x + 2, y + 26, 3, 3, "#f0bea0");
-    drawPixelRect(x + 22, y + 26, 3, 3, "#f0bea0");
-
-    const pants = "#354f72";
-
+    /* 다리 */
     if (player.walking && player.walkFrame === 1) {
-        drawPixelRect(x + 7, y + 27, 5, 3, pants);
-        drawPixelRect(x + 16, y + 26, 5, 4, pants);
-
-        drawPixelRect(x + 5, y + 30, 7, 2, "#283139");
-        drawPixelRect(x + 16, y + 30, 7, 2, "#283139");
+        drawPixelRect(x + 10, y + 32, 5, 3, "#385173");
+        drawPixelRect(x + 17, y + 31, 5, 4, "#385173");
+        drawPixelRect(x + 9, y + 35, 6, 2, "#273038");
+        drawPixelRect(x + 17, y + 35, 7, 2, "#273038");
     } else {
-        drawPixelRect(x + 7, y + 26, 5, 4, pants);
-        drawPixelRect(x + 15, y + 26, 5, 4, pants);
-
-        drawPixelRect(x + 6, y + 30, 6, 2, "#283139");
-        drawPixelRect(x + 15, y + 30, 6, 2, "#283139");
+        drawPixelRect(x + 10, y + 31, 5, 4, "#385173");
+        drawPixelRect(x + 16, y + 31, 5, 4, "#385173");
+        drawPixelRect(x + 10, y + 35, 5, 2, "#273038");
+        drawPixelRect(x + 16, y + 35, 5, 2, "#273038");
     }
 
-    drawPixelRect(x + 11, y + 19, 1, 5, "#35464d");
-    drawPixelRect(x + 12, y + 23, 4, 1, "#35464d");
-    drawPixelRect(x + 16, y + 22, 2, 2, "#35464d");
+    /* 청진기 */
+    drawPixelRect(x + 13, y + 21, 1, 5, "#3a4d55");
+    drawPixelRect(x + 14, y + 25, 4, 1, "#3a4d55");
+    drawPixelRect(x + 18, y + 24, 2, 2, "#3a4d55");
 }
 
 function drawGhost(g) {
@@ -1068,7 +1081,6 @@ function drawGhost(g) {
     drawPixelRect(x + 5, y + 14, 3, 5, g.color);
     drawPixelRect(x + 9, y + 14, 3, 5, g.color);
     drawPixelRect(x + 13, y + 14, 3, 5, g.color);
-
     drawPixelRect(x + 6, y + 6, 2, 2, "#fffbff");
     drawPixelRect(x + 12, y + 6, 2, 2, "#fffbff");
 }
@@ -1078,14 +1090,14 @@ function drawDarkness() {
 
     const c = playerCenter();
 
-    ctx.fillStyle = "rgba(3,15,24,0.43)";
+    ctx.fillStyle = "rgba(3,15,24,0.36)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     ctx.save();
     ctx.globalCompositeOperation = "destination-out";
 
-    const radius = 145;
-    const grad = ctx.createRadialGradient(c.x, c.y, 18, c.x, c.y, radius);
+    const radius = 150;
+    const grad = ctx.createRadialGradient(c.x, c.y, 22, c.x, c.y, radius);
     grad.addColorStop(0, "rgba(0,0,0,1)");
     grad.addColorStop(1, "rgba(0,0,0,0)");
 
@@ -1115,16 +1127,20 @@ function drawHud() {
 function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    /* 배경 먼저 */
     drawFloor();
     drawWalls();
     drawDoorsAndObjects();
     drawItems();
     drawRoomLabels();
 
+    /* 어둠은 배경에만 덮기 */
+    drawDarkness();
+
+    /* 캐릭터/적은 마지막에 그려서 잘 보이게 */
     ghosts.forEach(g => drawGhost(g));
     drawPlayer();
 
-    drawDarkness();
     drawHud();
 }
 
