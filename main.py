@@ -15,40 +15,48 @@ st.set_page_config(
 
 IMAGE_FOLDER = Path("images")
 
+# 한 밤에 등장하는 환자 수
 PATIENTS_PER_NIGHT = 5
 
-NORMAL_REWARD = 100
+# 정상 환자 1명 치료 성공 시 급여
+NORMAL_PATIENT_REWARD = 600_000
+
+# 변칙 환자가 진료실에 들어온 경우 감봉
+ANOMALY_PENALTY = 200_000
+
+# 상점의 목숨 +1 가격
+LIFE_PRICE = 3_100_000
 
 
 # ============================================================
-# 2. 전체 디자인
+# 2. 디자인
 # ============================================================
 
 st.markdown(
     """
 <style>
 
-/* ============================================================
+/* ------------------------------------------------------------
    전체 병원 배경
-============================================================ */
+------------------------------------------------------------ */
 
 .stApp {
     background:
         linear-gradient(
             90deg,
-            #e4ecee 0%,
-            #e4ecee 73%,
-            #d2dfe2 73%,
-            #d2dfe2 100%
+            #e5edef 0%,
+            #e5edef 73%,
+            #d1dde1 73%,
+            #d1dde1 100%
         );
 
     color: #263a43;
 }
 
 
-/* ============================================================
+/* ------------------------------------------------------------
    오른쪽 병원 벽의 밤 창문
-============================================================ */
+------------------------------------------------------------ */
 
 .stApp::before {
 
@@ -62,7 +70,7 @@ st.markdown(
     width: 260px;
     height: 225px;
 
-    border: 12px solid #f1f5f6;
+    border: 12px solid #f3f7f8;
 
     border-radius: 8px;
 
@@ -72,43 +80,43 @@ st.markdown(
 
         /* 달 */
         radial-gradient(
-            circle at 77% 24%,
-            #fff6bf 0px,
-            #fff6bf 21px,
+            circle at 78% 23%,
+            #fff6bd 0px,
+            #fff6bd 21px,
             transparent 22px
         ),
 
         /* 별 */
         radial-gradient(
-            circle at 15% 17%,
+            circle at 16% 18%,
             white 0px,
             white 2px,
             transparent 3px
         ),
 
         radial-gradient(
-            circle at 31% 37%,
+            circle at 32% 35%,
             white 0px,
             white 2px,
             transparent 3px
         ),
 
         radial-gradient(
-            circle at 50% 20%,
+            circle at 50% 18%,
             white 0px,
             white 2px,
             transparent 3px
         ),
 
         radial-gradient(
-            circle at 66% 43%,
+            circle at 65% 43%,
             white 0px,
             white 2px,
             transparent 3px
         ),
 
         radial-gradient(
-            circle at 24% 63%,
+            circle at 22% 63%,
             white 0px,
             white 2px,
             transparent 3px
@@ -116,20 +124,21 @@ st.markdown(
 
         linear-gradient(
             180deg,
-            #071426 0%,
-            #102949 60%,
-            #1b405f 100%
+            #061323 0%,
+            #102a48 60%,
+            #1b405e 100%
         );
 
     box-shadow:
-        inset 0 0 0 3px #b8c8cd,
+        inset 0 0 0 3px #b7c8cd,
         0 8px 24px rgba(0,0,0,0.18);
 
     z-index: 0;
 }
 
 
-/* 창문 중앙 세로틀 */
+/* 창문 중앙 세로 프레임 */
+
 .stApp::after {
 
     content: "";
@@ -142,15 +151,15 @@ st.markdown(
     width: 7px;
     height: 201px;
 
-    background: #f1f5f6;
+    background: #f3f7f8;
 
     z-index: 1;
 }
 
 
-/* ============================================================
+/* ------------------------------------------------------------
    본문
-============================================================ */
+------------------------------------------------------------ */
 
 .block-container {
 
@@ -165,14 +174,13 @@ st.markdown(
     margin-right: 315px;
 
     padding-top: 1.3rem;
-
     padding-bottom: 4rem;
 }
 
 
-/* ============================================================
+/* ------------------------------------------------------------
    제목
-============================================================ */
+------------------------------------------------------------ */
 
 .game-title {
 
@@ -195,9 +203,9 @@ st.markdown(
 }
 
 
-/* ============================================================
-   상태창
-============================================================ */
+/* ------------------------------------------------------------
+   상태 카드
+------------------------------------------------------------ */
 
 .status-card {
 
@@ -221,9 +229,9 @@ st.markdown(
 }
 
 
-/* ============================================================
+/* ------------------------------------------------------------
    현재 위치
-============================================================ */
+------------------------------------------------------------ */
 
 .location-box {
 
@@ -236,7 +244,6 @@ st.markdown(
     padding: 16px 19px;
 
     margin-top: 16px;
-
     margin-bottom: 13px;
 
     box-shadow: 0 6px 18px rgba(40,60,70,0.10);
@@ -249,13 +256,13 @@ st.markdown(
 }
 
 
-/* ============================================================
+/* ------------------------------------------------------------
    일반 패널
-============================================================ */
+------------------------------------------------------------ */
 
 .panel {
 
-    background: rgba(250,253,254,0.97);
+    background: rgba(250,253,254,0.98);
 
     border: 1px solid #afc1c8;
 
@@ -275,16 +282,15 @@ st.markdown(
 }
 
 
-/* ============================================================
+/* ------------------------------------------------------------
    환자 사진
-============================================================ */
+------------------------------------------------------------ */
 
 .photo-card {
 
     min-height: 420px;
 
     background:
-
         linear-gradient(
             180deg,
             #e3edef 0%,
@@ -309,9 +315,35 @@ st.markdown(
 }
 
 
-/* ============================================================
+/* ------------------------------------------------------------
+   튜토리얼
+------------------------------------------------------------ */
+
+.tutorial-box {
+
+    background: #fff6d8;
+
+    border-left: 7px solid #dfbb4d;
+
+    border-radius: 14px;
+
+    padding: 19px;
+
+    margin-top: 17px;
+
+    line-height: 1.8;
+}
+
+.tutorial-box,
+.tutorial-box * {
+
+    color: #584e2c !important;
+}
+
+
+/* ------------------------------------------------------------
    검사 결과
-============================================================ */
+------------------------------------------------------------ */
 
 .exam-box {
 
@@ -335,9 +367,9 @@ st.markdown(
 }
 
 
-/* ============================================================
+/* ------------------------------------------------------------
    성공
-============================================================ */
+------------------------------------------------------------ */
 
 .success-box {
 
@@ -361,9 +393,9 @@ st.markdown(
 }
 
 
-/* ============================================================
-   변칙 경고
-============================================================ */
+/* ------------------------------------------------------------
+   변칙 환자
+------------------------------------------------------------ */
 
 .anomaly-box {
 
@@ -391,9 +423,9 @@ st.markdown(
 }
 
 
-/* ============================================================
+/* ------------------------------------------------------------
    인벤토리
-============================================================ */
+------------------------------------------------------------ */
 
 .inventory {
 
@@ -415,13 +447,13 @@ st.markdown(
 }
 
 
-/* ============================================================
-   아이템
-============================================================ */
+/* ------------------------------------------------------------
+   물품
+------------------------------------------------------------ */
 
 .item-card {
 
-    background: rgba(250,253,254,0.97);
+    background: rgba(250,253,254,0.98);
 
     border: 1px solid #abc0c7;
 
@@ -443,9 +475,35 @@ st.markdown(
 }
 
 
-/* ============================================================
+/* ------------------------------------------------------------
+   급여
+------------------------------------------------------------ */
+
+.salary-box {
+
+    background: #fff6d9;
+
+    border-left: 7px solid #d9b94e;
+
+    border-radius: 15px;
+
+    padding: 21px;
+
+    margin-top: 18px;
+
+    line-height: 1.9;
+}
+
+.salary-box,
+.salary-box * {
+
+    color: #584d2c !important;
+}
+
+
+/* ------------------------------------------------------------
    상점
-============================================================ */
+------------------------------------------------------------ */
 
 .shop-card {
 
@@ -455,13 +513,13 @@ st.markdown(
 
     border-radius: 16px;
 
-    padding: 18px;
+    padding: 17px;
 
     text-align: center;
 
-    min-height: 150px;
+    min-height: 145px;
 
-    box-shadow: 0 6px 18px rgba(40,60,70,0.10);
+    box-shadow: 0 5px 16px rgba(40,60,70,0.10);
 }
 
 .shop-card,
@@ -471,75 +529,9 @@ st.markdown(
 }
 
 
-/* ============================================================
-   캐릭터
-============================================================ */
-
-.character-card {
-
-    background:
-
-        linear-gradient(
-            180deg,
-            #eef4f6 0%,
-            #dce8eb 100%
-        );
-
-    border-radius: 18px;
-
-    border: 1px solid #abc0c7;
-
-    padding: 22px;
-
-    text-align: center;
-
-    min-height: 245px;
-}
-
-.character-face {
-
-    font-size: 75px;
-
-    margin-bottom: 10px;
-}
-
-.character-accessory {
-
-    font-size: 35px;
-
-    margin-bottom: 6px;
-}
-
-
-/* ============================================================
-   급여 정산
-============================================================ */
-
-.salary-box {
-
-    background: #fff6d9;
-
-    border-left: 7px solid #d8b84c;
-
-    border-radius: 14px;
-
-    padding: 20px;
-
-    margin-top: 18px;
-
-    line-height: 1.8;
-}
-
-.salary-box,
-.salary-box * {
-
-    color: #584e2c !important;
-}
-
-
-/* ============================================================
+/* ------------------------------------------------------------
    지도
-============================================================ */
+------------------------------------------------------------ */
 
 .map-room {
 
@@ -561,9 +553,48 @@ st.markdown(
 }
 
 
-/* ============================================================
+/* ------------------------------------------------------------
+   캐릭터 카드
+------------------------------------------------------------ */
+
+.character-card {
+
+    background:
+        linear-gradient(
+            180deg,
+            #f7fbfc,
+            #e8f0f2
+        );
+
+    border: 1px solid #adc0c7;
+
+    border-radius: 18px;
+
+    padding: 22px;
+
+    text-align: center;
+}
+
+.character-preview {
+
+    font-size: 72px;
+
+    margin-bottom: 10px;
+}
+
+.custom-text {
+
+    font-size: 14px;
+
+    line-height: 1.9;
+
+    color: #445c67;
+}
+
+
+/* ------------------------------------------------------------
    버튼
-============================================================ */
+------------------------------------------------------------ */
 
 .stButton > button {
 
@@ -577,9 +608,9 @@ st.markdown(
 }
 
 
-/* ============================================================
-   기본 글씨
-============================================================ */
+/* ------------------------------------------------------------
+   기본 글자
+------------------------------------------------------------ */
 
 h1,
 h2,
@@ -595,17 +626,15 @@ label {
     color: #2b414a;
 }
 
-
-/* multiselect */
 div[data-baseweb="select"] * {
 
     color: #253941 !important;
 }
 
 
-/* ============================================================
+/* ------------------------------------------------------------
    모바일
-============================================================ */
+------------------------------------------------------------ */
 
 @media (max-width: 900px) {
 
@@ -639,13 +668,10 @@ PATIENTS = [
 
     {
         "id": 1,
-
         "image": "patient01.png",
-
         "anomaly": False,
 
         "exam_text":
-            "환자는 두통과 어지럼증을 호소합니다. "
             "기본적인 신경계 상태 확인이 필요합니다.",
 
         "items": [
@@ -657,14 +683,11 @@ PATIENTS = [
 
     {
         "id": 2,
-
         "image": "patient02.png",
-
         "anomaly": True,
 
         "exam_text":
-            "검사 결과만으로는 특별한 변칙이 확인되지 않습니다. "
-            "필요한 처치를 준비하세요.",
+            "현재 검사만으로는 변칙 여부를 알 수 없습니다.",
 
         "items": [
             "감각검사 카드",
@@ -675,14 +698,11 @@ PATIENTS = [
 
     {
         "id": 3,
-
         "image": "patient03.png",
-
         "anomaly": False,
 
         "exam_text":
-            "최근 기억력 변화가 있어 인지 상태 확인을 위한 "
-            "기본 평가 준비가 필요합니다.",
+            "인지 상태 확인을 위한 기본 평가가 필요합니다.",
 
         "items": [
             "인지검사 카드",
@@ -693,14 +713,11 @@ PATIENTS = [
 
     {
         "id": 4,
-
         "image": "patient04.png",
-
         "anomaly": True,
 
         "exam_text":
-            "환자는 손의 감각 변화를 호소하고 있습니다. "
-            "검사 단계에서는 특별한 변칙이 나타나지 않습니다.",
+            "감각 및 반응 상태 확인이 필요합니다.",
 
         "items": [
             "감각검사 카드",
@@ -711,13 +728,11 @@ PATIENTS = [
 
     {
         "id": 5,
-
         "image": "patient05.png",
-
         "anomaly": False,
 
         "exam_text":
-            "균형감과 반응 상태를 확인하기 위한 기본 검사가 필요합니다.",
+            "신경계 반응 및 상태 확인이 필요합니다.",
 
         "items": [
             "반사검사 도구",
@@ -728,14 +743,11 @@ PATIENTS = [
 
     {
         "id": 6,
-
         "image": "patient06.png",
-
         "anomaly": True,
 
         "exam_text":
-            "환자는 지속적인 어지럼증을 호소합니다. "
-            "현재 검사만으로는 변칙 여부를 알 수 없습니다.",
+            "현재 기본 검사에서는 특별한 변칙을 알 수 없습니다.",
 
         "items": [
             "활력징후 기록 카드",
@@ -746,13 +758,11 @@ PATIENTS = [
 
     {
         "id": 7,
-
         "image": "patient07.png",
-
         "anomaly": False,
 
         "exam_text":
-            "최근 집중력 변화가 있어 간단한 인지 평가가 필요합니다.",
+            "인지 및 기본 상태 확인이 필요합니다.",
 
         "items": [
             "인지검사 카드",
@@ -763,13 +773,11 @@ PATIENTS = [
 
     {
         "id": 8,
-
         "image": "patient08.png",
-
         "anomaly": False,
 
         "exam_text":
-            "손의 감각 및 반응 상태 확인을 위한 준비가 필요합니다.",
+            "감각과 반응 상태 확인이 필요합니다.",
 
         "items": [
             "감각검사 카드",
@@ -781,7 +789,7 @@ PATIENTS = [
 
 
 # ============================================================
-# 4. 물품 목록
+# 4. 치료 / 검사 물품
 # ============================================================
 
 ALL_ITEMS = [
@@ -802,58 +810,41 @@ ALL_ITEMS = [
 
 
 # ============================================================
-# 5. 꾸미기 아이템
+# 5. 캐릭터 꾸미기 상품
 # ============================================================
 
-SHOP_ITEMS = {
+HAIR_ITEMS = {
 
-    "파란 가운": {
-        "price": 0,
-        "type": "coat",
-        "symbol": "🩵"
-    },
+    "단발": 0,
 
-    "분홍 가운": {
-        "price": 300,
-        "type": "coat",
-        "symbol": "🩷"
-    },
+    "긴 머리": 1_200_000,
 
-    "보라 가운": {
-        "price": 450,
-        "type": "coat",
-        "symbol": "💜"
-    },
+    "포니테일": 1_500_000
+}
 
-    "검정 가운": {
-        "price": 600,
-        "type": "coat",
-        "symbol": "🖤"
-    },
 
-    "둥근 안경": {
-        "price": 250,
-        "type": "accessory",
-        "symbol": "👓"
-    },
+EYE_SHAPE_ITEMS = {
 
-    "별 배지": {
-        "price": 200,
-        "type": "badge",
-        "symbol": "⭐"
-    },
+    "둥근 눈": 0,
 
-    "뇌 배지": {
-        "price": 400,
-        "type": "badge",
-        "symbol": "🧠"
-    }
+    "웃는 눈": 900_000,
 
+    "날카로운 눈": 1_100_000
+}
+
+
+EYE_COLOR_ITEMS = {
+
+    "갈색": 0,
+
+    "파란색": 800_000,
+
+    "보라색": 1_000_000
 }
 
 
 # ============================================================
-# 6. 전체 게임 최초 초기화
+# 6. 프로필 초기화
 # ============================================================
 
 def initialize_profile():
@@ -863,37 +854,57 @@ def initialize_profile():
         st.session_state.money = 0
 
 
-    if "owned_items" not in st.session_state:
-
-        st.session_state.owned_items = [
-            "파란 가운"
-        ]
-
-
-    if "selected_coat" not in st.session_state:
-
-        st.session_state.selected_coat = (
-            "파란 가운"
-        )
-
-
-    if "selected_accessory" not in st.session_state:
-
-        st.session_state.selected_accessory = (
-            "없음"
-        )
-
-
-    if "selected_badge" not in st.session_state:
-
-        st.session_state.selected_badge = (
-            "없음"
-        )
-
-
     if "night" not in st.session_state:
 
         st.session_state.night = 1
+
+
+    if "owned_hair" not in st.session_state:
+
+        st.session_state.owned_hair = [
+            "단발"
+        ]
+
+
+    if "owned_eye_shape" not in st.session_state:
+
+        st.session_state.owned_eye_shape = [
+            "둥근 눈"
+        ]
+
+
+    if "owned_eye_color" not in st.session_state:
+
+        st.session_state.owned_eye_color = [
+            "갈색"
+        ]
+
+
+    if "selected_hair" not in st.session_state:
+
+        st.session_state.selected_hair = (
+            "단발"
+        )
+
+
+    if "selected_eye_shape" not in st.session_state:
+
+        st.session_state.selected_eye_shape = (
+            "둥근 눈"
+        )
+
+
+    if "selected_eye_color" not in st.session_state:
+
+        st.session_state.selected_eye_color = (
+            "갈색"
+        )
+
+
+    # 상점에서 산 추가 목숨
+    if "extra_lives" not in st.session_state:
+
+        st.session_state.extra_lives = 0
 
 
 # ============================================================
@@ -914,9 +925,7 @@ def start_night():
 
 
     st.session_state.night_patients = (
-        patient_indices[
-            :PATIENTS_PER_NIGHT
-        ]
+        patient_indices[:PATIENTS_PER_NIGHT]
     )
 
 
@@ -924,11 +933,24 @@ def start_night():
 
     st.session_state.location = "데스크"
 
-    st.session_state.health = 3
+
+    # 기본 체력 3 + 구매한 목숨
+    st.session_state.health = (
+        3
+        +
+        st.session_state.extra_lives
+    )
+
+
+    # 사용 후 초기화
+    st.session_state.extra_lives = 0
+
 
     st.session_state.inventory = []
 
     st.session_state.patient_admitted = False
+
+    st.session_state.patient_rejected = False
 
     st.session_state.examined = False
 
@@ -936,11 +958,17 @@ def start_night():
 
     st.session_state.anomaly_revealed = False
 
+    st.session_state.anomaly_penalty_applied = False
+
     st.session_state.message = ""
 
     st.session_state.normal_treated = 0
 
-    st.session_state.anomalies_found = 0
+    st.session_state.anomalies_admitted = 0
+
+    st.session_state.anomalies_rejected = 0
+
+    st.session_state.normal_rejected = 0
 
     st.session_state.night_finished = False
 
@@ -1011,7 +1039,7 @@ def show_patient(patient):
 
 
         st.caption(
-            "환자 이미지가 아직 등록되지 않았습니다."
+            "images 폴더에 환자 사진을 추가하면 여기에 표시됩니다."
         )
 
 
@@ -1021,26 +1049,83 @@ def show_patient(patient):
 
 def move_room(room):
 
+    patient = current_patient()
+
+
+    # 변칙 환자가 실제 진료실에 들어온 경우
+    # 급여 감봉 대상으로 기록
+    if (
+        room == "진료실"
+        and
+        st.session_state.patient_admitted
+        and
+        patient is not None
+        and
+        patient["anomaly"]
+        and
+        not st.session_state.anomaly_penalty_applied
+    ):
+
+        st.session_state.anomalies_admitted += 1
+
+        st.session_state.anomaly_penalty_applied = True
+
+
     st.session_state.location = room
 
 
 # ============================================================
-# 11. 환자 입장
+# 11. 환자 입장 허용
 # ============================================================
 
 def admit_patient():
 
     st.session_state.patient_admitted = True
 
-    st.session_state.location = "진료실"
-
     st.session_state.message = (
-        "🏥 환자가 진료실로 이동했습니다."
+        "🏥 환자의 병원 출입을 허용했습니다."
     )
 
 
+    # 자동으로 진료실로 이동하지 않음
+
+
 # ============================================================
-# 12. 환자 검사
+# 12. 환자 출입 거절
+# ============================================================
+
+def reject_patient():
+
+    patient = current_patient()
+
+
+    st.session_state.patient_rejected = True
+
+    st.session_state.completed = True
+
+
+    if patient["anomaly"]:
+
+        st.session_state.anomalies_rejected += 1
+
+        st.session_state.message = (
+            "🚨 환자의 출입을 막았습니다. "
+            "확인 결과 변칙성 환자였습니다."
+        )
+
+
+    else:
+
+        st.session_state.normal_rejected += 1
+
+        st.session_state.message = (
+            "⚠️ 환자의 출입을 막았습니다. "
+            "확인 결과 정상 환자였습니다."
+        )
+
+
+# ============================================================
+# 13. 환자 검사
 # ============================================================
 
 def examine_patient():
@@ -1048,13 +1133,12 @@ def examine_patient():
     st.session_state.examined = True
 
     st.session_state.message = (
-        "🔍 검사가 완료되었습니다. "
-        "필요한 물품을 확인하세요."
+        "🔍 환자 검사가 완료되었습니다."
     )
 
 
 # ============================================================
-# 13. 물품 가져오기
+# 14. 물품 획득
 # ============================================================
 
 def add_item(item):
@@ -1073,7 +1157,7 @@ def add_item(item):
     ) >= 4:
 
         st.warning(
-            "인벤토리는 최대 4개까지 보관할 수 있습니다."
+            "인벤토리는 최대 4개의 물품까지만 보관할 수 있습니다."
         )
 
         return
@@ -1085,7 +1169,7 @@ def add_item(item):
 
 
 # ============================================================
-# 14. 물품 적용
+# 15. 치료 물품 적용
 # ============================================================
 
 def apply_items(selected_items):
@@ -1096,34 +1180,30 @@ def apply_items(selected_items):
     if len(selected_items) != 2:
 
         st.warning(
-            "적용할 물품 2개를 선택하세요."
+            "환자에게 적용할 물품 2개를 선택하세요."
         )
 
         return
 
 
-    correct_items = set(
+    required = set(
         patient["items"]
     )
 
-    chosen_items = set(
+    selected = set(
         selected_items
     )
 
 
-    if chosen_items != correct_items:
+    if selected != required:
 
         st.session_state.message = (
             "❌ 필요한 물품 조합이 아닙니다. "
-            "검사 결과를 다시 확인하세요."
+            "검사 결과를 다시 확인해 주세요."
         )
 
         return
 
-
-    # --------------------------------------------------------
-    # 물품이 맞으면 치료 진행
-    # --------------------------------------------------------
 
     st.session_state.completed = True
 
@@ -1138,12 +1218,9 @@ def apply_items(selected_items):
 
         st.session_state.anomaly_revealed = True
 
-        st.session_state.anomalies_found += 1
-
         st.session_state.message = (
             "🚨 변칙성 환자입니다! "
-            "처치 과정에서 변칙 반응이 발생해 "
-            "당신이 데미지를 입었습니다."
+            "치료 과정에서 데미지를 입었습니다."
         )
 
 
@@ -1156,12 +1233,12 @@ def apply_items(selected_items):
         st.session_state.normal_treated += 1
 
         st.session_state.message = (
-            "✅ 정상 환자 치료 완료!"
+            "✅ 정상 환자 치료가 완료되었습니다."
         )
 
 
 # ============================================================
-# 15. 다음 환자
+# 16. 다음 환자
 # ============================================================
 
 def next_patient():
@@ -1169,7 +1246,7 @@ def next_patient():
     st.session_state.current_case += 1
 
 
-    # 체력이 없으면 밤 종료
+    # 체력 소진
     if st.session_state.health <= 0:
 
         st.session_state.night_finished = True
@@ -1177,7 +1254,7 @@ def next_patient():
         return
 
 
-    # 모든 환자 처리 완료
+    # 오늘의 모든 환자 완료
     if (
         st.session_state.current_case
         >= len(
@@ -1196,17 +1273,21 @@ def next_patient():
 
     st.session_state.patient_admitted = False
 
+    st.session_state.patient_rejected = False
+
     st.session_state.examined = False
 
     st.session_state.completed = False
 
     st.session_state.anomaly_revealed = False
 
+    st.session_state.anomaly_penalty_applied = False
+
     st.session_state.message = ""
 
 
 # ============================================================
-# 16. 급여 받기
+# 17. 급여 정산
 # ============================================================
 
 def receive_salary():
@@ -1216,113 +1297,208 @@ def receive_salary():
         return
 
 
-    salary = (
+    # 정상 환자 한 명당 60만 원
+    treatment_pay = (
         st.session_state.normal_treated
         *
-        NORMAL_REWARD
+        NORMAL_PATIENT_REWARD
     )
 
 
-    st.session_state.money += salary
+    # 진료실에 들어온 변칙 환자 한 명당 20만 원 감봉
+    penalty = (
+        st.session_state.anomalies_admitted
+        *
+        ANOMALY_PENALTY
+    )
 
-    st.session_state.last_salary = salary
+
+    final_salary = max(
+        0,
+        treatment_pay - penalty
+    )
+
+
+    st.session_state.last_treatment_pay = (
+        treatment_pay
+    )
+
+    st.session_state.last_penalty = (
+        penalty
+    )
+
+    st.session_state.last_salary = (
+        final_salary
+    )
+
+
+    st.session_state.money += (
+        final_salary
+    )
+
 
     st.session_state.salary_received = True
 
 
 # ============================================================
-# 17. 아이템 구매
+# 18. 꾸미기 상품 구매
 # ============================================================
 
-def buy_item(item_name):
+def buy_cosmetic(
+    item_name,
+    price,
+    category
+):
 
-    info = SHOP_ITEMS[
-        item_name
-    ]
+    if st.session_state.money < price:
 
-
-    if item_name in st.session_state.owned_items:
+        st.warning(
+            "보유 금액이 부족합니다."
+        )
 
         return
 
 
-    if st.session_state.money < info["price"]:
+    if category == "hair":
+
+        if item_name in st.session_state.owned_hair:
+            return
+
+        st.session_state.owned_hair.append(
+            item_name
+        )
+
+
+    elif category == "eye_shape":
+
+        if item_name in st.session_state.owned_eye_shape:
+            return
+
+        st.session_state.owned_eye_shape.append(
+            item_name
+        )
+
+
+    elif category == "eye_color":
+
+        if item_name in st.session_state.owned_eye_color:
+            return
+
+        st.session_state.owned_eye_color.append(
+            item_name
+        )
+
+
+    st.session_state.money -= (
+        price
+    )
+
+
+# ============================================================
+# 19. 목숨 구매
+# ============================================================
+
+def buy_life():
+
+    if st.session_state.money < LIFE_PRICE:
 
         st.warning(
-            "돈이 부족합니다."
+            "목숨을 구매하기 위한 돈이 부족합니다."
         )
 
         return
 
 
     st.session_state.money -= (
-        info["price"]
+        LIFE_PRICE
     )
 
-    st.session_state.owned_items.append(
-        item_name
-    )
+    st.session_state.extra_lives += 1
 
 
 # ============================================================
-# 18. 캐릭터 표시
+# 20. 캐릭터 표시
 # ============================================================
 
 def show_character():
 
-    coat = SHOP_ITEMS[
-        st.session_state.selected_coat
-    ]["symbol"]
+    hair = st.session_state.selected_hair
+
+    eye_shape = (
+        st.session_state.selected_eye_shape
+    )
+
+    eye_color = (
+        st.session_state.selected_eye_color
+    )
 
 
-    accessory = ""
+    hair_symbol = {
 
-    badge = ""
+        "단발": "💇🏻‍♀️",
+
+        "긴 머리": "👩🏻",
+
+        "포니테일": "👱🏻‍♀️"
+
+    }.get(
+        hair,
+        "👩🏻"
+    )
 
 
-    if (
-        st.session_state.selected_accessory
-        != "없음"
-    ):
+    eye_symbol = {
 
-        accessory = SHOP_ITEMS[
-            st.session_state.selected_accessory
-        ]["symbol"]
+        "둥근 눈": "● ●",
+
+        "웃는 눈": "⌒ ⌒",
+
+        "날카로운 눈": "◢ ◣"
+
+    }.get(
+        eye_shape,
+        "● ●"
+    )
 
 
-    if (
-        st.session_state.selected_badge
-        != "없음"
-    ):
+    eye_color_symbol = {
 
-        badge = SHOP_ITEMS[
-            st.session_state.selected_badge
-        ]["symbol"]
+        "갈색": "🟤",
+
+        "파란색": "🔵",
+
+        "보라색": "🟣"
+
+    }.get(
+        eye_color,
+        "🟤"
+    )
 
 
     st.markdown(
         f"""
         <div class="character-card">
 
-        <div class="character-face">
-        🧑‍⚕️
+        <div class="character-preview">
+        {hair_symbol}
         </div>
-
-        <div style="font-size:42px;">
-        {coat}
-        </div>
-
-        <div class="character-accessory">
-        {accessory}
-        </div>
-
-        <div style="font-size:30px;">
-        {badge}
-        </div>
-
-        <br>
 
         <b>당직 의사</b>
+
+        <br><br>
+
+        <div class="custom-text">
+
+        머리 : <b>{hair}</b><br>
+
+        눈 모양 : <b>{eye_shape}</b>
+        &nbsp; {eye_symbol}<br>
+
+        눈 색깔 :
+        <b>{eye_color}</b>
+        &nbsp; {eye_color_symbol}
+
+        </div>
 
         </div>
         """,
@@ -1331,7 +1507,7 @@ def show_character():
 
 
 # ============================================================
-# 19. 프로필 초기화
+# 21. 기본 프로필 설정
 # ============================================================
 
 initialize_profile()
@@ -1343,7 +1519,7 @@ if "game_started" not in st.session_state:
 
 
 # ============================================================
-# 20. 제목
+# 22. 제목
 # ============================================================
 
 st.markdown(
@@ -1361,13 +1537,13 @@ st.markdown(
 
 
 # ============================================================
-# 21. 처음 시작 화면
+# 23. 최초 시작 화면
 # ============================================================
 
 if not st.session_state.game_started:
 
     left, right = st.columns(
-        [1.8, 1]
+        [1.7, 1]
     )
 
 
@@ -1386,22 +1562,19 @@ if not st.session_state.game_started:
 
             <br><br>
 
-            찾아오는 환자를 병원 안으로 들이고
-            진료실에서 검사를 진행하세요.
+            데스크에 찾아오는 환자의 얼굴을 확인하고
+            병원에 들일지 거절할지 판단하세요.
 
             <br><br>
 
-            검사 결과에 따라 필요한 물품 두 가지를
-            물품실에서 준비하여 환자에게 적용해야 합니다.
+            병원 안으로 들인 환자는
+            직접 병원 지도를 이용해 진료실로 이동한 뒤
+            검사해야 합니다.
 
             <br><br>
 
-            하지만 환자들 중 일부는
-            <b>변칙성 환자</b>입니다.
-
-            <br><br>
-
-            변칙성 여부는 치료 전까지 알 수 없습니다.
+            변칙성 환자를 치료하면
+            데미지를 입게 됩니다.
 
             </div>
             """,
@@ -1428,7 +1601,7 @@ if not st.session_state.game_started:
 
 
 # ============================================================
-# 22. 밤 종료 화면
+# 24. 밤 종료 및 상점
 # ============================================================
 
 elif st.session_state.night_finished:
@@ -1438,43 +1611,123 @@ elif st.session_state.night_finished:
         receive_salary()
 
 
-    left, right = st.columns(
-        [1.3, 1]
+    st.markdown(
+        f"""
+        <div class="salary-box">
+
+        <h2>
+        🌅 NIGHT {st.session_state.night} 종료
+        </h2>
+
+        정상 치료 환자 :
+        <b>
+        {st.session_state.normal_treated}명
+        </b>
+
+        <br><br>
+
+        정상 환자 치료 급여 :
+
+        <b>
+        {st.session_state.last_treatment_pay:,}원
+        </b>
+
+        <br>
+
+        (1명당 600,000원)
+
+        <br><br>
+
+        진료실에 들어온 변칙 환자 :
+
+        <b>
+        {st.session_state.anomalies_admitted}명
+        </b>
+
+        <br><br>
+
+        변칙 환자 감봉 :
+
+        <b>
+        -{st.session_state.last_penalty:,}원
+        </b>
+
+        <br>
+
+        (1명당 -200,000원)
+
+        <br><br>
+
+        ─────────────────────
+
+        <br>
+
+        <b>
+        최종 지급 급여 :
+        {st.session_state.last_salary:,}원
+        </b>
+
+        <br><br>
+
+        💰 현재 보유 금액 :
+
+        <b>
+        {st.session_state.money:,}원
+        </b>
+
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
 
-    with left:
+    st.markdown(
+        "## 🛍️ 야간 근무 상점"
+    )
+
+
+    st.caption(
+        "아무것도 구매하지 않고 바로 다음 밤으로 넘어가도 됩니다."
+    )
+
+
+    # ========================================================
+    # 목숨 구매
+    # ========================================================
+
+    st.markdown(
+        "### ❤️ 생존 아이템"
+    )
+
+
+    life_col1, life_col2 = st.columns(
+        [1, 1]
+    )
+
+
+    with life_col1:
 
         st.markdown(
             f"""
-            <div class="salary-box">
+            <div class="shop-card">
 
-            <h2>
-            🌅 NIGHT {st.session_state.night} 종료
-            </h2>
+            <div style="font-size:40px;">
+            ❤️
+            </div>
 
-            정상적으로 치료한 환자 :
-            <b>{st.session_state.normal_treated}명</b>
+            <br>
 
-            <br><br>
-
-            발견된 변칙 환자 :
-            <b>{st.session_state.anomalies_found}명</b>
+            <b>목숨 +1</b>
 
             <br><br>
 
-            급여 :
+            다음 밤의 시작 체력이
+            1 증가합니다.
+
+            <br><br>
 
             <b>
-            {st.session_state.last_salary}원
-            </b>
-
-            <br><br>
-
-            현재 보유 금액 :
-
-            <b>
-            {st.session_state.money}원
+            {LIFE_PRICE:,}원
             </b>
 
             </div>
@@ -1483,71 +1736,59 @@ elif st.session_state.night_finished:
         )
 
 
-    with right:
+        if st.button(
+            "❤️ 목숨 구매",
+            use_container_width=True
+        ):
+
+            buy_life()
+
+            st.rerun()
+
+
+    with life_col2:
 
         show_character()
 
 
-    st.markdown(
-        "## 🛍️ 캐릭터 꾸미기 상점"
-    )
-
-
     # ========================================================
-    # 가운 상점
+    # 머리
     # ========================================================
 
     st.markdown(
-        "### 🥼 가운"
+        "### 💇 머리 모양"
     )
 
 
-    coat_names = [
-
-        name
-
-        for name, info
-        in SHOP_ITEMS.items()
-
-        if info["type"] == "coat"
-    ]
-
-
-    coat_columns = st.columns(
-        len(coat_names)
+    hair_columns = st.columns(
+        3
     )
 
 
-    for index, item_name in enumerate(
-        coat_names
+    for index, (
+        name,
+        price
+    ) in enumerate(
+        HAIR_ITEMS.items()
     ):
 
-        item = SHOP_ITEMS[
-            item_name
-        ]
-
-
-        with coat_columns[
-            index
-        ]:
+        with hair_columns[index]:
 
             st.markdown(
                 f"""
                 <div class="shop-card">
 
-                <div style="font-size:40px;">
-                {item["symbol"]}
+                <div style="font-size:38px;">
+                💇‍♀️
                 </div>
 
                 <br>
 
-                <b>
-                {item_name}
-                </b>
+                <b>{name}</b>
 
                 <br><br>
 
-                {item["price"]}원
+                {price:,}원
 
                 </div>
                 """,
@@ -1555,19 +1796,16 @@ elif st.session_state.night_finished:
             )
 
 
-            if (
-                item_name
-                in st.session_state.owned_items
-            ):
+            if name in st.session_state.owned_hair:
 
                 if st.button(
                     "착용",
-                    key=f"wear_{item_name}",
+                    key=f"hair_wear_{name}",
                     use_container_width=True
                 ):
 
-                    st.session_state.selected_coat = (
-                        item_name
+                    st.session_state.selected_hair = (
+                        name
                     )
 
                     st.rerun()
@@ -1577,73 +1815,57 @@ elif st.session_state.night_finished:
 
                 if st.button(
                     "구매",
-                    key=f"buy_{item_name}",
+                    key=f"hair_buy_{name}",
                     use_container_width=True
                 ):
 
-                    buy_item(
-                        item_name
+                    buy_cosmetic(
+                        name,
+                        price,
+                        "hair"
                     )
 
                     st.rerun()
 
 
     # ========================================================
-    # 액세서리
+    # 눈 모양
     # ========================================================
 
     st.markdown(
-        "### 👓 액세서리 / 배지"
+        "### 👁️ 눈 모양"
     )
 
 
-    other_items = [
-
-        name
-
-        for name, info
-        in SHOP_ITEMS.items()
-
-        if info["type"]
-        != "coat"
-    ]
-
-
-    columns = st.columns(
-        len(other_items)
+    eye_columns = st.columns(
+        3
     )
 
 
-    for index, item_name in enumerate(
-        other_items
+    for index, (
+        name,
+        price
+    ) in enumerate(
+        EYE_SHAPE_ITEMS.items()
     ):
 
-        item = SHOP_ITEMS[
-            item_name
-        ]
-
-
-        with columns[
-            index
-        ]:
+        with eye_columns[index]:
 
             st.markdown(
                 f"""
                 <div class="shop-card">
 
-                <div style="font-size:40px;">
-                {item["symbol"]}
+                <div style="font-size:34px;">
+                👀
                 </div>
 
                 <br>
 
-                <b>
-                {item_name}
-                </b>
+                <b>{name}</b>
 
                 <br><br>
 
-                {item["price"]}원
+                {price:,}원
 
                 </div>
                 """,
@@ -1651,36 +1873,17 @@ elif st.session_state.night_finished:
             )
 
 
-            if (
-                item_name
-                in st.session_state.owned_items
-            ):
+            if name in st.session_state.owned_eye_shape:
 
                 if st.button(
                     "착용",
-                    key=f"use_{item_name}",
+                    key=f"eye_shape_use_{name}",
                     use_container_width=True
                 ):
 
-                    if (
-                        item["type"]
-                        == "accessory"
-                    ):
-
-                        st.session_state.selected_accessory = (
-                            item_name
-                        )
-
-
-                    elif (
-                        item["type"]
-                        == "badge"
-                    ):
-
-                        st.session_state.selected_badge = (
-                            item_name
-                        )
-
+                    st.session_state.selected_eye_shape = (
+                        name
+                    )
 
                     st.rerun()
 
@@ -1689,22 +1892,118 @@ elif st.session_state.night_finished:
 
                 if st.button(
                     "구매",
-                    key=f"shop_{item_name}",
+                    key=f"eye_shape_buy_{name}",
                     use_container_width=True
                 ):
 
-                    buy_item(
-                        item_name
+                    buy_cosmetic(
+                        name,
+                        price,
+                        "eye_shape"
                     )
 
                     st.rerun()
 
+
+    # ========================================================
+    # 눈 색
+    # ========================================================
+
+    st.markdown(
+        "### 🎨 눈 색깔"
+    )
+
+
+    color_columns = st.columns(
+        3
+    )
+
+
+    for index, (
+        name,
+        price
+    ) in enumerate(
+        EYE_COLOR_ITEMS.items()
+    ):
+
+        with color_columns[index]:
+
+            symbol = {
+
+                "갈색": "🟤",
+
+                "파란색": "🔵",
+
+                "보라색": "🟣"
+
+            }[name]
+
+
+            st.markdown(
+                f"""
+                <div class="shop-card">
+
+                <div style="font-size:35px;">
+                {symbol}
+                </div>
+
+                <br>
+
+                <b>{name}</b>
+
+                <br><br>
+
+                {price:,}원
+
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+
+            if name in st.session_state.owned_eye_color:
+
+                if st.button(
+                    "착용",
+                    key=f"eye_color_use_{name}",
+                    use_container_width=True
+                ):
+
+                    st.session_state.selected_eye_color = (
+                        name
+                    )
+
+                    st.rerun()
+
+
+            else:
+
+                if st.button(
+                    "구매",
+                    key=f"eye_color_buy_{name}",
+                    use_container_width=True
+                ):
+
+                    buy_cosmetic(
+                        name,
+                        price,
+                        "eye_color"
+                    )
+
+                    st.rerun()
+
+
+    # ========================================================
+    # 상점을 이용하지 않고 넘어가기 가능
+    # ========================================================
 
     st.write("")
 
+    st.markdown("---")
+
 
     if st.button(
-        "🌙 다음 밤 시작",
+        "🌙 구매하지 않고 다음 밤으로 넘어가기",
         use_container_width=True
     ):
 
@@ -1716,7 +2015,7 @@ elif st.session_state.night_finished:
 
 
 # ============================================================
-# 23. 실제 게임
+# 25. 실제 게임
 # ============================================================
 
 else:
@@ -1725,7 +2024,7 @@ else:
 
 
     # ========================================================
-    # 상단 상태
+    # 상단 상태창
     # ========================================================
 
     s1, s2, s3, s4 = st.columns(
@@ -1801,7 +2100,7 @@ else:
 
 
     # ========================================================
-    # 지도
+    # 병원 지도
     # ========================================================
 
     with s4:
@@ -1828,7 +2127,7 @@ else:
 
             if st.button(
                 "데스크로 이동",
-                key="desk_move",
+                key="map_desk",
                 use_container_width=True
             ):
 
@@ -1839,12 +2138,12 @@ else:
                 st.rerun()
 
 
-            rooms = st.columns(
+            room1, room2 = st.columns(
                 2
             )
 
 
-            with rooms[0]:
+            with room1:
 
                 st.markdown(
                     """
@@ -1857,8 +2156,8 @@ else:
 
 
                 if st.button(
-                    "진료실 이동",
-                    key="treatment_move",
+                    "진료실로 이동",
+                    key="map_treatment",
                     use_container_width=True
                 ):
 
@@ -1869,7 +2168,7 @@ else:
                     st.rerun()
 
 
-            with rooms[1]:
+            with room2:
 
                 st.markdown(
                     """
@@ -1882,8 +2181,8 @@ else:
 
 
                 if st.button(
-                    "물품실 이동",
-                    key="supply_move",
+                    "물품실로 이동",
+                    key="map_supply",
                     use_container_width=True
                 ):
 
@@ -1895,17 +2194,17 @@ else:
 
 
     # ========================================================
-    # 돈
+    # 돈 표시
     # ========================================================
 
     st.caption(
-        f"💰 현재 보유 금액 : "
-        f"{st.session_state.money}원"
+        f"💰 보유 금액 : "
+        f"{st.session_state.money:,}원"
     )
 
 
     # ========================================================
-    # 위치
+    # 현재 위치
     # ========================================================
 
     st.markdown(
@@ -1955,7 +2254,7 @@ else:
 
 
     # ========================================================
-    # 메시지
+    # 상태 메시지
     # ========================================================
 
     if st.session_state.message:
@@ -1969,10 +2268,7 @@ else:
     # 데스크
     # ========================================================
 
-    if (
-        st.session_state.location
-        == "데스크"
-    ):
+    if st.session_state.location == "데스크":
 
         st.markdown(
             "## 🖥️ 병원 데스크"
@@ -1980,7 +2276,7 @@ else:
 
 
         st.caption(
-            "새로운 환자가 병원에 도착했습니다."
+            "환자의 얼굴을 보고 병원 출입 여부를 결정하세요."
         )
 
 
@@ -1989,33 +2285,133 @@ else:
         )
 
 
-        if not st.session_state.patient_admitted:
+        # 아직 판단 전
+        if (
+            not st.session_state.patient_admitted
+            and
+            not st.session_state.patient_rejected
+        ):
+
+            choice1, choice2 = st.columns(
+                2
+            )
+
+
+            with choice1:
+
+                if st.button(
+                    "🏥 환자를 병원 안으로 들인다",
+                    use_container_width=True
+                ):
+
+                    admit_patient()
+
+                    st.rerun()
+
+
+            with choice2:
+
+                if st.button(
+                    "🚫 환자의 출입을 거절한다",
+                    use_container_width=True
+                ):
+
+                    reject_patient()
+
+                    st.rerun()
+
+
+        # ----------------------------------------------------
+        # 입장을 허용한 경우
+        # ----------------------------------------------------
+
+        elif st.session_state.patient_admitted:
+
+            st.markdown(
+                """
+                <div class="tutorial-box">
+
+                <b>📍 TUTORIAL</b>
+
+                <br><br>
+
+                환자가 병원 안으로 들어왔습니다.
+
+                <br><br>
+
+                화면 위의
+                <b>🗺️ 병원 지도</b>를 눌러
+
+                <b>🛏️ 진료실</b>로 직접 이동하세요.
+
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+
+        # ----------------------------------------------------
+        # 출입을 거절한 경우
+        # ----------------------------------------------------
+
+        elif st.session_state.patient_rejected:
+
+            if patient["anomaly"]:
+
+                st.markdown(
+                    """
+                    <div class="success-box">
+
+                    <b>
+                    🚨 변칙성 환자였습니다.
+                    </b>
+
+                    <br><br>
+
+                    병원 출입을 성공적으로 차단했습니다.
+
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+
+            else:
+
+                st.markdown(
+                    """
+                    <div class="anomaly-box">
+
+                    <b>
+                    ⚠️ 정상 환자였습니다.
+                    </b>
+
+                    <br><br>
+
+                    정상 환자를 거절했기 때문에
+                    해당 환자에 대한 치료 급여는 받을 수 없습니다.
+
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
 
             if st.button(
-                "🏥 환자를 병원 안으로 들인다",
+                "다음 환자 →",
                 use_container_width=True
             ):
 
-                admit_patient()
+                next_patient()
 
                 st.rerun()
-
-
-        else:
-
-            st.info(
-                "환자는 이미 진료실로 이동했습니다."
-            )
 
 
     # ========================================================
     # 진료실
     # ========================================================
 
-    elif (
-        st.session_state.location
-        == "진료실"
-    ):
+    elif st.session_state.location == "진료실":
 
         st.markdown(
             "## 🛏️ 진료실"
@@ -2025,25 +2421,25 @@ else:
         if not st.session_state.patient_admitted:
 
             st.warning(
-                "현재 진료실에 환자가 없습니다."
+                "현재 진료실로 들어온 환자가 없습니다."
             )
 
 
         else:
 
-            left, right = st.columns(
-                [1, 1.05]
+            patient_col, info_col = st.columns(
+                [1, 1]
             )
 
 
-            with left:
+            with patient_col:
 
                 show_patient(
                     patient
                 )
 
 
-            with right:
+            with info_col:
 
                 st.markdown(
                     """
@@ -2053,11 +2449,11 @@ else:
                     👤 환자 진료
                     </h3>
 
-                    환자가 진료를 기다리고 있습니다.
+                    환자가 진료실에서 기다리고 있습니다.
 
                     <br><br>
 
-                    먼저 검사를 진행하세요.
+                    먼저 검사를 실시해 주세요.
 
                     </div>
                     """,
@@ -2065,14 +2461,11 @@ else:
                 )
 
 
-            # =================================================
             # 검사 전
-            # =================================================
-
             if not st.session_state.examined:
 
                 if st.button(
-                    "🔍 환자 검사하기",
+                    "🔍 환자 검사",
                     use_container_width=True
                 ):
 
@@ -2081,10 +2474,7 @@ else:
                     st.rerun()
 
 
-            # =================================================
             # 검사 후
-            # =================================================
-
             else:
 
                 item1 = patient[
@@ -2128,10 +2518,7 @@ else:
                 )
 
 
-                # =================================================
                 # 치료 완료
-                # =================================================
-
                 if st.session_state.completed:
 
                     if st.session_state.anomaly_revealed:
@@ -2144,13 +2531,19 @@ else:
                             🚨 변칙성 환자입니다!
                             </h3>
 
-                            치료를 적용하는 순간
-                            비정상적인 반응이 나타났습니다.
+                            물품을 적용하는 순간
+                            변칙 반응이 발생했습니다.
 
                             <br><br>
 
-                            당신은 변칙 반응의 영향으로
-                            <b>체력 1</b>을 잃었습니다.
+                            ❤️ 체력 -1
+
+                            <br><br>
+
+                            또한 이 변칙성 환자를
+                            진료실까지 들였기 때문에
+                            오늘 급여에서
+                            <b>200,000원</b>이 차감됩니다.
 
                             </div>
                             """,
@@ -2168,8 +2561,12 @@ else:
                             ✅ 정상 환자 치료 완료
                             </h3>
 
-                            환자에게 필요한 처치를
-                            정상적으로 완료했습니다.
+                            정상적으로 치료했습니다.
+
+                            <br><br>
+
+                            오늘 급여 계산 시
+                            <b>600,000원</b>이 추가됩니다.
 
                             </div>
                             """,
@@ -2187,31 +2584,44 @@ else:
                         st.rerun()
 
 
-                # =================================================
                 # 치료 전
-                # =================================================
-
                 else:
 
                     if not st.session_state.inventory:
 
-                        st.warning(
-                            "🎒 필요한 물품을 가지러 "
-                            "병원 지도에서 물품실로 이동하세요."
+                        st.markdown(
+                            """
+                            <div class="tutorial-box">
+
+                            필요한 물품을 확인했습니다.
+
+                            <br><br>
+
+                            🗺️ <b>병원 지도</b>를 눌러
+                            📦 <b>물품실</b>로 이동하세요.
+
+                            </div>
+                            """,
+                            unsafe_allow_html=True
                         )
 
 
                     else:
 
+                        st.markdown(
+                            "### 🎒 치료에 사용할 물품 선택"
+                        )
+
+
                         selected_items = st.multiselect(
-                            "환자에게 적용할 물품 2개를 선택하세요.",
+                            "인벤토리에서 2개를 선택하세요.",
                             options=st.session_state.inventory,
                             max_selections=2
                         )
 
 
                         if st.button(
-                            "🩺 물품 적용",
+                            "🩺 선택한 물품 적용",
                             use_container_width=True
                         ):
 
@@ -2226,10 +2636,7 @@ else:
     # 물품실
     # ========================================================
 
-    elif (
-        st.session_state.location
-        == "물품실"
-    ):
+    elif st.session_state.location == "물품실":
 
         st.markdown(
             "## 📦 병원 물품실"
@@ -2237,7 +2644,7 @@ else:
 
 
         st.caption(
-            "검사 결과를 기억하고 필요한 물품을 가져가세요."
+            "검사 결과를 기억하고 필요한 물품을 선택하세요."
         )
 
 
@@ -2255,7 +2662,7 @@ else:
         ]
 
 
-        for row_index, row in enumerate(
+        for row_number, row in enumerate(
             rows
         ):
 
@@ -2264,19 +2671,19 @@ else:
             )
 
 
-            for index, item in enumerate(
+            for item_number, item in enumerate(
                 row
             ):
 
                 with cols[
-                    index
+                    item_number
                 ]:
 
                     st.markdown(
                         f"""
                         <div class="item-card">
 
-                        <div style="font-size:35px;">
+                        <div style="font-size:36px;">
                         🧰
                         </div>
 
@@ -2294,7 +2701,11 @@ else:
 
                     if st.button(
                         "🎒 가져가기",
-                        key=f"item_{row_index}_{index}",
+                        key=(
+                            f"item_"
+                            f"{row_number}_"
+                            f"{item_number}"
+                        ),
                         use_container_width=True
                     ):
 
