@@ -8,316 +8,429 @@ st.set_page_config(
 )
 
 st.title("🏥 MIDNIGHT HOSPITAL")
-st.caption("픽셀 스타일 병원 탈출 게임 · 방향키 이동 / Space 상호작용 / R 재시작")
+st.caption(
+    "픽셀 병원 탈출 게임 · 방향키/WASD 이동 · Space 상호작용 · R 재시작"
+)
 
 game_html = r"""
 <!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>MIDNIGHT HOSPITAL</title>
+
 <style>
 * {
     box-sizing: border-box;
     user-select: none;
 }
 
-body {
+html, body {
     margin: 0;
-    background: linear-gradient(180deg, #dbe7ea 0%, #eef4f6 100%);
+    padding: 0;
+    background: #dde8ec;
     font-family: Arial, sans-serif;
-    color: #20353d;
+    overflow: hidden;
 }
 
 .wrap {
-    width: 100%;
-    padding: 14px;
+    padding: 12px;
 }
 
 .topbar {
-    background: linear-gradient(180deg, #2b4753, #213842);
+    background: linear-gradient(180deg, #29434f, #203640);
     color: white;
-    border-radius: 18px;
-    padding: 16px 18px;
-    margin-bottom: 14px;
-    box-shadow: 0 8px 18px rgba(0,0,0,0.14);
+    border-radius: 16px;
+    padding: 14px 18px;
+    margin-bottom: 12px;
 }
 
 .title {
-    font-size: 30px;
+    font-size: 28px;
     font-weight: 900;
     letter-spacing: 2px;
-    margin-bottom: 6px;
 }
 
 .subtitle {
     font-size: 13px;
-    opacity: 0.96;
+    margin-top: 5px;
+    opacity: 0.9;
 }
 
 .layout {
     display: flex;
-    gap: 14px;
+    gap: 12px;
     align-items: flex-start;
 }
 
-.left-panel {
-    flex: 0 0 auto;
-}
-
-.right-panel {
-    flex: 1 1 auto;
-    min-width: 270px;
-}
-
-.canvas-wrap {
-    background: linear-gradient(180deg, #edf5f7, #dde8ec);
+.game-area {
+    background: #edf4f6;
     border: 2px solid #9db3bb;
-    border-radius: 18px;
-    padding: 12px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.09);
+    border-radius: 16px;
+    padding: 10px;
     position: relative;
 }
 
 #messageBar {
-    background: #fff4d8;
-    border-left: 6px solid #d7b14a;
-    color: #5c4e28;
-    border-radius: 12px;
-    padding: 12px 14px;
+    background: #fff3d5;
+    border-left: 6px solid #d5ae45;
+    border-radius: 10px;
+    padding: 10px 13px;
+    margin-bottom: 8px;
+    min-height: 48px;
+    color: #594c29;
     font-size: 14px;
-    margin-bottom: 10px;
-    min-height: 54px;
-    line-height: 1.55;
 }
 
 canvas {
     display: block;
-    background: #10222b;
-    border: 3px solid #6f8e98;
-    border-radius: 12px;
+    border: 3px solid #688792;
+    border-radius: 8px;
+    background: #132832;
+
     image-rendering: pixelated;
     image-rendering: crisp-edges;
+
     outline: none;
 }
 
-.controls {
-    margin-top: 10px;
-    background: #edf5f7;
-    border-radius: 12px;
-    padding: 10px 12px;
+.help {
+    margin-top: 8px;
+    background: #e4eff2;
+    border-radius: 10px;
+    padding: 9px 12px;
     font-size: 13px;
-    color: #2d4750;
-    line-height: 1.6;
+    line-height: 1.55;
+    color: #2b4751;
+}
+
+.side {
+    width: 270px;
 }
 
 .card {
-    background: rgba(251, 253, 254, 0.98);
-    border: 1px solid #afc1c8;
-    border-radius: 16px;
-    padding: 16px;
-    margin-bottom: 12px;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+    background: #fbfdfe;
+    border: 1px solid #acbec5;
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 10px;
 }
 
 .card h3 {
     margin: 0 0 10px 0;
-    color: #243b44;
-    font-size: 18px;
-}
-
-.hud-line {
-    margin: 8px 0;
-    line-height: 1.5;
-    font-size: 14px;
-}
-
-.inventory-item {
-    background: #eef5f7;
-    border: 1px solid #c7d6db;
-    border-radius: 10px;
-    padding: 8px 10px;
-    margin-bottom: 8px;
-    font-size: 14px;
-}
-
-.log {
-    font-family: monospace;
-    background: #253842;
-    color: #d9e9ee;
-    border-radius: 10px;
-    padding: 10px;
-    margin-bottom: 8px;
-    font-size: 12px;
-    line-height: 1.5;
-}
-
-.button {
-    width: 100%;
-    border: none;
-    border-radius: 12px;
-    background: linear-gradient(180deg, #4f7382, #375a69);
-    color: white;
-    font-weight: 800;
-    padding: 12px;
-    cursor: pointer;
-    font-size: 15px;
-    box-shadow: 0 5px 12px rgba(0,0,0,0.10);
-}
-
-.button:hover {
-    filter: brightness(1.05);
+    font-size: 17px;
+    color: #263e47;
 }
 
 .objective {
-    background: #e9f2fb;
-    border-left: 6px solid #6b8db3;
-    color: #304c62;
-    border-radius: 12px;
-    padding: 12px 14px;
-    line-height: 1.65;
-    font-size: 14px;
+    background: #e8f1fb;
+    border-left: 5px solid #6b8eb4;
+    border-radius: 9px;
+    padding: 10px;
+    color: #304c61;
+    font-size: 13px;
+    line-height: 1.6;
 }
 
-.hint {
-    color: #5f7882;
+.item {
+    background: #edf4f6;
+    border-radius: 8px;
+    padding: 7px 9px;
+    margin-bottom: 6px;
     font-size: 13px;
-    margin-top: 8px;
-    line-height: 1.5;
+}
+
+.stat {
+    margin-bottom: 7px;
+    font-size: 13px;
+}
+
+.log {
+    background: #283b44;
+    color: #dbe8eb;
+    border-radius: 8px;
+    padding: 7px;
+    margin-bottom: 5px;
+    font-family: monospace;
+    font-size: 11px;
+}
+
+button {
+    width: 100%;
+    border: 0;
+    border-radius: 10px;
+    padding: 11px;
+
+    background: #416675;
+    color: white;
+
+    font-weight: 800;
+    cursor: pointer;
 }
 
 .overlay {
     position: absolute;
-    inset: 12px;
+    top: 68px;
+    left: 10px;
+    width: 896px;
+    height: 576px;
+
+    background: rgba(7, 15, 20, 0.72);
+
     display: none;
     align-items: center;
     justify-content: center;
-    text-align: center;
-    padding: 20px;
-    background: rgba(8, 17, 24, 0.65);
-    border-radius: 12px;
+
+    border-radius: 8px;
 }
 
 .overlay-box {
-    width: 85%;
-    max-width: 500px;
-    background: linear-gradient(180deg, #f9fcfd, #e9f1f4);
-    border: 2px solid #9eb4bc;
+    width: 420px;
+    background: white;
     border-radius: 18px;
     padding: 24px;
-    box-shadow: 0 10px 28px rgba(0,0,0,0.25);
+    text-align: center;
 }
 
 .overlay-title {
     font-size: 34px;
     font-weight: 900;
-    color: #223842;
     margin-bottom: 12px;
-    letter-spacing: 1px;
 }
 
 .overlay-text {
-    color: #324b55;
-    line-height: 1.8;
+    line-height: 1.7;
     margin-bottom: 18px;
-    font-size: 15px;
 }
 
-.small {
-    font-size: 12px;
-    color: #70868e;
-    margin-top: 8px;
+/* 테스트용 방향 버튼 */
+.dpad {
+    display: grid;
+    grid-template-columns: 46px 46px 46px;
+    grid-template-rows: 42px 42px 42px;
+    justify-content: center;
+    margin-top: 10px;
+    gap: 3px;
 }
 
-@media (max-width: 1300px) {
+.dpad button {
+    padding: 0;
+    font-size: 20px;
+}
+
+.empty {
+    visibility: hidden;
+}
+
+@media(max-width:1250px) {
     .layout {
         flex-direction: column;
     }
 
-    .right-panel {
+    .side {
         width: 100%;
-    }
-
-    canvas {
-        width: 100%;
-        height: auto;
     }
 }
 </style>
 </head>
-<body>
+
+<body tabindex="0">
+
 <div class="wrap">
+
     <div class="topbar">
         <div class="title">MIDNIGHT HOSPITAL</div>
-        <div class="subtitle">병원 내부를 탐색하고 아이템을 모아 전원을 복구한 뒤 엘리베이터로 탈출하세요.</div>
+
+        <div class="subtitle">
+            야간 병원에서 필요한 물품을 모아 전원을 복구하고 탈출하세요.
+        </div>
     </div>
+
 
     <div class="layout">
-        <div class="left-panel">
-            <div class="canvas-wrap">
-                <div id="messageBar">게임 화면을 한 번 클릭한 뒤 방향키로 이동해 봐. Space 키로 상호작용할 수 있어.</div>
-                <canvas id="game" width="896" height="576" tabindex="0"></canvas>
 
-                <div class="controls">
-                    <b>조작법</b><br>
-                    ← ↑ ↓ → : 이동<br>
-                    Space : 아이템 줍기 / 발전기 / 엘리베이터 상호작용<br>
-                    R : 게임 재시작
-                </div>
+        <div class="game-area">
 
-                <div class="overlay" id="overlay">
-                    <div class="overlay-box" id="overlayBox"></div>
-                </div>
+            <div id="messageBar">
+                게임 화면을 한 번 클릭한 뒤 방향키를 눌러 이동하세요.
             </div>
+
+
+            <canvas
+                id="game"
+                width="896"
+                height="576"
+                tabindex="0">
+            </canvas>
+
+
+            <div class="help">
+
+                <b>조작법</b><br>
+
+                방향키 또는 WASD : 이동<br>
+                Space / Enter : 상호작용<br>
+                R : 게임 재시작
+
+                <div class="dpad">
+
+                    <button class="empty">.</button>
+
+                    <button
+                        onmousedown="pressDirection('ArrowUp')"
+                        onmouseup="releaseDirection('ArrowUp')"
+                        ontouchstart="pressDirection('ArrowUp')"
+                        ontouchend="releaseDirection('ArrowUp')">
+                        ↑
+                    </button>
+
+                    <button class="empty">.</button>
+
+
+                    <button
+                        onmousedown="pressDirection('ArrowLeft')"
+                        onmouseup="releaseDirection('ArrowLeft')">
+                        ←
+                    </button>
+
+                    <button onclick="interact()">◎</button>
+
+                    <button
+                        onmousedown="pressDirection('ArrowRight')"
+                        onmouseup="releaseDirection('ArrowRight')">
+                        →
+                    </button>
+
+
+                    <button class="empty">.</button>
+
+                    <button
+                        onmousedown="pressDirection('ArrowDown')"
+                        onmouseup="releaseDirection('ArrowDown')">
+                        ↓
+                    </button>
+
+                    <button class="empty">.</button>
+
+                </div>
+
+            </div>
+
+
+            <div class="overlay" id="overlay">
+
+                <div class="overlay-box" id="overlayBox">
+                </div>
+
+            </div>
+
         </div>
 
-        <div class="right-panel">
-            <div class="card">
-                <h3>🎯 목표</h3>
-                <div class="objective" id="objectiveBox"></div>
-                <div class="hint">
-                    출입카드, 퓨즈, 배터리, 마스터 키를 모아 병원에서 빠져나가세요.
-                </div>
-            </div>
+
+        <div class="side">
 
             <div class="card">
+
+                <h3>🎯 현재 목표</h3>
+
+                <div
+                    class="objective"
+                    id="objectiveBox">
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
                 <h3>📊 상태</h3>
-                <div id="statusBox"></div>
+
+                <div id="statusBox">
+                </div>
+
             </div>
 
+
             <div class="card">
+
                 <h3>🎒 인벤토리</h3>
-                <div id="inventoryBox"></div>
+
+                <div id="inventoryBox">
+                </div>
+
             </div>
+
 
             <div class="card">
-                <h3>📝 야간 기록</h3>
-                <div id="logBox"></div>
+
+                <h3>📟 기록</h3>
+
+                <div id="logBox">
+                </div>
+
             </div>
 
-            <button class="button" onclick="resetGame()">🔄 새로 시작</button>
+
+            <button onclick="resetGame()">
+                🔄 게임 다시 시작
+            </button>
+
         </div>
+
     </div>
+
 </div>
 
+
 <script>
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+
+/* ============================================================
+   HTML 요소
+============================================================ */
+
+const canvas =
+    document.getElementById("game");
+
+const ctx =
+    canvas.getContext("2d");
+
 ctx.imageSmoothingEnabled = false;
 
-const overlay = document.getElementById("overlay");
-const overlayBox = document.getElementById("overlayBox");
-const messageBar = document.getElementById("messageBar");
-const objectiveBox = document.getElementById("objectiveBox");
-const statusBox = document.getElementById("statusBox");
-const inventoryBox = document.getElementById("inventoryBox");
-const logBox = document.getElementById("logBox");
+
+const messageBar =
+    document.getElementById("messageBar");
+
+const objectiveBox =
+    document.getElementById("objectiveBox");
+
+const statusBox =
+    document.getElementById("statusBox");
+
+const inventoryBox =
+    document.getElementById("inventoryBox");
+
+const logBox =
+    document.getElementById("logBox");
+
+const overlay =
+    document.getElementById("overlay");
+
+const overlayBox =
+    document.getElementById("overlayBox");
+
+
+/* ============================================================
+   맵
+============================================================ */
 
 const TILE = 32;
+
 const COLS = 28;
+
 const ROWS = 18;
 
+
 const MAP = [
+
     "############################",
     "#S....W....T.....#........E#",
     "#.####.######.##.#.######..#",
@@ -336,874 +449,3100 @@ const MAP = [
     "#.....#....#..M..#....Q....#",
     "#..N..#....#######....V....#",
     "############################"
+
 ];
 
-const FLOOR_COLORS = ["#b7c9cf", "#b1c4ca", "#c0d1d6", "#aec1c7"];
+
+const FLOOR_COLORS = [
+
+    "#b6c8ce",
+    "#b2c5cb",
+    "#bdced3",
+    "#acc0c7"
+
+];
+
+
+/* ============================================================
+   게임 변수
+============================================================ */
 
 let player;
+
 let state;
+
 let keys = {};
-let lastTime = performance.now();
-let invuln = 0;
-const ghosts = [];
 
-function findTile(ch) {
-    for (let y = 0; y < ROWS; y++) {
-        for (let x = 0; x < COLS; x++) {
-            if (MAP[y][x] === ch) {
-                return {x, y};
+let ghosts = [];
+
+let lastTime =
+    performance.now();
+
+let invulnerable = 0;
+
+
+/* ============================================================
+   타일 위치 찾기
+============================================================ */
+
+function findTile(symbol) {
+
+    for (
+        let y = 0;
+        y < ROWS;
+        y++
+    ) {
+
+        for (
+            let x = 0;
+            x < COLS;
+            x++
+        ) {
+
+            if (
+                MAP[y][x]
+                ===
+                symbol
+            ) {
+
+                return {
+                    x: x,
+                    y: y
+                };
+
             }
+
         }
+
     }
+
     return null;
+
 }
 
-function tileCenter(tx, ty) {
+
+/* ============================================================
+   타일 중심 좌표
+============================================================ */
+
+function tileCenter(
+    x,
+    y
+) {
+
     return {
-        x: tx * TILE + TILE / 2,
-        y: ty * TILE + TILE / 2
+
+        x:
+            x * TILE
+            +
+            TILE / 2,
+
+        y:
+            y * TILE
+            +
+            TILE / 2
+
     };
+
 }
+
+
+/* ============================================================
+   게임 초기화
+============================================================ */
 
 function resetGame() {
-    const s = findTile("S");
+
+    const start =
+        findTile("S");
+
 
     player = {
-        x: s.x * TILE + 1,
-        y: s.y * TILE - 5,
-        w: 30,
-        h: 38,
-        speed: 2.35,
-        facing: "down",
-        walking: false,
-        walkFrame: 0,
-        walkTimer: 0
+
+        /* 캐릭터가 화면에 그려질 위치 */
+
+        x:
+            start.x * TILE
+            +
+            1,
+
+        y:
+            start.y * TILE
+            -
+            4,
+
+
+        /* 화면에서 보이는 캐릭터 크기 */
+
+        spriteW: 30,
+
+        spriteH: 38,
+
+
+        /*
+        실제 벽 충돌 판정은
+        캐릭터 발 부분만 사용
+
+             캐릭터
+             ████
+             ████
+             ████
+             ▓▓▓▓  ← 여기만 충돌
+        */
+
+        hitW: 18,
+
+        hitH: 10,
+
+        hitOffsetX: 6,
+
+        hitOffsetY: 27,
+
+
+        speed: 155,
+
+
+        facing:
+            "down",
+
+        walking:
+            false,
+
+        walkFrame:
+            0,
+
+        walkTimer:
+            0
+
     };
+
 
     state = {
+
         hearts: 4,
+
         time: 420,
+
         hasKeycard: false,
+
         hasFuse: false,
+
         hasBattery: false,
+
         powerOn: false,
+
         hasMasterKey: false,
+
         won: false,
+
         lost: false,
-        logs: [],
-        message: "병원에 갇혔어. 아이템을 모으고 전원을 복구한 뒤 엘리베이터로 탈출해."
+
+        logs: []
+
     };
 
-    ghosts.length = 0;
 
-    ghosts.push({
-        x: 17 * TILE + 4,
-        y: 2 * TILE + 2,
-        w: 22,
-        h: 22,
-        speed: 1.0,
-        path: [
-            tileCenter(17, 2),
-            tileCenter(24, 2),
-            tileCenter(24, 7),
-            tileCenter(17, 7)
-        ],
-        idx: 1,
-        active: true,
-        color: "#8a72ff"
-    });
+    ghosts = [
 
-    ghosts.push({
-        x: 18 * TILE + 4,
-        y: 13 * TILE + 2,
-        w: 22,
-        h: 22,
-        speed: 1.05,
-        path: [
-            tileCenter(18, 13),
-            tileCenter(23, 13),
-            tileCenter(23, 16),
-            tileCenter(18, 16)
-        ],
-        idx: 1,
-        active: false,
-        color: "#ff74ad"
-    });
+        {
 
-    ghosts.push({
-        x: 3 * TILE + 4,
-        y: 14 * TILE + 2,
-        w: 22,
-        h: 22,
-        speed: 0.95,
-        path: [
-            tileCenter(2, 13),
-            tileCenter(5, 13),
-            tileCenter(5, 16),
-            tileCenter(2, 16)
-        ],
-        idx: 1,
-        active: false,
-        color: "#7ae3ff"
-    });
+            x:
+                17 * TILE,
 
-    state.logs.push("22:00 — 병원 셔터가 내려갔습니다.");
-    state.logs.push("엘리베이터는 전원이 꺼져 있습니다.");
-    state.logs.push("출입카드와 발전기 부품을 찾아야 합니다.");
+            y:
+                3 * TILE,
 
-    setMessage(state.message);
-    overlay.style.display = "none";
-    updatePanels();
-}
+            w:
+                20,
 
-function setMessage(msg) {
-    state.message = msg;
-    messageBar.innerHTML = msg;
-}
+            h:
+                20,
 
-function addLog(msg) {
-    state.logs.unshift(msg);
-    if (state.logs.length > 8) {
-        state.logs.pop();
-    }
-    updatePanels();
-}
+            color:
+                "#957cff",
 
-function updatePanels() {
-    let objective = "";
+            speed:
+                50,
 
-    if (!state.hasKeycard) {
-        objective = "1) <b>출입카드</b>를 찾아 잠긴 보안문을 열어.";
-    } else if (!state.hasFuse) {
-        objective = "2) <b>퓨즈</b>를 찾아. 발전기 수리에 필요해.";
-    } else if (!state.hasBattery) {
-        objective = "3) <b>배터리</b>를 찾아. 비상 발전기에 필요해.";
-    } else if (!state.powerOn) {
-        objective = "4) <b>발전기</b>를 작동시켜 병원 전원을 복구해.";
-    } else if (!state.hasMasterKey) {
-        objective = "5) 보안 구역에서 <b>마스터 키</b>를 찾아.";
-    } else {
-        objective = "6) <b>엘리베이터</b>로 가서 병원에서 탈출해!";
-    }
+            active:
+                true,
 
-    objectiveBox.innerHTML = objective;
+            path: [
 
-    const mins = Math.floor(state.time / 60);
-    const secs = Math.max(0, Math.floor(state.time % 60)).toString().padStart(2, "0");
-    const hearts = "❤️".repeat(Math.max(0, state.hearts));
+                tileCenter(
+                    17,
+                    3
+                ),
 
-    statusBox.innerHTML = `
-        <div class="hud-line"><b>남은 시간</b> : ${mins}:${secs}</div>
-        <div class="hud-line"><b>체력</b> : ${hearts || "없음"}</div>
-        <div class="hud-line"><b>전원 상태</b> : ${state.powerOn ? "✅ 복구됨" : "❌ 꺼짐"}</div>
-        <div class="hud-line"><b>탈출 가능 여부</b> : ${canEscape() ? "✅ 가능" : "❌ 아직 불가"}</div>
-    `;
+                tileCenter(
+                    21,
+                    3
+                ),
 
-    inventoryBox.innerHTML = `
-        <div class="inventory-item">${state.hasKeycard ? "🪪 출입카드" : "⬜ 출입카드 없음"}</div>
-        <div class="inventory-item">${state.hasFuse ? "🧰 퓨즈" : "⬜ 퓨즈 없음"}</div>
-        <div class="inventory-item">${state.hasBattery ? "🔋 배터리" : "⬜ 배터리 없음"}</div>
-        <div class="inventory-item">${state.hasMasterKey ? "🗝️ 마스터 키" : "⬜ 마스터 키 없음"}</div>
-    `;
+                tileCenter(
+                    21,
+                    6
+                ),
 
-    logBox.innerHTML = state.logs.map(log => `<div class="log">${log}</div>`).join("");
-}
+                tileCenter(
+                    17,
+                    6
+                )
 
-function canEscape() {
-    return state.powerOn && state.hasMasterKey;
-}
+            ],
 
-function isObstacle(ch) {
-    return ["#", "W", "T", "H", "Q", "N", "V"].includes(ch);
-}
+            pathIndex:
+                1
 
-function isBlockedTile(tx, ty) {
-    if (tx < 0 || ty < 0 || tx >= COLS || ty >= ROWS) {
-        return true;
-    }
+        }
 
-    const ch = MAP[ty][tx];
-
-    if (isObstacle(ch)) return true;
-    if (ch === "C" && !state.hasKeycard) return true;
-    if (ch === "D" && !state.powerOn) return true;
-
-    return false;
-}
-
-function collidesWall(nx, ny) {
-    const points = [
-        {x: nx, y: ny},
-        {x: nx + player.w - 1, y: ny},
-        {x: nx, y: ny + player.h - 1},
-        {x: nx + player.w - 1, y: ny + player.h - 1}
     ];
 
-    for (const p of points) {
-        const tx = Math.floor(p.x / TILE);
-        const ty = Math.floor(p.y / TILE);
-        if (isBlockedTile(tx, ty)) return true;
-    }
-    return false;
-}
 
-function movePlayer(dt = 0.016) {
-    let dx = 0;
-    let dy = 0;
+    invulnerable = 0;
 
-    player.walking = false;
 
-    if (keys["ArrowLeft"]) {
-        dx -= 1;
-        player.facing = "left";
-        player.walking = true;
-    }
-    if (keys["ArrowRight"]) {
-        dx += 1;
-        player.facing = "right";
-        player.walking = true;
-    }
-    if (keys["ArrowUp"]) {
-        dy -= 1;
-        player.facing = "up";
-        player.walking = true;
-    }
-    if (keys["ArrowDown"]) {
-        dy += 1;
-        player.facing = "down";
-        player.walking = true;
-    }
-
-    if (dx !== 0 && dy !== 0) {
-        dx *= 0.7071;
-        dy *= 0.7071;
-    }
-
-    const mx = dx * player.speed;
-    const my = dy * player.speed;
-
-    if (!collidesWall(player.x + mx, player.y)) {
-        player.x += mx;
-    }
-
-    if (!collidesWall(player.x, player.y + my)) {
-        player.y += my;
-    }
-
-    if (player.walking) {
-        player.walkTimer += dt;
-        if (player.walkTimer > 0.16) {
-            player.walkFrame = player.walkFrame === 0 ? 1 : 0;
-            player.walkTimer = 0;
-        }
-    } else {
-        player.walkFrame = 0;
-    }
-}
-
-function playerCenter() {
-    return {
-        x: player.x + player.w / 2,
-        y: player.y + player.h / 2
-    };
-}
-
-function isNearTile(ch, dist = 32) {
-    const pos = findTile(ch);
-    if (!pos) return false;
-
-    const c = playerCenter();
-    const t = tileCenter(pos.x, pos.y);
-
-    return Math.hypot(c.x - t.x, c.y - t.y) <= dist;
-}
-
-function interact() {
-    if (state.won || state.lost) return;
-
-    if (isNearTile("K") && !state.hasKeycard) {
-        state.hasKeycard = true;
-        setMessage("🪪 출입카드를 주웠어! 이제 파란 보안문을 열 수 있어.");
-        addLog("간호 구역에서 출입카드를 발견했습니다.");
-        updatePanels();
-        return;
-    }
-
-    if (isNearTile("F") && !state.hasFuse) {
-        state.hasFuse = true;
-        setMessage("🧰 퓨즈를 주웠어! 발전기 수리에 쓸 수 있어.");
-        addLog("검사실 근처에서 퓨즈를 확보했습니다.");
-        updatePanels();
-        return;
-    }
-
-    if (isNearTile("B") && !state.hasBattery) {
-        state.hasBattery = true;
-        setMessage("🔋 배터리를 주웠어! 비상 발전기에 필요해.");
-        addLog("창고 구역에서 대형 배터리를 찾았습니다.");
-        updatePanels();
-        return;
-    }
-
-    if (isNearTile("P")) {
-        if (state.powerOn) {
-            setMessage("⚡ 이미 병원 전원이 복구되어 있어.");
-            return;
-        }
-
-        if (state.hasFuse && state.hasBattery) {
-            state.powerOn = true;
-            ghosts[1].active = true;
-            ghosts[2].active = true;
-
-            setMessage("⚡ 발전기가 작동했어! 병원 전원이 복구되었어.");
-            addLog("비상 발전기를 복구했습니다.");
-            addLog("추가 순찰 그림자가 움직이기 시작했습니다.");
-            updatePanels();
-        } else {
-            const need = [];
-            if (!state.hasFuse) need.push("퓨즈");
-            if (!state.hasBattery) need.push("배터리");
-            setMessage("⚠️ 발전기를 고치려면 " + need.join(", ") + "가 필요해.");
-        }
-        return;
-    }
-
-    if (isNearTile("M") && !state.hasMasterKey) {
-        if (!state.powerOn) {
-            setMessage("🚪 보안 구역이 잠겨 있어. 먼저 전원을 복구해야 해.");
-            return;
-        }
-
-        state.hasMasterKey = true;
-        setMessage("🗝️ 마스터 키를 손에 넣었어! 이제 엘리베이터를 사용할 수 있을지도 몰라.");
-        addLog("원장실 안쪽에서 마스터 키를 확보했습니다.");
-        updatePanels();
-        return;
-    }
-
-    if (isNearTile("E")) {
-        if (canEscape()) {
-            state.won = true;
-            setMessage("🎉 탈출 성공!");
-            addLog("엘리베이터 작동 성공. 탈출 완료.");
-
-            showOverlay(
-                "ESCAPED!",
-                "엘리베이터를 작동시켜 병원에서 탈출하는 데 성공했어.<br><br>" +
-                "남은 체력 : " + "❤️".repeat(state.hearts) + "<br>" +
-                "남은 시간 : " +
-                Math.floor(state.time / 60) + ":" +
-                Math.floor(state.time % 60).toString().padStart(2, "0")
-            );
-        } else {
-            const need = [];
-            if (!state.powerOn) need.push("전원 복구");
-            if (!state.hasMasterKey) need.push("마스터 키");
-            setMessage("🚪 엘리베이터를 쓰려면 아직 " + need.join(", ") + "가 필요해.");
-        }
-        return;
-    }
-
-    if (isNearTile("C") && !state.hasKeycard) {
-        setMessage("🪪 이 보안문을 열려면 출입카드가 필요해.");
-        return;
-    }
-
-    if (isNearTile("D") && !state.powerOn) {
-        setMessage("⚡ 이 문은 전원이 복구되어야 열려.");
-        return;
-    }
-
-    setMessage("여기서는 지금 할 수 있는 상호작용이 없어.");
-}
-
-function showOverlay(title, text) {
-    overlayBox.innerHTML = `
-        <div class="overlay-title">${title}</div>
-        <div class="overlay-text">${text}</div>
-        <button class="button" onclick="resetGame()">다시 시작</button>
-        <div class="small">R 키를 눌러도 재시작할 수 있어.</div>
-    `;
-    overlay.style.display = "flex";
-}
-
-function checkGameOver() {
-    if (state.time <= 0 && !state.won && !state.lost) {
-        state.lost = true;
-        setMessage("⏰ 시간이 다 되었어...");
-        addLog("06:00 — 탈출에 실패했습니다.");
-        showOverlay(
-            "GAME OVER",
-            "시간이 지나 버렸어.<br><br>병원에서 빠져나오지 못했어."
-        );
-    }
-
-    if (state.hearts <= 0 && !state.won && !state.lost) {
-        state.lost = true;
-        setMessage("💀 더 이상 버틸 수 없어...");
-        addLog("그림자에게 여러 번 붙잡혔습니다.");
-        showOverlay(
-            "GAME OVER",
-            "체력이 모두 소진되었어."
-        );
-    }
-}
-
-function resetPlayerPosition() {
-    const s = findTile("S");
-    player.x = s.x * TILE + 1;
-    player.y = s.y * TILE - 5;
-}
-
-function rectsOverlap(a, b) {
-    return (
-        a.x < b.x + b.w &&
-        a.x + a.w > b.x &&
-        a.y < b.y + b.h &&
-        a.y + a.h > b.y
+    state.logs.push(
+        "22:00 — 병원 셔터가 내려갔습니다."
     );
-}
 
-function moveGhost(g) {
-    if (!g.active) return;
 
-    const target = g.path[g.idx];
-    const cx = g.x + g.w / 2;
-    const cy = g.y + g.h / 2;
+    state.logs.push(
+        "엘리베이터의 전원이 꺼져 있습니다."
+    );
 
-    const dx = target.x - cx;
-    const dy = target.y - cy;
-    const dist = Math.hypot(dx, dy);
 
-    if (dist < 2) {
-        g.idx = (g.idx + 1) % g.path.length;
-        return;
-    }
+    setMessage(
+        "방향키 또는 WASD로 이동해. 병원 안의 출입카드를 먼저 찾아보자."
+    );
 
-    g.x += (dx / dist) * g.speed;
-    g.y += (dy / dist) * g.speed;
-}
 
-function updateGhosts(dt) {
-    if (invuln > 0) {
-        invuln -= dt;
-    }
+    overlay.style.display =
+        "none";
 
-    ghosts.forEach(g => {
-        moveGhost(g);
-
-        if (!state.won && !state.lost && invuln <= 0 && rectsOverlap(player, g)) {
-            state.hearts -= 1;
-            invuln = 1.2;
-            resetPlayerPosition();
-            setMessage("👻 그림자에게 붙잡혔어! 체력이 1 감소했어.");
-            addLog("그림자 순찰자와 충돌했습니다. 체력 감소.");
-            updatePanels();
-            checkGameOver();
-        }
-    });
-}
-
-function drawPixelRect(x, y, w, h, color) {
-    ctx.fillStyle = color;
-    ctx.fillRect(Math.round(x), Math.round(y), w, h);
-}
-
-function drawFloor() {
-    for (let y = 0; y < ROWS; y++) {
-        for (let x = 0; x < COLS; x++) {
-            const ch = MAP[y][x];
-            if (ch !== "#") {
-                const color = FLOOR_COLORS[(x + y) % FLOOR_COLORS.length];
-                drawPixelRect(x * TILE, y * TILE, TILE, TILE, color);
-
-                ctx.fillStyle = "rgba(255,255,255,0.10)";
-                ctx.fillRect(x * TILE + 6, y * TILE + 6, 4, 4);
-                ctx.fillRect(x * TILE + 22, y * TILE + 20, 3, 3);
-            }
-        }
-    }
-}
-
-function drawWalls() {
-    for (let y = 0; y < ROWS; y++) {
-        for (let x = 0; x < COLS; x++) {
-            if (MAP[y][x] === "#") {
-                drawPixelRect(x * TILE, y * TILE, TILE, TILE, "#355360");
-                drawPixelRect(x * TILE + 2, y * TILE + 2, TILE - 4, TILE - 4, "#4d6d79");
-                drawPixelRect(x * TILE + 5, y * TILE + 5, TILE - 10, TILE - 10, "#63838e");
-            }
-        }
-    }
-}
-
-function drawWindow(px, py) {
-    drawPixelRect(px + 4, py + 4, 24, 20, "#ebf7fb");
-    drawPixelRect(px + 6, py + 6, 20, 16, "#7eb8d6");
-    drawPixelRect(px + 15, py + 6, 2, 16, "#dff5ff");
-    drawPixelRect(px + 6, py + 13, 20, 2, "#dff5ff");
-    drawPixelRect(px + 3, py + 3, 26, 22, "#9fb7c1");
-}
-
-function drawDesk(px, py) {
-    drawPixelRect(px + 4, py + 10, 24, 12, "#a6805d");
-    drawPixelRect(px + 6, py + 8, 20, 4, "#c59c73");
-    drawPixelRect(px + 6, py + 22, 3, 8, "#876349");
-    drawPixelRect(px + 23, py + 22, 3, 8, "#876349");
-}
-
-function drawBed(px, py) {
-    drawPixelRect(px + 3, py + 8, 26, 14, "#e9f1f5");
-    drawPixelRect(px + 4, py + 9, 8, 5, "#cfe2ea");
-    drawPixelRect(px + 12, py + 9, 16, 12, "#f7fbfd");
-    drawPixelRect(px + 2, py + 22, 3, 6, "#8ca0a9");
-    drawPixelRect(px + 26, py + 22, 3, 6, "#8ca0a9");
-}
-
-function drawWheelchair(px, py) {
-    drawPixelRect(px + 6, py + 8, 10, 6, "#6f8ca3");
-    drawPixelRect(px + 12, py + 5, 3, 5, "#6f8ca3");
-    drawPixelRect(px + 5, py + 15, 7, 7, "#465862");
-    drawPixelRect(px + 16, py + 15, 8, 8, "#465862");
-    drawPixelRect(px + 15, py + 10, 6, 2, "#7e97ac");
-}
-
-function drawNurseStation(px, py) {
-    drawPixelRect(px + 4, py + 10, 24, 14, "#f0f5f7");
-    drawPixelRect(px + 6, py + 8, 20, 3, "#9bc8d8");
-    drawPixelRect(px + 10, py + 13, 12, 5, "#80b1c0");
-}
-
-function drawVending(px, py) {
-    drawPixelRect(px + 6, py + 3, 18, 26, "#c85e66");
-    drawPixelRect(px + 8, py + 6, 14, 10, "#deeff7");
-    drawPixelRect(px + 10, py + 18, 10, 4, "#f6e18b");
-    drawPixelRect(px + 12, py + 24, 6, 2, "#505f66");
-}
-
-function drawDoorsAndObjects() {
-    for (let y = 0; y < ROWS; y++) {
-        for (let x = 0; x < COLS; x++) {
-            const ch = MAP[y][x];
-            const px = x * TILE;
-            const py = y * TILE;
-
-            if (ch === "W") drawWindow(px, py);
-            if (ch === "T") drawDesk(px, py);
-            if (ch === "H") drawBed(px, py);
-            if (ch === "Q") drawWheelchair(px, py);
-            if (ch === "N") drawNurseStation(px, py);
-            if (ch === "V") drawVending(px, py);
-
-            if (ch === "C") {
-                drawPixelRect(px + 4, py + 2, 24, 28, state.hasKeycard ? "#6fa98c" : "#5e88be");
-                drawPixelRect(px + 8, py + 6, 16, 20, state.hasKeycard ? "#8ec3a8" : "#7ca2d0");
-                drawPixelRect(px + 20, py + 16, 3, 3, "#f5f0d5");
-            }
-
-            if (ch === "D") {
-                drawPixelRect(px + 4, py + 2, 24, 28, state.powerOn ? "#86b48e" : "#8f6d45");
-                drawPixelRect(px + 8, py + 6, 16, 20, state.powerOn ? "#9cd2a7" : "#a98457");
-                drawPixelRect(px + 20, py + 16, 3, 3, "#f6efd6");
-            }
-
-            if (ch === "E") {
-                drawPixelRect(px + 2, py + 2, 28, 28, "#758b93");
-                drawPixelRect(px + 5, py + 4, 10, 24, "#a7bcc3");
-                drawPixelRect(px + 17, py + 4, 10, 24, "#a7bcc3");
-                drawPixelRect(px + 15, py + 14, 2, 4, "#445860");
-                drawPixelRect(px + 10, py + 8, 12, 4, state.powerOn ? "#95f089" : "#d96e6e");
-            }
-
-            if (ch === "P") {
-                drawPixelRect(px + 2, py + 6, 28, 20, "#58707a");
-                drawPixelRect(px + 6, py + 10, 20, 12, "#364952");
-                drawPixelRect(px + 9, py + 13, 4, 4, state.powerOn ? "#97ff8d" : "#d66e6e");
-                drawPixelRect(px + 17, py + 13, 4, 4, state.powerOn ? "#97ff8d" : "#f0cc5f");
-            }
-        }
-    }
-}
-
-function drawItems() {
-    for (let y = 0; y < ROWS; y++) {
-        for (let x = 0; x < COLS; x++) {
-            const ch = MAP[y][x];
-            const px = x * TILE;
-            const py = y * TILE;
-
-            if (ch === "K" && !state.hasKeycard) {
-                drawPixelRect(px + 7, py + 11, 18, 10, "#6fa8ff");
-                drawPixelRect(px + 10, py + 14, 4, 3, "#d9f1ff");
-                drawPixelRect(px + 18, py + 14, 4, 3, "#36506d");
-            }
-
-            if (ch === "F" && !state.hasFuse) {
-                drawPixelRect(px + 10, py + 8, 12, 16, "#e8c85e");
-                drawPixelRect(px + 9, py + 9, 14, 4, "#fff2ab");
-                drawPixelRect(px + 11, py + 20, 10, 2, "#8e6c1f");
-            }
-
-            if (ch === "B" && !state.hasBattery) {
-                drawPixelRect(px + 10, py + 7, 12, 18, "#65bd71");
-                drawPixelRect(px + 13, py + 4, 6, 4, "#bcd2d9");
-                drawPixelRect(px + 13, py + 12, 6, 2, "#dfffe0");
-            }
-
-            if (ch === "M" && !state.hasMasterKey) {
-                drawPixelRect(px + 10, py + 12, 10, 4, "#efc04f");
-                drawPixelRect(px + 18, py + 11, 5, 6, "#efc04f");
-                drawPixelRect(px + 21, py + 12, 2, 2, "#8e6a13");
-            }
-        }
-    }
-}
-
-function drawRoomLabels() {
-    ctx.fillStyle = "rgba(20,45,58,0.78)";
-    ctx.font = "10px monospace";
-
-    ctx.fillText("LOBBY", 42, 28);
-    ctx.fillText("WINDOW", 176, 28);
-    ctx.fillText("NURSE", 275, 154);
-    ctx.fillText("XRAY", 429, 248);
-    ctx.fillText("STORAGE", 53, 315);
-    ctx.fillText("GEN", 43, 411);
-    ctx.fillText("DIRECTOR", 434, 506);
-    ctx.fillText("CAFE", 746, 539);
-    ctx.fillText("EXIT", 812, 28);
-}
-
-function drawPlayer() {
-    const x = Math.round(player.x);
-    const y = Math.round(player.y);
-
-    if (invuln > 0 && Math.floor(invuln * 10) % 2 === 0) {
-        return;
-    }
-
-    /* 바닥 그림자 */
-    drawPixelRect(x + 4, y + 33, 22, 4, "rgba(20,35,45,0.22)");
-
-    /* 검은 외곽선 */
-    drawPixelRect(x + 6, y + 0, 18, 5, "#26343a");
-    drawPixelRect(x + 4, y + 4, 22, 7, "#26343a");
-    drawPixelRect(x + 3, y + 10, 24, 9, "#26343a");
-    drawPixelRect(x + 8, y + 19, 14, 14, "#26343a");
-    drawPixelRect(x + 5, y + 20, 5, 10, "#26343a");
-    drawPixelRect(x + 21, y + 20, 5, 10, "#26343a");
-    drawPixelRect(x + 8, y + 32, 6, 5, "#26343a");
-    drawPixelRect(x + 16, y + 32, 6, 5, "#26343a");
-
-    /* 머리카락 */
-    drawPixelRect(x + 7, y + 1, 16, 4, "#5b392c");
-    drawPixelRect(x + 5, y + 5, 20, 4, "#6b4636");
-    drawPixelRect(x + 5, y + 9, 4, 6, "#5b392c");
-    drawPixelRect(x + 21, y + 9, 4, 6, "#5b392c");
-
-    /* 얼굴 */
-    drawPixelRect(x + 9, y + 8, 12, 9, "#f3c5a5");
-
-    /* 귀 */
-    drawPixelRect(x + 7, y + 10, 2, 4, "#e6b08e");
-    drawPixelRect(x + 21, y + 10, 2, 4, "#e6b08e");
-
-    /* 눈/입 */
-    if (player.facing === "down") {
-        drawPixelRect(x + 11, y + 11, 2, 2, "#222");
-        drawPixelRect(x + 17, y + 11, 2, 2, "#222");
-        drawPixelRect(x + 14, y + 15, 3, 1, "#b6736d");
-    } else if (player.facing === "left") {
-        drawPixelRect(x + 10, y + 11, 2, 2, "#222");
-        drawPixelRect(x + 8, y + 14, 2, 1, "#b6736d");
-    } else if (player.facing === "right") {
-        drawPixelRect(x + 18, y + 11, 2, 2, "#222");
-        drawPixelRect(x + 20, y + 14, 2, 1, "#b6736d");
-    } else if (player.facing === "up") {
-        drawPixelRect(x + 11, y + 10, 2, 1, "#222");
-        drawPixelRect(x + 17, y + 10, 2, 1, "#222");
-    }
-
-    /* 목 */
-    drawPixelRect(x + 13, y + 17, 4, 3, "#edb899");
-
-    /* 안쪽 옷 */
-    drawPixelRect(x + 11, y + 20, 9, 9, "#63a7b8");
-
-    /* 흰 가운 */
-    drawPixelRect(x + 7, y + 20, 5, 12, "#f9fcfd");
-    drawPixelRect(x + 19, y + 20, 5, 12, "#f9fcfd");
-    drawPixelRect(x + 12, y + 20, 3, 12, "#ffffff");
-    drawPixelRect(x + 17, y + 20, 2, 12, "#ffffff");
-
-    /* 가운 경계 */
-    drawPixelRect(x + 15, y + 20, 1, 12, "#b7cdd4");
-    drawPixelRect(x + 16, y + 20, 1, 12, "#b7cdd4");
-
-    /* 명찰 */
-    drawPixelRect(x + 19, y + 22, 4, 3, "#81b8d6");
-
-    /* 팔 */
-    drawPixelRect(x + 5, y + 21, 2, 8, "#f7fbfc");
-    drawPixelRect(x + 24, y + 21, 2, 8, "#f7fbfc");
-
-    /* 손 */
-    drawPixelRect(x + 5, y + 29, 2, 3, "#efbd9b");
-    drawPixelRect(x + 24, y + 29, 2, 3, "#efbd9b");
-
-    /* 다리 */
-    if (player.walking && player.walkFrame === 1) {
-        drawPixelRect(x + 10, y + 32, 5, 3, "#385173");
-        drawPixelRect(x + 17, y + 31, 5, 4, "#385173");
-        drawPixelRect(x + 9, y + 35, 6, 2, "#273038");
-        drawPixelRect(x + 17, y + 35, 7, 2, "#273038");
-    } else {
-        drawPixelRect(x + 10, y + 31, 5, 4, "#385173");
-        drawPixelRect(x + 16, y + 31, 5, 4, "#385173");
-        drawPixelRect(x + 10, y + 35, 5, 2, "#273038");
-        drawPixelRect(x + 16, y + 35, 5, 2, "#273038");
-    }
-
-    /* 청진기 */
-    drawPixelRect(x + 13, y + 21, 1, 5, "#3a4d55");
-    drawPixelRect(x + 14, y + 25, 4, 1, "#3a4d55");
-    drawPixelRect(x + 18, y + 24, 2, 2, "#3a4d55");
-}
-
-function drawGhost(g) {
-    if (!g.active) return;
-
-    const x = Math.round(g.x);
-    const y = Math.round(g.y);
-
-    drawPixelRect(x + 3, y + 2, 14, 12, g.color);
-    drawPixelRect(x + 5, y + 14, 3, 5, g.color);
-    drawPixelRect(x + 9, y + 14, 3, 5, g.color);
-    drawPixelRect(x + 13, y + 14, 3, 5, g.color);
-    drawPixelRect(x + 6, y + 6, 2, 2, "#fffbff");
-    drawPixelRect(x + 12, y + 6, 2, 2, "#fffbff");
-}
-
-function drawDarkness() {
-    if (state.powerOn) return;
-
-    const c = playerCenter();
-
-    ctx.fillStyle = "rgba(3,15,24,0.36)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.save();
-    ctx.globalCompositeOperation = "destination-out";
-
-    const radius = 150;
-    const grad = ctx.createRadialGradient(c.x, c.y, 22, c.x, c.y, radius);
-    grad.addColorStop(0, "rgba(0,0,0,1)");
-    grad.addColorStop(1, "rgba(0,0,0,0)");
-
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.arc(c.x, c.y, radius, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.restore();
-}
-
-function drawHud() {
-    ctx.fillStyle = "rgba(15,36,46,0.75)";
-    ctx.fillRect(0, 0, canvas.width, 24);
-
-    ctx.font = "12px monospace";
-    ctx.fillStyle = "#ffffff";
-
-    const mins = Math.floor(state.time / 60);
-    const secs = Math.max(0, Math.floor(state.time % 60)).toString().padStart(2, "0");
-
-    ctx.fillText("TIME " + mins + ":" + secs, 10, 16);
-    ctx.fillText("HP " + "♥".repeat(Math.max(0, state.hearts)), 170, 16);
-    ctx.fillText("POWER " + (state.powerOn ? "ON" : "OFF"), 300, 16);
-}
-
-function render() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    /* 배경 먼저 */
-    drawFloor();
-    drawWalls();
-    drawDoorsAndObjects();
-    drawItems();
-    drawRoomLabels();
-
-    /* 어둠은 배경에만 덮기 */
-    drawDarkness();
-
-    /* 캐릭터/적은 마지막에 그려서 잘 보이게 */
-    ghosts.forEach(g => drawGhost(g));
-    drawPlayer();
-
-    drawHud();
-}
-
-function update(dt) {
-    if (state.won || state.lost) return;
-
-    state.time -= dt;
-    if (state.time < 0) state.time = 0;
-
-    movePlayer(dt);
-    updateGhosts(dt);
 
     updatePanels();
-    checkGameOver();
+
+
+    focusGame();
+
 }
 
-function gameLoop(now) {
-    const dt = Math.min((now - lastTime) / 1000, 0.05);
-    lastTime = now;
 
-    update(dt);
+/* ============================================================
+   게임 포커스
+============================================================ */
+
+function focusGame() {
+
+    canvas.focus();
+
+    document.body.focus();
+
+}
+
+
+/* ============================================================
+   메시지
+============================================================ */
+
+function setMessage(text) {
+
+    messageBar.innerHTML =
+        text;
+
+}
+
+
+/* ============================================================
+   로그
+============================================================ */
+
+function addLog(text) {
+
+    state.logs.unshift(
+        text
+    );
+
+
+    if (
+        state.logs.length > 7
+    ) {
+
+        state.logs.pop();
+
+    }
+
+
+    updatePanels();
+
+}
+
+
+/* ============================================================
+   상태 패널
+============================================================ */
+
+function updatePanels() {
+
+    let objective = "";
+
+
+    if (
+        !state.hasKeycard
+    ) {
+
+        objective =
+            "1. 병원 내부에서 <b>출입카드</b>를 찾아.";
+
+    }
+
+    else if (
+        !state.hasFuse
+    ) {
+
+        objective =
+            "2. 발전기 수리에 필요한 <b>퓨즈</b>를 찾아.";
+
+    }
+
+    else if (
+        !state.hasBattery
+    ) {
+
+        objective =
+            "3. <b>비상 배터리</b>를 찾아.";
+
+    }
+
+    else if (
+        !state.powerOn
+    ) {
+
+        objective =
+            "4. 발전기실로 가서 <b>전원을 복구</b>해.";
+
+    }
+
+    else if (
+        !state.hasMasterKey
+    ) {
+
+        objective =
+            "5. <b>마스터 키</b>를 찾아.";
+
+    }
+
+    else {
+
+        objective =
+            "6. 엘리베이터로 가서 <b>탈출</b>해!";
+
+    }
+
+
+    objectiveBox.innerHTML =
+        objective;
+
+
+    const minutes =
+        Math.floor(
+            state.time / 60
+        );
+
+
+    const seconds =
+        Math.floor(
+            state.time % 60
+        )
+        .toString()
+        .padStart(
+            2,
+            "0"
+        );
+
+
+    statusBox.innerHTML = `
+
+        <div class="stat">
+            <b>시간</b>
+            ${minutes}:${seconds}
+        </div>
+
+        <div class="stat">
+            <b>체력</b>
+            ${"❤️".repeat(
+                Math.max(
+                    0,
+                    state.hearts
+                )
+            )}
+        </div>
+
+        <div class="stat">
+            <b>병원 전원</b>
+            ${
+                state.powerOn
+                ?
+                "✅ ON"
+                :
+                "❌ OFF"
+            }
+        </div>
+
+    `;
+
+
+    inventoryBox.innerHTML = `
+
+        <div class="item">
+            ${
+                state.hasKeycard
+                ?
+                "🪪 출입카드"
+                :
+                "⬜ 출입카드"
+            }
+        </div>
+
+        <div class="item">
+            ${
+                state.hasFuse
+                ?
+                "🧰 퓨즈"
+                :
+                "⬜ 퓨즈"
+            }
+        </div>
+
+        <div class="item">
+            ${
+                state.hasBattery
+                ?
+                "🔋 비상 배터리"
+                :
+                "⬜ 비상 배터리"
+            }
+        </div>
+
+        <div class="item">
+            ${
+                state.hasMasterKey
+                ?
+                "🗝️ 마스터 키"
+                :
+                "⬜ 마스터 키"
+            }
+        </div>
+
+    `;
+
+
+    logBox.innerHTML =
+        state.logs
+        .map(
+
+            log =>
+                `<div class="log">${log}</div>`
+
+        )
+        .join("");
+
+}
+
+
+/* ============================================================
+   장애물 여부
+============================================================ */
+
+function isObstacle(
+    symbol
+) {
+
+    return [
+
+        "#",
+        "W",
+        "T",
+        "H",
+        "Q",
+        "N",
+        "V"
+
+    ].includes(
+        symbol
+    );
+
+}
+
+
+/* ============================================================
+   막힌 타일 판단
+============================================================ */
+
+function tileBlocked(
+    tx,
+    ty
+) {
+
+    if (
+        tx < 0
+        ||
+        ty < 0
+        ||
+        tx >= COLS
+        ||
+        ty >= ROWS
+    ) {
+
+        return true;
+
+    }
+
+
+    const symbol =
+        MAP[ty][tx];
+
+
+    if (
+        isObstacle(
+            symbol
+        )
+    ) {
+
+        return true;
+
+    }
+
+
+    if (
+        symbol === "C"
+        &&
+        !state.hasKeycard
+    ) {
+
+        return true;
+
+    }
+
+
+    if (
+        symbol === "D"
+        &&
+        !state.powerOn
+    ) {
+
+        return true;
+
+    }
+
+
+    return false;
+
+}
+
+
+/* ============================================================
+   핵심 수정
+   발 부분만 충돌 판정
+============================================================ */
+
+function collisionAt(
+    newX,
+    newY
+) {
+
+    const left =
+        newX
+        +
+        player.hitOffsetX;
+
+
+    const right =
+        left
+        +
+        player.hitW;
+
+
+    const top =
+        newY
+        +
+        player.hitOffsetY;
+
+
+    const bottom =
+        top
+        +
+        player.hitH;
+
+
+    const points = [
+
+        {
+            x: left,
+            y: top
+        },
+
+        {
+            x: right,
+            y: top
+        },
+
+        {
+            x: left,
+            y: bottom
+        },
+
+        {
+            x: right,
+            y: bottom
+        }
+
+    ];
+
+
+    for (
+        const point
+        of
+        points
+    ) {
+
+        const tx =
+            Math.floor(
+                point.x / TILE
+            );
+
+
+        const ty =
+            Math.floor(
+                point.y / TILE
+            );
+
+
+        if (
+            tileBlocked(
+                tx,
+                ty
+            )
+        ) {
+
+            return true;
+
+        }
+
+    }
+
+
+    return false;
+
+}
+
+
+/* ============================================================
+   플레이어 이동
+============================================================ */
+
+function updatePlayer(
+    dt
+) {
+
+    let dx = 0;
+
+    let dy = 0;
+
+
+    if (
+        keys["ArrowLeft"]
+        ||
+        keys["a"]
+        ||
+        keys["A"]
+    ) {
+
+        dx -= 1;
+
+        player.facing =
+            "left";
+
+    }
+
+
+    if (
+        keys["ArrowRight"]
+        ||
+        keys["d"]
+        ||
+        keys["D"]
+    ) {
+
+        dx += 1;
+
+        player.facing =
+            "right";
+
+    }
+
+
+    if (
+        keys["ArrowUp"]
+        ||
+        keys["w"]
+        ||
+        keys["W"]
+    ) {
+
+        dy -= 1;
+
+        player.facing =
+            "up";
+
+    }
+
+
+    if (
+        keys["ArrowDown"]
+        ||
+        keys["s"]
+        ||
+        keys["S"]
+    ) {
+
+        dy += 1;
+
+        player.facing =
+            "down";
+
+    }
+
+
+    player.walking =
+        dx !== 0
+        ||
+        dy !== 0;
+
+
+    if (
+        dx !== 0
+        &&
+        dy !== 0
+    ) {
+
+        const normalize =
+            Math.sqrt(
+                0.5
+            );
+
+
+        dx *=
+            normalize;
+
+
+        dy *=
+            normalize;
+
+    }
+
+
+    const moveX =
+        dx
+        *
+        player.speed
+        *
+        dt;
+
+
+    const moveY =
+        dy
+        *
+        player.speed
+        *
+        dt;
+
+
+    if (
+        !collisionAt(
+            player.x + moveX,
+            player.y
+        )
+    ) {
+
+        player.x +=
+            moveX;
+
+    }
+
+
+    if (
+        !collisionAt(
+            player.x,
+            player.y + moveY
+        )
+    ) {
+
+        player.y +=
+            moveY;
+
+    }
+
+
+    if (
+        player.walking
+    ) {
+
+        player.walkTimer +=
+            dt;
+
+
+        if (
+            player.walkTimer
+            >
+            0.14
+        ) {
+
+            player.walkFrame =
+                player.walkFrame === 0
+                ?
+                1
+                :
+                0;
+
+
+            player.walkTimer =
+                0;
+
+        }
+
+    }
+
+    else {
+
+        player.walkFrame =
+            0;
+
+    }
+
+}
+
+
+/* ============================================================
+   플레이어 중심
+============================================================ */
+
+function playerCenter() {
+
+    return {
+
+        x:
+            player.x
+            +
+            15,
+
+        y:
+            player.y
+            +
+            27
+
+    };
+
+}
+
+
+/* ============================================================
+   특정 타일 근처인지 확인
+============================================================ */
+
+function nearTile(
+    symbol,
+    distance = 38
+) {
+
+    const tile =
+        findTile(
+            symbol
+        );
+
+
+    if (
+        !tile
+    ) {
+
+        return false;
+
+    }
+
+
+    const playerPos =
+        playerCenter();
+
+
+    const target =
+        tileCenter(
+            tile.x,
+            tile.y
+        );
+
+
+    return (
+
+        Math.hypot(
+
+            playerPos.x
+            -
+            target.x,
+
+            playerPos.y
+            -
+            target.y
+
+        )
+
+        <=
+
+        distance
+
+    );
+
+}
+
+
+/* ============================================================
+   상호작용
+============================================================ */
+
+function interact() {
+
+    focusGame();
+
+
+    if (
+        state.won
+        ||
+        state.lost
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        nearTile("K")
+        &&
+        !state.hasKeycard
+    ) {
+
+        state.hasKeycard =
+            true;
+
+
+        setMessage(
+            "🪪 출입카드를 발견했어! 파란 보안문을 통과할 수 있어."
+        );
+
+
+        addLog(
+            "간호 구역에서 출입카드를 확보했습니다."
+        );
+
+
+        updatePanels();
+
+        return;
+
+    }
+
+
+    if (
+        nearTile("F")
+        &&
+        !state.hasFuse
+    ) {
+
+        state.hasFuse =
+            true;
+
+
+        setMessage(
+            "🧰 퓨즈를 주웠어."
+        );
+
+
+        addLog(
+            "검사 구역에서 퓨즈를 확보했습니다."
+        );
+
+
+        updatePanels();
+
+        return;
+
+    }
+
+
+    if (
+        nearTile("B")
+        &&
+        !state.hasBattery
+    ) {
+
+        state.hasBattery =
+            true;
+
+
+        setMessage(
+            "🔋 비상 배터리를 발견했어."
+        );
+
+
+        addLog(
+            "창고에서 비상 배터리를 확보했습니다."
+        );
+
+
+        updatePanels();
+
+        return;
+
+    }
+
+
+    if (
+        nearTile("P")
+    ) {
+
+        if (
+            state.powerOn
+        ) {
+
+            setMessage(
+                "⚡ 발전기는 이미 작동 중이야."
+            );
+
+            return;
+
+        }
+
+
+        if (
+            state.hasFuse
+            &&
+            state.hasBattery
+        ) {
+
+            state.powerOn =
+                true;
+
+
+            setMessage(
+                "⚡ 발전기 작동 성공! 병원 전원이 복구됐어."
+            );
+
+
+            addLog(
+                "병원 비상 전원이 복구되었습니다."
+            );
+
+
+            updatePanels();
+
+        }
+
+        else {
+
+            const need = [];
+
+
+            if (
+                !state.hasFuse
+            ) {
+
+                need.push(
+                    "퓨즈"
+                );
+
+            }
+
+
+            if (
+                !state.hasBattery
+            ) {
+
+                need.push(
+                    "배터리"
+                );
+
+            }
+
+
+            setMessage(
+
+                "⚠️ 발전기 작동에 "
+                +
+                need.join(", ")
+                +
+                "가 필요해."
+
+            );
+
+        }
+
+
+        return;
+
+    }
+
+
+    if (
+        nearTile("M")
+        &&
+        !state.hasMasterKey
+    ) {
+
+        if (
+            !state.powerOn
+        ) {
+
+            setMessage(
+                "🚪 전원이 꺼져 있어 보안 구역을 열 수 없어."
+            );
+
+            return;
+
+        }
+
+
+        state.hasMasterKey =
+            true;
+
+
+        setMessage(
+            "🗝️ 마스터 키를 찾았어!"
+        );
+
+
+        addLog(
+            "마스터 키 확보."
+        );
+
+
+        updatePanels();
+
+        return;
+
+    }
+
+
+    if (
+        nearTile("E")
+    ) {
+
+        if (
+            state.powerOn
+            &&
+            state.hasMasterKey
+        ) {
+
+            state.won =
+                true;
+
+
+            setMessage(
+                "🎉 엘리베이터가 작동했어!"
+            );
+
+
+            showResult(
+                "ESCAPED!",
+                "병원에서 탈출하는 데 성공했어."
+            );
+
+        }
+
+        else {
+
+            const missing = [];
+
+
+            if (
+                !state.powerOn
+            ) {
+
+                missing.push(
+                    "전원 복구"
+                );
+
+            }
+
+
+            if (
+                !state.hasMasterKey
+            ) {
+
+                missing.push(
+                    "마스터 키"
+                );
+
+            }
+
+
+            setMessage(
+
+                "🚪 엘리베이터 작동에 "
+                +
+                missing.join(", ")
+                +
+                "가 필요해."
+
+            );
+
+        }
+
+
+        return;
+
+    }
+
+
+    setMessage(
+        "여기에는 사용할 수 있는 것이 없어."
+    );
+
+}
+
+
+/* ============================================================
+   결과 화면
+============================================================ */
+
+function showResult(
+    title,
+    text
+) {
+
+    overlayBox.innerHTML = `
+
+        <div class="overlay-title">
+            ${title}
+        </div>
+
+        <div class="overlay-text">
+            ${text}
+        </div>
+
+        <button onclick="resetGame()">
+            다시 시작
+        </button>
+
+    `;
+
+
+    overlay.style.display =
+        "flex";
+
+}
+
+
+/* ============================================================
+   모바일/마우스 방향키 테스트 버튼
+============================================================ */
+
+function pressDirection(
+    direction
+) {
+
+    keys[direction] =
+        true;
+
+
+    focusGame();
+
+}
+
+
+function releaseDirection(
+    direction
+) {
+
+    keys[direction] =
+        false;
+
+}
+
+
+/* ============================================================
+   적 이동
+============================================================ */
+
+function updateGhosts(
+    dt
+) {
+
+    if (
+        invulnerable > 0
+    ) {
+
+        invulnerable -=
+            dt;
+
+    }
+
+
+    ghosts.forEach(
+        ghost => {
+
+            if (
+                !ghost.active
+            ) {
+
+                return;
+
+            }
+
+
+            const target =
+                ghost.path[
+                    ghost.pathIndex
+                ];
+
+
+            const cx =
+                ghost.x
+                +
+                ghost.w / 2;
+
+
+            const cy =
+                ghost.y
+                +
+                ghost.h / 2;
+
+
+            const dx =
+                target.x
+                -
+                cx;
+
+
+            const dy =
+                target.y
+                -
+                cy;
+
+
+            const distance =
+                Math.hypot(
+                    dx,
+                    dy
+                );
+
+
+            if (
+                distance < 3
+            ) {
+
+                ghost.pathIndex =
+                    (
+                        ghost.pathIndex
+                        +
+                        1
+                    )
+                    %
+                    ghost.path.length;
+
+            }
+
+            else {
+
+                ghost.x +=
+                    (
+                        dx
+                        /
+                        distance
+                    )
+                    *
+                    ghost.speed
+                    *
+                    dt;
+
+
+                ghost.y +=
+                    (
+                        dy
+                        /
+                        distance
+                    )
+                    *
+                    ghost.speed
+                    *
+                    dt;
+
+            }
+
+
+            if (
+                invulnerable <= 0
+            ) {
+
+                const pc =
+                    playerCenter();
+
+
+                const gc = {
+
+                    x:
+                        ghost.x
+                        +
+                        ghost.w / 2,
+
+                    y:
+                        ghost.y
+                        +
+                        ghost.h / 2
+
+                };
+
+
+                if (
+
+                    Math.hypot(
+
+                        pc.x
+                        -
+                        gc.x,
+
+                        pc.y
+                        -
+                        gc.y
+
+                    )
+
+                    <
+                    22
+
+                ) {
+
+                    state.hearts -=
+                        1;
+
+
+                    invulnerable =
+                        1.5;
+
+
+                    const start =
+                        findTile("S");
+
+
+                    player.x =
+                        start.x
+                        *
+                        TILE
+                        +
+                        1;
+
+
+                    player.y =
+                        start.y
+                        *
+                        TILE
+                        -
+                        4;
+
+
+                    setMessage(
+                        "👻 그림자와 부딪혔어! 체력 -1"
+                    );
+
+
+                    updatePanels();
+
+
+                    if (
+                        state.hearts <= 0
+                    ) {
+
+                        state.lost =
+                            true;
+
+
+                        showResult(
+                            "GAME OVER",
+                            "체력이 모두 소진됐어."
+                        );
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    );
+
+}
+
+
+/* ============================================================
+   픽셀 사각형
+============================================================ */
+
+function rect(
+    x,
+    y,
+    w,
+    h,
+    color
+) {
+
+    ctx.fillStyle =
+        color;
+
+
+    ctx.fillRect(
+
+        Math.round(x),
+
+        Math.round(y),
+
+        w,
+
+        h
+
+    );
+
+}
+
+
+/* ============================================================
+   바닥
+============================================================ */
+
+function drawFloor() {
+
+    for (
+        let y = 0;
+        y < ROWS;
+        y++
+    ) {
+
+        for (
+            let x = 0;
+            x < COLS;
+            x++
+        ) {
+
+            if (
+                MAP[y][x]
+                !==
+                "#"
+            ) {
+
+                rect(
+
+                    x * TILE,
+
+                    y * TILE,
+
+                    TILE,
+
+                    TILE,
+
+                    FLOOR_COLORS[
+                        (
+                            x + y
+                        )
+                        %
+                        FLOOR_COLORS.length
+                    ]
+
+                );
+
+
+                rect(
+
+                    x * TILE + 5,
+
+                    y * TILE + 5,
+
+                    4,
+
+                    4,
+
+                    "rgba(255,255,255,0.12)"
+
+                );
+
+            }
+
+        }
+
+    }
+
+}
+
+
+/* ============================================================
+   벽
+============================================================ */
+
+function drawWalls() {
+
+    for (
+        let y = 0;
+        y < ROWS;
+        y++
+    ) {
+
+        for (
+            let x = 0;
+            x < COLS;
+            x++
+        ) {
+
+            if (
+                MAP[y][x]
+                ===
+                "#"
+            ) {
+
+                rect(
+
+                    x * TILE,
+
+                    y * TILE,
+
+                    TILE,
+
+                    TILE,
+
+                    "#334f5b"
+
+                );
+
+
+                rect(
+
+                    x * TILE + 3,
+
+                    y * TILE + 3,
+
+                    TILE - 6,
+
+                    TILE - 6,
+
+                    "#4d6974"
+
+                );
+
+
+                rect(
+
+                    x * TILE + 6,
+
+                    y * TILE + 6,
+
+                    TILE - 12,
+
+                    TILE - 12,
+
+                    "#5d7a85"
+
+                );
+
+            }
+
+        }
+
+    }
+
+}
+
+
+/* ============================================================
+   병원 가구
+============================================================ */
+
+function drawFurniture() {
+
+    for (
+        let y = 0;
+        y < ROWS;
+        y++
+    ) {
+
+        for (
+            let x = 0;
+            x < COLS;
+            x++
+        ) {
+
+            const symbol =
+                MAP[y][x];
+
+
+            const px =
+                x * TILE;
+
+
+            const py =
+                y * TILE;
+
+
+            /* 창문 */
+            if (
+                symbol === "W"
+            ) {
+
+                rect(
+                    px + 4,
+                    py + 4,
+                    24,
+                    21,
+                    "#dceef5"
+                );
+
+                rect(
+                    px + 6,
+                    py + 6,
+                    20,
+                    17,
+                    "#477d9c"
+                );
+
+                rect(
+                    px + 15,
+                    py + 6,
+                    2,
+                    17,
+                    "#d9ecf3"
+                );
+
+            }
+
+
+            /* 안내 데스크 */
+            if (
+                symbol === "T"
+            ) {
+
+                rect(
+                    px + 4,
+                    py + 9,
+                    24,
+                    14,
+                    "#8d674a"
+                );
+
+                rect(
+                    px + 5,
+                    py + 7,
+                    22,
+                    4,
+                    "#b58c67"
+                );
+
+            }
+
+
+            /* 병상 */
+            if (
+                symbol === "H"
+            ) {
+
+                rect(
+                    px + 3,
+                    py + 9,
+                    26,
+                    14,
+                    "#f2f7f8"
+                );
+
+                rect(
+                    px + 4,
+                    py + 10,
+                    8,
+                    6,
+                    "#c9e1eb"
+                );
+
+            }
+
+
+            /* 휠체어 */
+            if (
+                symbol === "Q"
+            ) {
+
+                rect(
+                    px + 6,
+                    py + 9,
+                    11,
+                    6,
+                    "#6c879d"
+                );
+
+                rect(
+                    px + 5,
+                    py + 17,
+                    8,
+                    8,
+                    "#354952"
+                );
+
+                rect(
+                    px + 17,
+                    py + 17,
+                    8,
+                    8,
+                    "#354952"
+                );
+
+            }
+
+
+            /* 간호 스테이션 */
+            if (
+                symbol === "N"
+            ) {
+
+                rect(
+                    px + 4,
+                    py + 10,
+                    24,
+                    13,
+                    "#eaf3f5"
+                );
+
+                rect(
+                    px + 7,
+                    py + 8,
+                    18,
+                    4,
+                    "#7db2c3"
+                );
+
+            }
+
+
+            /* 자판기 */
+            if (
+                symbol === "V"
+            ) {
+
+                rect(
+                    px + 7,
+                    py + 3,
+                    18,
+                    27,
+                    "#b34755"
+                );
+
+                rect(
+                    px + 9,
+                    py + 6,
+                    14,
+                    10,
+                    "#d9f0f6"
+                );
+
+            }
+
+
+            /* 보안문 */
+            if (
+                symbol === "C"
+            ) {
+
+                rect(
+                    px + 5,
+                    py + 2,
+                    22,
+                    28,
+                    state.hasKeycard
+                    ?
+                    "#74aa89"
+                    :
+                    "#517fb5"
+                );
+
+            }
+
+
+            /* 전원 보안문 */
+            if (
+                symbol === "D"
+            ) {
+
+                rect(
+                    px + 5,
+                    py + 2,
+                    22,
+                    28,
+                    state.powerOn
+                    ?
+                    "#74aa89"
+                    :
+                    "#806044"
+                );
+
+            }
+
+
+            /* 발전기 */
+            if (
+                symbol === "P"
+            ) {
+
+                rect(
+                    px + 3,
+                    py + 7,
+                    26,
+                    19,
+                    "#485d66"
+                );
+
+                rect(
+                    px + 8,
+                    py + 11,
+                    16,
+                    10,
+                    "#273940"
+                );
+
+
+                rect(
+                    px + 10,
+                    py + 14,
+                    4,
+                    4,
+                    state.powerOn
+                    ?
+                    "#83ef86"
+                    :
+                    "#db6464"
+                );
+
+            }
+
+
+            /* 엘리베이터 */
+            if (
+                symbol === "E"
+            ) {
+
+                rect(
+                    px + 2,
+                    py + 2,
+                    28,
+                    28,
+                    "#6e858e"
+                );
+
+                rect(
+                    px + 5,
+                    py + 4,
+                    10,
+                    24,
+                    "#a4b9c0"
+                );
+
+                rect(
+                    px + 17,
+                    py + 4,
+                    10,
+                    24,
+                    "#a4b9c0"
+                );
+
+
+                rect(
+                    px + 10,
+                    py + 7,
+                    12,
+                    3,
+                    state.powerOn
+                    ?
+                    "#71e883"
+                    :
+                    "#d45e67"
+                );
+
+            }
+
+        }
+
+    }
+
+}
+
+
+/* ============================================================
+   아이템
+============================================================ */
+
+function drawItems() {
+
+    for (
+        let y = 0;
+        y < ROWS;
+        y++
+    ) {
+
+        for (
+            let x = 0;
+            x < COLS;
+            x++
+        ) {
+
+            const symbol =
+                MAP[y][x];
+
+
+            const px =
+                x * TILE;
+
+
+            const py =
+                y * TILE;
+
+
+            if (
+                symbol === "K"
+                &&
+                !state.hasKeycard
+            ) {
+
+                rect(
+                    px + 6,
+                    py + 10,
+                    20,
+                    12,
+                    "#438bed"
+                );
+
+
+                rect(
+                    px + 9,
+                    py + 13,
+                    5,
+                    4,
+                    "#e4f4ff"
+                );
+
+            }
+
+
+            if (
+                symbol === "F"
+                &&
+                !state.hasFuse
+            ) {
+
+                rect(
+                    px + 9,
+                    py + 7,
+                    14,
+                    18,
+                    "#e5c44e"
+                );
+
+
+                rect(
+                    px + 11,
+                    py + 10,
+                    10,
+                    4,
+                    "#fff3aa"
+                );
+
+            }
+
+
+            if (
+                symbol === "B"
+                &&
+                !state.hasBattery
+            ) {
+
+                rect(
+                    px + 9,
+                    py + 7,
+                    14,
+                    20,
+                    "#46a760"
+                );
+
+
+                rect(
+                    px + 13,
+                    py + 4,
+                    6,
+                    4,
+                    "#d6e4e8"
+                );
+
+            }
+
+
+            if (
+                symbol === "M"
+                &&
+                !state.hasMasterKey
+            ) {
+
+                rect(
+                    px + 8,
+                    py + 13,
+                    13,
+                    4,
+                    "#f0c13b"
+                );
+
+
+                rect(
+                    px + 19,
+                    py + 11,
+                    6,
+                    8,
+                    "#f0c13b"
+                );
+
+            }
+
+        }
+
+    }
+
+}
+
+
+/* ============================================================
+   플레이어 캐릭터
+============================================================ */
+
+function drawPlayer() {
+
+    const x =
+        Math.round(
+            player.x
+        );
+
+
+    const y =
+        Math.round(
+            player.y
+        );
+
+
+    /* 캐릭터 아래 그림자 */
+
+    rect(
+        x + 4,
+        y + 34,
+        22,
+        4,
+        "rgba(0,0,0,0.20)"
+    );
+
+
+    /*
+    외곽선부터 그려서
+    배경과 확실하게 구분
+    */
+
+    rect(
+        x + 6,
+        y,
+        18,
+        5,
+        "#263039"
+    );
+
+
+    rect(
+        x + 4,
+        y + 4,
+        22,
+        12,
+        "#263039"
+    );
+
+
+    rect(
+        x + 6,
+        y + 16,
+        18,
+        17,
+        "#263039"
+    );
+
+
+    /* 갈색 머리 */
+
+    rect(
+        x + 7,
+        y + 1,
+        16,
+        5,
+        "#684334"
+    );
+
+
+    rect(
+        x + 5,
+        y + 5,
+        20,
+        5,
+        "#79513e"
+    );
+
+
+    rect(
+        x + 5,
+        y + 9,
+        4,
+        7,
+        "#684334"
+    );
+
+
+    rect(
+        x + 21,
+        y + 9,
+        4,
+        7,
+        "#684334"
+    );
+
+
+    /* 얼굴 */
+
+    rect(
+        x + 9,
+        y + 8,
+        12,
+        9,
+        "#f3c4a3"
+    );
+
+
+    /* 눈 */
+
+    if (
+        player.facing === "down"
+    ) {
+
+        rect(
+            x + 11,
+            y + 11,
+            2,
+            2,
+            "#1e2528"
+        );
+
+
+        rect(
+            x + 17,
+            y + 11,
+            2,
+            2,
+            "#1e2528"
+        );
+
+
+        rect(
+            x + 14,
+            y + 15,
+            3,
+            1,
+            "#a96764"
+        );
+
+    }
+
+
+    else if (
+        player.facing === "left"
+    ) {
+
+        rect(
+            x + 10,
+            y + 11,
+            2,
+            2,
+            "#1e2528"
+        );
+
+    }
+
+
+    else if (
+        player.facing === "right"
+    ) {
+
+        rect(
+            x + 18,
+            y + 11,
+            2,
+            2,
+            "#1e2528"
+        );
+
+    }
+
+
+    /* 의료복 */
+
+    rect(
+        x + 11,
+        y + 19,
+        9,
+        11,
+        "#50a6ba"
+    );
+
+
+    /* 흰 의사가운 */
+
+    rect(
+        x + 6,
+        y + 19,
+        6,
+        14,
+        "#ffffff"
+    );
+
+
+    rect(
+        x + 19,
+        y + 19,
+        6,
+        14,
+        "#ffffff"
+    );
+
+
+    rect(
+        x + 11,
+        y + 19,
+        3,
+        14,
+        "#f9ffff"
+    );
+
+
+    rect(
+        x + 17,
+        y + 19,
+        3,
+        14,
+        "#f9ffff"
+    );
+
+
+    /* 명찰 */
+
+    rect(
+        x + 20,
+        y + 21,
+        4,
+        3,
+        "#5294dd"
+    );
+
+
+    /* 팔 */
+
+    rect(
+        x + 3,
+        y + 21,
+        4,
+        9,
+        "#f7fbfc"
+    );
+
+
+    rect(
+        x + 24,
+        y + 21,
+        4,
+        9,
+        "#f7fbfc"
+    );
+
+
+    /* 손 */
+
+    rect(
+        x + 3,
+        y + 29,
+        4,
+        3,
+        "#efbc9b"
+    );
+
+
+    rect(
+        x + 24,
+        y + 29,
+        4,
+        3,
+        "#efbc9b"
+    );
+
+
+    /* 바지 */
+
+    if (
+        player.walkFrame === 1
+        &&
+        player.walking
+    ) {
+
+        rect(
+            x + 9,
+            y + 32,
+            6,
+            4,
+            "#344f76"
+        );
+
+
+        rect(
+            x + 18,
+            y + 31,
+            6,
+            5,
+            "#344f76"
+        );
+
+    }
+
+    else {
+
+        rect(
+            x + 9,
+            y + 31,
+            6,
+            5,
+            "#344f76"
+        );
+
+
+        rect(
+            x + 17,
+            y + 31,
+            6,
+            5,
+            "#344f76"
+        );
+
+    }
+
+
+    /* 신발 */
+
+    rect(
+        x + 8,
+        y + 35,
+        7,
+        3,
+        "#202b32"
+    );
+
+
+    rect(
+        x + 17,
+        y + 35,
+        7,
+        3,
+        "#202b32"
+    );
+
+
+    /* 청진기 */
+
+    rect(
+        x + 13,
+        y + 20,
+        1,
+        6,
+        "#31464f"
+    );
+
+
+    rect(
+        x + 14,
+        y + 25,
+        5,
+        1,
+        "#31464f"
+    );
+
+
+    rect(
+        x + 18,
+        y + 24,
+        2,
+        3,
+        "#31464f"
+    );
+
+}
+
+
+/* ============================================================
+   그림자 NPC
+============================================================ */
+
+function drawGhost(
+    ghost
+) {
+
+    if (
+        !ghost.active
+    ) {
+
+        return;
+
+    }
+
+
+    const x =
+        Math.round(
+            ghost.x
+        );
+
+
+    const y =
+        Math.round(
+            ghost.y
+        );
+
+
+    rect(
+        x + 2,
+        y + 2,
+        16,
+        13,
+        ghost.color
+    );
+
+
+    rect(
+        x + 4,
+        y + 14,
+        4,
+        6,
+        ghost.color
+    );
+
+
+    rect(
+        x + 9,
+        y + 14,
+        4,
+        6,
+        ghost.color
+    );
+
+
+    rect(
+        x + 14,
+        y + 14,
+        4,
+        6,
+        ghost.color
+    );
+
+
+    rect(
+        x + 5,
+        y + 6,
+        2,
+        2,
+        "#ffffff"
+    );
+
+
+    rect(
+        x + 12,
+        y + 6,
+        2,
+        2,
+        "#ffffff"
+    );
+
+}
+
+
+/* ============================================================
+   어두운 병원 효과
+============================================================ */
+
+function drawDarkness() {
+
+    if (
+        state.powerOn
+    ) {
+
+        return;
+
+    }
+
+
+    /*
+    완전히 검게 만들지 않고
+    병원 구조가 보이는 정도만 어둡게
+    */
+
+    ctx.fillStyle =
+        "rgba(5,18,28,0.26)";
+
+
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+}
+
+
+/* ============================================================
+   상단 HUD
+============================================================ */
+
+function drawHud() {
+
+    ctx.fillStyle =
+        "rgba(18,42,52,0.87)";
+
+
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        25
+    );
+
+
+    ctx.fillStyle =
+        "#ffffff";
+
+
+    ctx.font =
+        "12px monospace";
+
+
+    const mins =
+        Math.floor(
+            state.time / 60
+        );
+
+
+    const secs =
+        Math.floor(
+            state.time % 60
+        )
+        .toString()
+        .padStart(
+            2,
+            "0"
+        );
+
+
+    ctx.fillText(
+        "TIME "
+        +
+        mins
+        +
+        ":"
+        +
+        secs,
+        10,
+        17
+    );
+
+
+    ctx.fillText(
+        "HP "
+        +
+        "♥".repeat(
+            Math.max(
+                0,
+                state.hearts
+            )
+        ),
+        170,
+        17
+    );
+
+
+    ctx.fillText(
+        "POWER "
+        +
+        (
+            state.powerOn
+            ?
+            "ON"
+            :
+            "OFF"
+        ),
+        300,
+        17
+    );
+
+}
+
+
+/* ============================================================
+   렌더링 순서
+============================================================ */
+
+function render() {
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+
+    /*
+    1. 배경
+    */
+
+    drawFloor();
+
+    drawWalls();
+
+    drawFurniture();
+
+    drawItems();
+
+
+    /*
+    2. 어둠
+    캐릭터보다 먼저 그림
+    */
+
+    drawDarkness();
+
+
+    /*
+    3. NPC
+    */
+
+    ghosts.forEach(
+        ghost =>
+            drawGhost(
+                ghost
+            )
+    );
+
+
+    /*
+    4. 플레이어
+    가장 마지막에 그려서
+    항상 밝고 선명하게 보임
+    */
+
+    drawPlayer();
+
+
+    /*
+    5. HUD
+    */
+
+    drawHud();
+
+}
+
+
+/* ============================================================
+   업데이트
+============================================================ */
+
+function update(
+    dt
+) {
+
+    if (
+        state.won
+        ||
+        state.lost
+    ) {
+
+        return;
+
+    }
+
+
+    state.time -=
+        dt;
+
+
+    if (
+        state.time <= 0
+    ) {
+
+        state.time =
+            0;
+
+
+        state.lost =
+            true;
+
+
+        showResult(
+            "GAME OVER",
+            "시간 안에 탈출하지 못했어."
+        );
+
+
+        return;
+
+    }
+
+
+    updatePlayer(
+        dt
+    );
+
+
+    updateGhosts(
+        dt
+    );
+
+
+    updatePanels();
+
+}
+
+
+/* ============================================================
+   게임 루프
+============================================================ */
+
+function gameLoop(
+    now
+) {
+
+    const dt =
+        Math.min(
+
+            (
+                now
+                -
+                lastTime
+            )
+            /
+            1000,
+
+            0.05
+
+        );
+
+
+    lastTime =
+        now;
+
+
+    update(
+        dt
+    );
+
+
     render();
 
-    requestAnimationFrame(gameLoop);
+
+    requestAnimationFrame(
+        gameLoop
+    );
+
 }
 
-window.addEventListener("keydown", (e) => {
-    if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", " "].includes(e.key)) {
-        e.preventDefault();
+
+/* ============================================================
+   키보드 입력
+============================================================ */
+
+function handleKeyDown(
+    event
+) {
+
+    const key =
+        event.key;
+
+
+    const controlKeys = [
+
+        "ArrowLeft",
+
+        "ArrowRight",
+
+        "ArrowUp",
+
+        "ArrowDown",
+
+        "w",
+
+        "W",
+
+        "a",
+
+        "A",
+
+        "s",
+
+        "S",
+
+        "d",
+
+        "D",
+
+        " ",
+
+        "Enter"
+
+    ];
+
+
+    if (
+        controlKeys.includes(
+            key
+        )
+    ) {
+
+        event.preventDefault();
+
     }
 
-    keys[e.key] = true;
 
-    if (e.key === " " || e.key === "Enter") {
+    keys[key] =
+        true;
+
+
+    if (
+        key === " "
+        ||
+        key === "Enter"
+    ) {
+
         interact();
+
     }
 
-    if (e.key.toLowerCase() === "r") {
+
+    if (
+        key === "r"
+        ||
+        key === "R"
+    ) {
+
         resetGame();
+
     }
-});
 
-window.addEventListener("keyup", (e) => {
-    keys[e.key] = false;
-});
+}
 
-canvas.addEventListener("click", () => {
-    canvas.focus();
-    setMessage("게임 화면에 포커스가 맞춰졌어. 방향키로 움직일 수 있어.");
-});
 
-window.addEventListener("load", () => {
-    resetGame();
-    canvas.focus();
-    requestAnimationFrame(gameLoop);
-});
+function handleKeyUp(
+    event
+) {
+
+    keys[event.key] =
+        false;
+
+}
+
+
+/*
+document 레벨에서 잡기 때문에
+canvas에 포커스가 있어도 확실하게 동작
+*/
+
+document.addEventListener(
+    "keydown",
+    handleKeyDown,
+    true
+);
+
+
+document.addEventListener(
+    "keyup",
+    handleKeyUp,
+    true
+);
+
+
+/* 게임 클릭 시 포커스 */
+
+canvas.addEventListener(
+    "mousedown",
+    () => {
+
+        focusGame();
+
+        setMessage(
+            "✅ 게임 입력 활성화! 방향키 또는 WASD로 이동할 수 있어."
+        );
+
+    }
+);
+
+
+/* 브라우저 창이 포커스를 잃으면 키 초기화 */
+
+window.addEventListener(
+    "blur",
+    () => {
+
+        keys = {};
+
+    }
+);
+
+
+/* ============================================================
+   시작
+============================================================ */
+
+window.addEventListener(
+    "load",
+    () => {
+
+        document.body.setAttribute(
+            "tabindex",
+            "0"
+        );
+
+
+        resetGame();
+
+
+        focusGame();
+
+
+        requestAnimationFrame(
+            gameLoop
+        );
+
+    }
+);
+
 </script>
+
 </body>
 </html>
 """
 
 components.html(
     game_html,
-    height=1080,
+    height=1050,
     scrolling=False
 )
