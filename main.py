@@ -2,6 +2,10 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 
+# ============================================================
+# STREAMLIT 기본 설정
+# ============================================================
+
 st.set_page_config(
     page_title="MIDNIGHT HOSPITAL",
     page_icon="🏥",
@@ -9,8 +13,15 @@ st.set_page_config(
 )
 
 st.title("🏥 MIDNIGHT HOSPITAL")
-st.caption("픽셀 병원 탈출 게임 · 방향키/WASD 이동 · Space 상호작용 · R 재시작")
+st.caption(
+    "픽셀 병원 탈출 어드벤처 · 방향키/WASD 이동 · Space 상호작용 · R 현재 테마 재시작"
+)
 
+
+# ============================================================
+# 실제 게임
+# HTML + JavaScript Canvas를 Streamlit 안에서 실행
+# ============================================================
 
 game_html = r"""
 <!DOCTYPE html>
@@ -30,8 +41,11 @@ html,
 body {
     margin: 0;
     padding: 0;
-    background: #dde8ec;
-    font-family: Arial, sans-serif;
+    background: #dce7ea;
+    font-family: Arial, "Malgun Gothic", sans-serif;
+}
+
+body {
     overflow: hidden;
 }
 
@@ -40,11 +54,12 @@ body {
 }
 
 .topbar {
-    background: linear-gradient(180deg, #29434f, #203640);
+    background: linear-gradient(180deg, #263f4a, #1e333d);
     color: white;
     border-radius: 16px;
     padding: 14px 18px;
     margin-bottom: 12px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.14);
 }
 
 .title {
@@ -54,8 +69,8 @@ body {
 }
 
 .subtitle {
-    font-size: 13px;
     margin-top: 5px;
+    font-size: 13px;
     opacity: 0.9;
 }
 
@@ -66,78 +81,100 @@ body {
 }
 
 .game-area {
+    position: relative;
     background: #edf4f6;
     border: 2px solid #9db3bb;
     border-radius: 16px;
     padding: 10px;
-    position: relative;
 }
 
 #messageBar {
+    min-height: 48px;
+    margin-bottom: 8px;
+    padding: 10px 13px;
+
     background: #fff3d5;
+
     border-left: 6px solid #d5ae45;
     border-radius: 10px;
-    padding: 10px 13px;
-    margin-bottom: 8px;
-    min-height: 48px;
+
     color: #594c29;
     font-size: 14px;
+    line-height: 1.5;
 }
 
 canvas {
     display: block;
+
+    width: 1056px;
+    height: 640px;
+
     border: 3px solid #688792;
     border-radius: 8px;
+
     background: #132832;
+
     image-rendering: pixelated;
     image-rendering: crisp-edges;
+
     outline: none;
 }
 
 .help {
     margin-top: 8px;
+    padding: 9px 12px;
+
     background: #e4eff2;
     border-radius: 10px;
-    padding: 9px 12px;
-    font-size: 13px;
-    line-height: 1.55;
+
     color: #2b4751;
-}
-
-.side {
-    width: 270px;
-}
-
-.card {
-    background: #fbfdfe;
-    border: 1px solid #acbec5;
-    border-radius: 14px;
-    padding: 14px;
-    margin-bottom: 10px;
-}
-
-.card h3 {
-    margin: 0 0 10px 0;
-    font-size: 17px;
-    color: #263e47;
-}
-
-.objective {
-    background: #e8f1fb;
-    border-left: 5px solid #6b8eb4;
-    border-radius: 9px;
-    padding: 10px;
-    color: #304c61;
     font-size: 13px;
     line-height: 1.6;
 }
 
-.item {
-    background: #edf4f6;
-    border-radius: 8px;
-    padding: 7px 9px;
-    margin-bottom: 6px;
+.side {
+    width: 280px;
+    flex: 0 0 280px;
+}
+
+.card {
+    margin-bottom: 10px;
+    padding: 14px;
+
+    background: #fbfdfe;
+
+    border: 1px solid #acbec5;
+    border-radius: 14px;
+}
+
+.card h3 {
+    margin: 0 0 10px 0;
+    color: #263e47;
+    font-size: 17px;
+}
+
+.theme-card {
+    padding: 11px;
+
+    background: #263e48;
+    border-radius: 9px;
+
+    color: white;
+    line-height: 1.6;
     font-size: 13px;
+}
+
+.objective {
+    padding: 10px;
+
+    background: #e8f1fb;
+
+    border-left: 5px solid #6b8eb4;
+    border-radius: 9px;
+
+    color: #304c61;
+    font-size: 13px;
+    line-height: 1.65;
 }
 
 .stat {
@@ -145,64 +182,56 @@ canvas {
     font-size: 13px;
 }
 
-.log {
-    background: #283b44;
-    color: #dbe8eb;
+.item {
+    margin-bottom: 6px;
+    padding: 7px 9px;
+
+    background: #edf4f6;
     border-radius: 8px;
-    padding: 7px;
+
+    font-size: 13px;
+}
+
+.log {
     margin-bottom: 5px;
+    padding: 7px;
+
+    background: #283b44;
+    border-radius: 8px;
+
+    color: #dbe8eb;
+
     font-family: monospace;
     font-size: 11px;
+    line-height: 1.5;
 }
 
 button {
     width: 100%;
+    padding: 11px;
+
     border: none;
     border-radius: 10px;
-    padding: 11px;
+
     background: #416675;
     color: white;
+
     font-weight: 800;
     cursor: pointer;
 }
 
-.overlay {
-    position: absolute;
-    top: 68px;
-    left: 10px;
-    width: 896px;
-    height: 576px;
-    background: rgba(7, 15, 20, 0.72);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-}
-
-.overlay-box {
-    width: 420px;
-    background: white;
-    border-radius: 18px;
-    padding: 24px;
-    text-align: center;
-}
-
-.overlay-title {
-    font-size: 34px;
-    font-weight: 900;
-    margin-bottom: 12px;
-}
-
-.overlay-text {
-    line-height: 1.7;
-    margin-bottom: 18px;
+button:hover {
+    filter: brightness(1.08);
 }
 
 .dpad {
     display: grid;
+
     grid-template-columns: 46px 46px 46px;
     grid-template-rows: 42px 42px 42px;
+
     justify-content: center;
+
     margin-top: 10px;
     gap: 3px;
 }
@@ -216,7 +245,58 @@ button {
     visibility: hidden;
 }
 
-@media(max-width:1250px) {
+.overlay {
+    position: absolute;
+
+    top: 68px;
+    left: 10px;
+
+    width: 1056px;
+    height: 640px;
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(6, 14, 20, 0.76);
+
+    border-radius: 8px;
+
+    z-index: 20;
+}
+
+.overlay-box {
+    width: 460px;
+    padding: 26px;
+
+    background: white;
+
+    border-radius: 18px;
+
+    text-align: center;
+
+    box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+}
+
+.overlay-title {
+    margin-bottom: 12px;
+
+    color: #213942;
+
+    font-size: 32px;
+    font-weight: 900;
+}
+
+.overlay-text {
+    margin-bottom: 18px;
+
+    color: #344e58;
+
+    line-height: 1.8;
+}
+
+@media(max-width:1450px) {
 
     .layout {
         flex-direction: column;
@@ -224,6 +304,12 @@ button {
 
     .side {
         width: 100%;
+        flex: auto;
+    }
+
+    canvas {
+        width: 100%;
+        height: auto;
     }
 }
 
@@ -237,165 +323,181 @@ button {
 <div class="wrap">
 
 
-<div class="topbar">
+    <div class="topbar">
 
-    <div class="title">
-        MIDNIGHT HOSPITAL
-    </div>
+        <div class="title">
+            MIDNIGHT HOSPITAL
+        </div>
 
-    <div class="subtitle">
-        병원 내부를 직접 탐색해 전원을 복구하고 탈출하세요.
-    </div>
-
-</div>
-
-
-<div class="layout">
-
-
-<div class="game-area">
-
-
-<div id="messageBar">
-    화면을 클릭한 뒤 방향키 또는 WASD로 움직여 보세요.
-</div>
-
-
-<canvas
-    id="game"
-    width="896"
-    height="576"
-    tabindex="0">
-</canvas>
-
-
-<div class="help">
-
-    <b>조작법</b><br>
-
-    방향키 / WASD : 이동<br>
-    Space / Enter : 상호작용<br>
-    R : 게임 재시작
-
-
-    <div class="dpad">
-
-        <button class="empty">.</button>
-
-        <button
-            onmousedown="pressDirection('ArrowUp')"
-            onmouseup="releaseDirection('ArrowUp')"
-            onmouseleave="releaseDirection('ArrowUp')">
-            ↑
-        </button>
-
-        <button class="empty">.</button>
-
-
-        <button
-            onmousedown="pressDirection('ArrowLeft')"
-            onmouseup="releaseDirection('ArrowLeft')"
-            onmouseleave="releaseDirection('ArrowLeft')">
-            ←
-        </button>
-
-        <button onclick="interact()">
-            ◎
-        </button>
-
-        <button
-            onmousedown="pressDirection('ArrowRight')"
-            onmouseup="releaseDirection('ArrowRight')"
-            onmouseleave="releaseDirection('ArrowRight')">
-            →
-        </button>
-
-
-        <button class="empty">.</button>
-
-        <button
-            onmousedown="pressDirection('ArrowDown')"
-            onmouseup="releaseDirection('ArrowDown')"
-            onmouseleave="releaseDirection('ArrowDown')">
-            ↓
-        </button>
-
-        <button class="empty">.</button>
+        <div
+            class="subtitle"
+            id="subtitleText">
+        </div>
 
     </div>
 
-</div>
+
+    <div class="layout">
 
 
-<div
-    class="overlay"
-    id="overlay">
+        <div class="game-area">
 
-    <div
-        class="overlay-box"
-        id="overlayBox">
+
+            <div id="messageBar">
+                게임을 불러오는 중입니다.
+            </div>
+
+
+            <canvas
+                id="game"
+                width="1056"
+                height="640"
+                tabindex="0">
+            </canvas>
+
+
+            <div class="help">
+
+                <b>조작법</b><br>
+
+                방향키 / WASD : 이동<br>
+
+                Space / Enter : 상호작용<br>
+
+                R : 현재 테마 처음부터 다시 시작
+
+
+                <div class="dpad">
+
+                    <button class="empty">.</button>
+
+                    <button
+                        onmousedown="pressDirection('ArrowUp')"
+                        onmouseup="releaseDirection('ArrowUp')"
+                        onmouseleave="releaseDirection('ArrowUp')">
+                        ↑
+                    </button>
+
+                    <button class="empty">.</button>
+
+
+                    <button
+                        onmousedown="pressDirection('ArrowLeft')"
+                        onmouseup="releaseDirection('ArrowLeft')"
+                        onmouseleave="releaseDirection('ArrowLeft')">
+                        ←
+                    </button>
+
+                    <button onclick="interact()">
+                        ◎
+                    </button>
+
+                    <button
+                        onmousedown="pressDirection('ArrowRight')"
+                        onmouseup="releaseDirection('ArrowRight')"
+                        onmouseleave="releaseDirection('ArrowRight')">
+                        →
+                    </button>
+
+
+                    <button class="empty">.</button>
+
+                    <button
+                        onmousedown="pressDirection('ArrowDown')"
+                        onmouseup="releaseDirection('ArrowDown')"
+                        onmouseleave="releaseDirection('ArrowDown')">
+                        ↓
+                    </button>
+
+                    <button class="empty">.</button>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="overlay"
+                id="overlay">
+
+                <div
+                    class="overlay-box"
+                    id="overlayBox">
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <div class="side">
+
+
+            <div class="card">
+
+                <h3>🏥 현재 테마</h3>
+
+                <div
+                    class="theme-card"
+                    id="themeBox">
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <h3>🎯 현재 목표</h3>
+
+                <div
+                    class="objective"
+                    id="objectiveBox">
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <h3>📊 상태</h3>
+
+                <div id="statusBox">
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <h3>🎒 인벤토리</h3>
+
+                <div id="inventoryBox">
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <h3>📟 야간 기록</h3>
+
+                <div id="logBox">
+                </div>
+
+            </div>
+
+
+            <button onclick="restartCurrentTheme()">
+                🔄 현재 테마 다시 시작
+            </button>
+
+
+        </div>
+
+
     </div>
 
-</div>
-
-
-</div>
-
-
-<div class="side">
-
-
-<div class="card">
-
-    <h3>🎯 현재 목표</h3>
-
-    <div
-        class="objective"
-        id="objectiveBox">
-    </div>
-
-</div>
-
-
-<div class="card">
-
-    <h3>📊 상태</h3>
-
-    <div id="statusBox">
-    </div>
-
-</div>
-
-
-<div class="card">
-
-    <h3>🎒 인벤토리</h3>
-
-    <div id="inventoryBox">
-    </div>
-
-</div>
-
-
-<div class="card">
-
-    <h3>📟 기록</h3>
-
-    <div id="logBox">
-    </div>
-
-</div>
-
-
-<button onclick="resetGame()">
-    🔄 게임 다시 시작
-</button>
-
-
-</div>
-
-
-</div>
 
 </div>
 
@@ -403,9 +505,9 @@ button {
 <script>
 
 
-/* ============================================================
-   HTML 요소
-============================================================ */
+// ============================================================
+// HTML 요소
+// ============================================================
 
 const canvas =
     document.getElementById("game");
@@ -431,6 +533,12 @@ const inventoryBox =
 const logBox =
     document.getElementById("logBox");
 
+const themeBox =
+    document.getElementById("themeBox");
+
+const subtitleText =
+    document.getElementById("subtitleText");
+
 const overlay =
     document.getElementById("overlay");
 
@@ -438,75 +546,292 @@ const overlayBox =
     document.getElementById("overlayBox");
 
 
-/* ============================================================
-   맵
-============================================================ */
+// ============================================================
+// 맵 공통 설정
+// ============================================================
 
 const TILE = 32;
 
-const COLS = 28;
+const COLS = 33;
 
-const ROWS = 18;
+const ROWS = 20;
 
 
-/*
-중요:
+// ============================================================
+// 테마 3개
+//
+// 같은 병원이지만
+// 각 구역마다 구조, 분위기, 아이템 이름이 바뀜.
+// ============================================================
 
-W = 창문
-T = 데스크
-H = 침대
-Q = 휠체어
-N = 간호 스테이션
-V = 자판기
+const LEVELS = [
 
-이 장식물들은 이제 이동을 막지 않음.
 
-오직
+    // --------------------------------------------------------
+    // THEME 1
+    // --------------------------------------------------------
 
-# = 벽
-C = 카드 보안문
-D = 전원 보안문
+    {
 
-만 캐릭터를 막음.
-*/
+        title:
+            "THEME 1 · 정전된 본관",
 
-const MAP = [
+        story:
+            "병원 본관 전체가 정전됐다. 비상 전력을 복구하고 엘리베이터를 작동시켜야 한다.",
 
-    "############################",
-    "#S....W....T.....#........E#",
-    "#......######....#..........#",
-    "#......#....#....#..........#",
-    "#......#.K..#...........H...#",
-    "#......#....####............#",
-    "#......####.................#",
-    "#....C.......F..............#",
-    "#...........................#",
-    "#..B........................#",
-    "#...........................#",
-    "#...........................#",
-    "#.P.......................D.#",
-    "#...........................#",
-    "#...........................#",
-    "#.............M.......Q.....#",
-    "#..N...................V....#",
-    "############################"
+        time:
+            420,
+
+        palette: {
+
+            floor1: "#b6c8ce",
+            floor2: "#adc1c8",
+
+            wall1: "#334f5b",
+            wall2: "#4d6974",
+            wall3: "#607d87"
+
+        },
+
+        labels: {
+
+            K: "출입카드",
+
+            F: "퓨즈",
+
+            B: "비상 배터리",
+
+            P: "발전기",
+
+            M: "마스터 키",
+
+            E: "엘리베이터",
+
+            C: "보안문",
+
+            D: "전원문",
+
+            W: "창문",
+
+            T: "안내 데스크",
+
+            H: "병원 침대",
+
+            Q: "휠체어",
+
+            N: "간호 스테이션",
+
+            V: "자판기"
+
+        },
+
+        map: [
+
+            "#################################",
+            "#S....W....T......#............E#",
+            "#......######.....#.............#",
+            "#......#....#.....#....H........#",
+            "#......#.K..#..........H........#",
+            "#......#....#####...............#",
+            "#......####..............######.#",
+            "#....C........F.................#",
+            "#...............................#",
+            "#..B..............######........#",
+            "#.................#....#........#",
+            "#.................#....#........#",
+            "#.P...............#....#......D.#",
+            "#.................#....#........#",
+            "#.....######......#....######...#",
+            "#.....#....#......#.............#",
+            "#..N..#....#..M...#.......Q.....#",
+            "#.....######................V...#",
+            "#...............................#",
+            "#################################"
+
+        ]
+
+    },
+
+
+    // --------------------------------------------------------
+    // THEME 2
+    // --------------------------------------------------------
+
+    {
+
+        title:
+            "THEME 2 · 격리 연구동",
+
+        story:
+            "본관을 빠져나왔지만 격리 연구동의 자동문이 잠겼다. 연구동 제어 시스템을 복구해야 한다.",
+
+        time:
+            390,
+
+        palette: {
+
+            floor1: "#b9cbbd",
+            floor2: "#aebfaf",
+
+            wall1: "#314d48",
+            wall2: "#486b64",
+            wall3: "#5b8279"
+
+        },
+
+        labels: {
+
+            K: "연구동 카드",
+
+            F: "제어 퓨즈",
+
+            B: "백업 배터리",
+
+            P: "격리 제어판",
+
+            M: "격리구역 키",
+
+            E: "제독실 출구",
+
+            C: "격리문",
+
+            D: "자동 보안문",
+
+            W: "관찰창",
+
+            T: "연구 데스크",
+
+            H: "격리 침대",
+
+            Q: "휠체어",
+
+            N: "간호 스테이션",
+
+            V: "음료 자판기"
+
+        },
+
+        map: [
+
+            "#################################",
+            "#S..W.............#............E#",
+            "#....#####........#.............#",
+            "#....#...#........#...H...H.....#",
+            "#..T.#.K.#........#.............#",
+            "#....#...#####....#....######...#",
+            "#....#####........#....#....#...#",
+            "#.......C......F.......#....#...#",
+            "#......................#....#...#",
+            "#..B......######..............#.#",
+            "#.........#....#......######..#.#",
+            "#.........#....#......#....#..#.#",
+            "#.P.......#....#......#....#..D.#",
+            "#.........######......#....#....#",
+            "#.....................######....#",
+            "#....N......................Q...#",
+            "#............M..................#",
+            "#.........................V.....#",
+            "#...............................#",
+            "#################################"
+
+        ]
+
+    },
+
+
+    // --------------------------------------------------------
+    // THEME 3
+    // --------------------------------------------------------
+
+    {
+
+        title:
+            "THEME 3 · 옥상 연결 병동",
+
+        story:
+            "마지막 출구는 옥상 연결 통로다. 비상 제어 장치를 복구하고 옥상 출입문을 열어야 한다.",
+
+        time:
+            360,
+
+        palette: {
+
+            floor1: "#c7c3d4",
+            floor2: "#b8b4c8",
+
+            wall1: "#44425b",
+            wall2: "#5b5875",
+            wall3: "#716d8f"
+
+        },
+
+        labels: {
+
+            K: "비상 출입카드",
+
+            F: "옥상 제어 퓨즈",
+
+            B: "무전기 배터리",
+
+            P: "비상 제어반",
+
+            M: "옥상 마스터키",
+
+            E: "옥상 출구",
+
+            C: "방화문",
+
+            D: "옥상 보안문",
+
+            W: "야간 창문",
+
+            T: "병동 데스크",
+
+            H: "병원 침대",
+
+            Q: "휠체어",
+
+            N: "간호 스테이션",
+
+            V: "자판기"
+
+        },
+
+        map: [
+
+            "#################################",
+            "#S........W........#...........E#",
+            "#..######..........#............#",
+            "#..#....#..........#....H.......#",
+            "#..#.K..#..T.......#............#",
+            "#..#....#####......#....#####...#",
+            "#..######..........#....#...#...#",
+            "#.....C.......F.........#...#...#",
+            "#.......................#...#...#",
+            "#..B.........#####..............#",
+            "#............#...#.....#####....#",
+            "#............#...#.....#...#....#",
+            "#.P..........#...#.....#...#..D.#",
+            "#............#####.....#...#....#",
+            "#......................#####....#",
+            "#....N......................Q...#",
+            "#...............M...............#",
+            "#.........................V.....#",
+            "#...............................#",
+            "#################################"
+
+        ]
+
+    }
 
 ];
 
 
-const FLOOR_COLORS = [
+// ============================================================
+// 게임 변수
+// ============================================================
 
-    "#b6c8ce",
-    "#b2c5cb",
-    "#bdced3",
-    "#acc0c7"
-
-];
-
-
-/* ============================================================
-   게임 변수
-============================================================ */
+let currentLevelIndex = 0;
 
 let player;
 
@@ -522,11 +847,132 @@ let lastTime =
 let invulnerable = 0;
 
 
-/* ============================================================
-   타일 위치 찾기
-============================================================ */
+// ============================================================
+// 현재 레벨 가져오기
+// ============================================================
 
-function findTile(symbol) {
+function currentLevel() {
+
+    return LEVELS[
+        currentLevelIndex
+    ];
+
+}
+
+
+// ============================================================
+// 맵 검증
+//
+// 수행평가의 예외/오류 처리에도 활용 가능.
+// 맵 길이나 필수 아이템이 잘못되면 게임이 조용히 고장나는
+// 대신 오류 화면을 띄운다.
+// ============================================================
+
+function validateLevel(level) {
+
+    if (
+        !level
+        ||
+        !Array.isArray(level.map)
+        ||
+        level.map.length !== ROWS
+    ) {
+
+        return {
+            ok: false,
+            message: "맵의 세로 크기가 올바르지 않습니다."
+        };
+
+    }
+
+
+    for (
+        let y = 0;
+        y < level.map.length;
+        y++
+    ) {
+
+        if (
+            level.map[y].length !== COLS
+        ) {
+
+            return {
+
+                ok: false,
+
+                message:
+                    "맵 "
+                    +
+                    (y + 1)
+                    +
+                    "번째 줄의 길이가 올바르지 않습니다."
+
+            };
+
+        }
+
+    }
+
+
+    const requiredSymbols = [
+
+        "S",
+        "K",
+        "F",
+        "B",
+        "P",
+        "M",
+        "E"
+
+    ];
+
+
+    for (
+        const symbol
+        of
+        requiredSymbols
+    ) {
+
+        if (
+            !findTileInLevel(
+                level,
+                symbol
+            )
+        ) {
+
+            return {
+
+                ok: false,
+
+                message:
+                    "필수 오브젝트 "
+                    +
+                    symbol
+                    +
+                    "가 맵에 없습니다."
+
+            };
+
+        }
+
+    }
+
+
+    return {
+        ok: true
+    };
+
+}
+
+
+// ============================================================
+// 특정 레벨에서 타일 찾기
+// ============================================================
+
+function findTileInLevel(
+    level,
+    symbol
+) {
 
     for (
         let y = 0;
@@ -541,14 +987,17 @@ function findTile(symbol) {
         ) {
 
             if (
-                MAP[y][x]
+                level.map[y][x]
                 ===
                 symbol
             ) {
 
                 return {
+
                     x: x,
+
                     y: y
+
                 };
 
             }
@@ -557,15 +1006,34 @@ function findTile(symbol) {
 
     }
 
+
     return null;
+
 }
 
 
-/* ============================================================
-   타일 중심
-============================================================ */
+// ============================================================
+// 현재 맵에서 타일 찾기
+// ============================================================
 
-function tileCenter(x, y) {
+function findTile(symbol) {
+
+    return findTileInLevel(
+        currentLevel(),
+        symbol
+    );
+
+}
+
+
+// ============================================================
+// 타일 중앙 좌표
+// ============================================================
+
+function tileCenter(
+    x,
+    y
+) {
 
     return {
 
@@ -580,23 +1048,55 @@ function tileCenter(x, y) {
             TILE / 2
 
     };
+
 }
 
 
-/* ============================================================
-   초기화
-============================================================ */
+// ============================================================
+// 전체 게임 시작
+// ============================================================
 
-function resetGame() {
+function startWholeGame() {
+
+    currentLevelIndex = 0;
+
+    startLevel();
+
+}
+
+
+// ============================================================
+// 현재 테마 시작
+// ============================================================
+
+function startLevel() {
+
+    const level =
+        currentLevel();
+
+
+    const validation =
+        validateLevel(
+            level
+        );
+
+
+    if (
+        !validation.ok
+    ) {
+
+        showFatalError(
+            validation.message
+        );
+
+        return;
+
+    }
+
 
     const start =
         findTile("S");
 
-
-    /*
-    캐릭터는 크게 보이지만
-    실제 충돌은 작은 발 영역만 사용
-    */
 
     player = {
 
@@ -606,11 +1106,17 @@ function resetGame() {
         y:
             start.y * TILE - 4,
 
+
+        // 화면에 보이는 캐릭터 크기
+
         spriteW:
             30,
 
         spriteH:
             38,
+
+
+        // 실제 충돌 판정은 발 근처만
 
         hitW:
             12,
@@ -624,8 +1130,10 @@ function resetGame() {
         hitOffsetY:
             20,
 
+
         speed:
-            155,
+            160,
+
 
         facing:
             "down",
@@ -644,93 +1152,69 @@ function resetGame() {
 
     state = {
 
-        hearts: 4,
+        hearts:
+            4,
 
-        time: 420,
+        time:
+            level.time,
 
-        hasKeycard: false,
+        hasKeycard:
+            false,
 
-        hasFuse: false,
+        hasFuse:
+            false,
 
-        hasBattery: false,
+        hasBattery:
+            false,
 
-        powerOn: false,
+        powerOn:
+            false,
 
-        hasMasterKey: false,
+        hasMasterKey:
+            false,
 
-        won: false,
+        won:
+            false,
 
-        lost: false,
+        lost:
+            false,
 
-        logs: []
+        logs:
+            [],
+
+        score:
+            0
 
     };
 
 
-    ghosts = [
-
-        {
-
-            x:
-                20 * TILE,
-
-            y:
-                5 * TILE,
-
-            w: 20,
-
-            h: 20,
-
-            color:
-                "#957cff",
-
-            speed:
-                43,
-
-            active:
-                true,
-
-            path: [
-
-                tileCenter(20, 5),
-
-                tileCenter(25, 5),
-
-                tileCenter(25, 10),
-
-                tileCenter(20, 10)
-
-            ],
-
-            pathIndex:
-                1
-
-        }
-
-    ];
+    ghosts = createGhostsForLevel();
 
 
     invulnerable = 0;
 
 
     state.logs.push(
-        "22:00 — 병원 셔터가 내려갔습니다."
+        "현재 구역 진입 : "
+        +
+        level.title
     );
 
 
     state.logs.push(
-        "엘리베이터의 전원이 꺼졌습니다."
-    );
-
-
-    state.logs.push(
-        "출입카드를 먼저 찾아보세요."
+        "출구 시스템이 잠겨 있습니다."
     );
 
 
     setMessage(
-        "✅ 이제 창문과 병원 가구 때문에 막히지 않아. 자유롭게 이동해 봐!"
+        level.story
     );
+
+
+    subtitleText.innerHTML =
+        level.title
+        +
+        " · 방향키/WASD로 직접 이동";
 
 
     overlay.style.display =
@@ -741,27 +1225,346 @@ function resetGame() {
 
 
     canvas.focus();
+
 }
 
 
-/* ============================================================
-   메시지
-============================================================ */
+// ============================================================
+// 레벨별 그림자 NPC
+// ============================================================
+
+function createGhostsForLevel() {
+
+    if (
+        currentLevelIndex === 0
+    ) {
+
+        return [
+
+            {
+
+                x:
+                    23 * TILE,
+
+                y:
+                    7 * TILE,
+
+                w:
+                    20,
+
+                h:
+                    20,
+
+                color:
+                    "#957cff",
+
+                speed:
+                    43,
+
+                active:
+                    true,
+
+                path: [
+
+                    tileCenter(23, 7),
+
+                    tileCenter(29, 7),
+
+                    tileCenter(29, 12),
+
+                    tileCenter(23, 12)
+
+                ],
+
+                pathIndex:
+                    1
+
+            }
+
+        ];
+
+    }
+
+
+    if (
+        currentLevelIndex === 1
+    ) {
+
+        return [
+
+            {
+
+                x:
+                    20 * TILE,
+
+                y:
+                    5 * TILE,
+
+                w:
+                    20,
+
+                h:
+                    20,
+
+                color:
+                    "#54d5b0",
+
+                speed:
+                    48,
+
+                active:
+                    true,
+
+                path: [
+
+                    tileCenter(20, 5),
+
+                    tileCenter(27, 5),
+
+                    tileCenter(27, 10),
+
+                    tileCenter(20, 10)
+
+                ],
+
+                pathIndex:
+                    1
+
+            },
+
+
+            {
+
+                x:
+                    6 * TILE,
+
+                y:
+                    15 * TILE,
+
+                w:
+                    20,
+
+                h:
+                    20,
+
+                color:
+                    "#99e85b",
+
+                speed:
+                    40,
+
+                active:
+                    true,
+
+                path: [
+
+                    tileCenter(6, 15),
+
+                    tileCenter(12, 15),
+
+                    tileCenter(12, 18),
+
+                    tileCenter(6, 18)
+
+                ],
+
+                pathIndex:
+                    1
+
+            }
+
+        ];
+
+    }
+
+
+    return [
+
+        {
+
+            x:
+                21 * TILE,
+
+            y:
+                5 * TILE,
+
+            w:
+                20,
+
+            h:
+                20,
+
+            color:
+                "#ff7da9",
+
+            speed:
+                53,
+
+            active:
+                true,
+
+            path: [
+
+                tileCenter(21, 5),
+
+                tileCenter(29, 5),
+
+                tileCenter(29, 10),
+
+                tileCenter(21, 10)
+
+            ],
+
+            pathIndex:
+                1
+
+        },
+
+
+        {
+
+            x:
+                8 * TILE,
+
+            y:
+                14 * TILE,
+
+            w:
+                20,
+
+            h:
+                20,
+
+            color:
+                "#bd8cff",
+
+            speed:
+                47,
+
+            active:
+                true,
+
+            path: [
+
+                tileCenter(8, 14),
+
+                tileCenter(17, 14),
+
+                tileCenter(17, 18),
+
+                tileCenter(8, 18)
+
+            ],
+
+            pathIndex:
+                1
+
+        }
+
+    ];
+
+}
+
+
+// ============================================================
+// 현재 테마 재시작
+// ============================================================
+
+function restartCurrentTheme() {
+
+    startLevel();
+
+}
+
+
+// ============================================================
+// 다음 테마
+// ============================================================
+
+function nextTheme() {
+
+    if (
+        currentLevelIndex
+        <
+        LEVELS.length - 1
+    ) {
+
+        currentLevelIndex += 1;
+
+        startLevel();
+
+        return;
+
+    }
+
+
+    startWholeGame();
+
+}
+
+
+// ============================================================
+// 치명적 맵 오류 처리
+// ============================================================
+
+function showFatalError(message) {
+
+    overlayBox.innerHTML = `
+
+        <div class="overlay-title">
+
+            MAP ERROR
+
+        </div>
+
+
+        <div class="overlay-text">
+
+            게임 맵을 불러오는 중 문제가 발생했습니다.
+
+            <br><br>
+
+            ${message}
+
+        </div>
+
+
+        <button onclick="startWholeGame()">
+
+            게임 다시 불러오기
+
+        </button>
+
+    `;
+
+
+    overlay.style.display =
+        "flex";
+
+}
+
+
+// ============================================================
+// 메시지
+// ============================================================
 
 function setMessage(text) {
 
     messageBar.innerHTML =
         text;
+
 }
 
 
-/* ============================================================
-   로그
-============================================================ */
+// ============================================================
+// 로그
+// ============================================================
 
 function addLog(text) {
 
-    state.logs.unshift(text);
+    state.logs.unshift(
+        text
+    );
 
 
     if (
@@ -769,18 +1572,37 @@ function addLog(text) {
     ) {
 
         state.logs.pop();
+
     }
 
 
     updatePanels();
+
 }
 
 
-/* ============================================================
-   오른쪽 UI
-============================================================ */
+// ============================================================
+// 오른쪽 UI
+// ============================================================
 
 function updatePanels() {
+
+    const level =
+        currentLevel();
+
+
+    themeBox.innerHTML = `
+
+        <b>
+        ${level.title}
+        </b>
+
+        <br><br>
+
+        ${level.story}
+
+    `;
+
 
     let objective = "";
 
@@ -790,7 +1612,11 @@ function updatePanels() {
     ) {
 
         objective =
-            "1. <b>출입카드</b>를 찾아.";
+            "① <b>"
+            +
+            level.labels.K
+            +
+            "</b>를 찾아.";
 
     }
 
@@ -799,7 +1625,11 @@ function updatePanels() {
     ) {
 
         objective =
-            "2. 발전기 수리에 필요한 <b>퓨즈</b>를 찾아.";
+            "② <b>"
+            +
+            level.labels.F
+            +
+            "</b>를 찾아.";
 
     }
 
@@ -808,7 +1638,11 @@ function updatePanels() {
     ) {
 
         objective =
-            "3. <b>비상 배터리</b>를 찾아.";
+            "③ <b>"
+            +
+            level.labels.B
+            +
+            "</b>를 찾아.";
 
     }
 
@@ -817,7 +1651,11 @@ function updatePanels() {
     ) {
 
         objective =
-            "4. 발전기로 가서 <b>전원을 복구</b>해.";
+            "④ <b>"
+            +
+            level.labels.P
+            +
+            "</b>으로 가서 전원을 복구해.";
 
     }
 
@@ -826,14 +1664,23 @@ function updatePanels() {
     ) {
 
         objective =
-            "5. <b>마스터 키</b>를 찾아.";
+            "⑤ <b>"
+            +
+            level.labels.M
+            +
+            "</b>를 찾아.";
 
     }
 
     else {
 
         objective =
-            "6. 엘리베이터에서 <b>탈출</b>해!";
+            "⑥ <b>"
+            +
+            level.labels.E
+            +
+            "</b>로 이동해 다음 구역으로 가!";
+
     }
 
 
@@ -861,22 +1708,41 @@ function updatePanels() {
     statusBox.innerHTML = `
 
         <div class="stat">
-            <b>시간</b>
-            ${minutes}:${seconds}
+
+            <b>테마</b>
+            ${currentLevelIndex + 1}
+            /
+            ${LEVELS.length}
+
         </div>
 
+
         <div class="stat">
+
+            <b>시간</b>
+            ${minutes}:${seconds}
+
+        </div>
+
+
+        <div class="stat">
+
             <b>체력</b>
+
             ${"❤️".repeat(
                 Math.max(
                     0,
                     state.hearts
                 )
             )}
+
         </div>
 
+
         <div class="stat">
+
             <b>전원</b>
+
             ${
                 state.powerOn
                 ?
@@ -884,6 +1750,7 @@ function updatePanels() {
                 :
                 "❌ OFF"
             }
+
         </div>
 
     `;
@@ -892,43 +1759,78 @@ function updatePanels() {
     inventoryBox.innerHTML = `
 
         <div class="item">
+
             ${
                 state.hasKeycard
                 ?
-                "🪪 출입카드"
+                "✅ "
+                +
+                level.labels.K
+
                 :
-                "⬜ 출입카드"
+
+                "⬜ "
+                +
+                level.labels.K
             }
+
         </div>
 
+
         <div class="item">
+
             ${
                 state.hasFuse
                 ?
-                "🧰 퓨즈"
+                "✅ "
+                +
+                level.labels.F
+
                 :
-                "⬜ 퓨즈"
+
+                "⬜ "
+                +
+                level.labels.F
             }
+
         </div>
 
+
         <div class="item">
+
             ${
                 state.hasBattery
                 ?
-                "🔋 비상 배터리"
+                "✅ "
+                +
+                level.labels.B
+
                 :
-                "⬜ 비상 배터리"
+
+                "⬜ "
+                +
+                level.labels.B
             }
+
         </div>
 
+
         <div class="item">
+
             ${
                 state.hasMasterKey
                 ?
-                "🗝️ 마스터 키"
+                "✅ "
+                +
+                level.labels.M
+
                 :
-                "⬜ 마스터 키"
+
+                "⬜ "
+                +
+                level.labels.M
             }
+
         </div>
 
     `;
@@ -946,15 +1848,21 @@ function updatePanels() {
         )
 
         .join("");
+
 }
 
 
-/* ============================================================
-   핵심 수정
-   실제 장애물
-============================================================ */
+// ============================================================
+// 실제 장애물
+//
+// 가구와 창문은 이동을 막지 않음.
+// 벽과 조건부 문만 막음.
+// ============================================================
 
-function tileBlocked(tx, ty) {
+function tileBlocked(
+    tx,
+    ty
+) {
 
     if (
         tx < 0
@@ -967,25 +1875,12 @@ function tileBlocked(tx, ty) {
     ) {
 
         return true;
+
     }
 
 
     const symbol =
-        MAP[ty][tx];
-
-
-    /*
-    ★ 가장 중요한 수정 ★
-
-    창문 W
-    책상 T
-    침대 H
-    휠체어 Q
-    간호 스테이션 N
-    자판기 V
-
-    전부 장애물 판정 제거
-    */
+        currentLevel().map[ty][tx];
 
 
     if (
@@ -993,6 +1888,7 @@ function tileBlocked(tx, ty) {
     ) {
 
         return true;
+
     }
 
 
@@ -1003,6 +1899,7 @@ function tileBlocked(tx, ty) {
     ) {
 
         return true;
+
     }
 
 
@@ -1013,18 +1910,23 @@ function tileBlocked(tx, ty) {
     ) {
 
         return true;
+
     }
 
 
     return false;
+
 }
 
 
-/* ============================================================
-   캐릭터 충돌
-============================================================ */
+// ============================================================
+// 플레이어 충돌
+// ============================================================
 
-function collisionAt(newX, newY) {
+function collisionAt(
+    newX,
+    newY
+) {
 
     const left =
         newX
@@ -1105,18 +2007,20 @@ function collisionAt(newX, newY) {
         ) {
 
             return true;
+
         }
 
     }
 
 
     return false;
+
 }
 
 
-/* ============================================================
-   이동
-============================================================ */
+// ============================================================
+// 플레이어 이동
+// ============================================================
 
 function updatePlayer(dt) {
 
@@ -1137,6 +2041,7 @@ function updatePlayer(dt) {
 
         player.facing =
             "left";
+
     }
 
 
@@ -1152,6 +2057,7 @@ function updatePlayer(dt) {
 
         player.facing =
             "right";
+
     }
 
 
@@ -1167,6 +2073,7 @@ function updatePlayer(dt) {
 
         player.facing =
             "up";
+
     }
 
 
@@ -1182,6 +2089,7 @@ function updatePlayer(dt) {
 
         player.facing =
             "down";
+
     }
 
 
@@ -1200,10 +2108,11 @@ function updatePlayer(dt) {
         dx *= 0.707106;
 
         dy *= 0.707106;
+
     }
 
 
-    const moveX =
+    const movementX =
         dx
         *
         player.speed
@@ -1211,7 +2120,7 @@ function updatePlayer(dt) {
         dt;
 
 
-    const moveY =
+    const movementY =
         dy
         *
         player.speed
@@ -1219,34 +2128,32 @@ function updatePlayer(dt) {
         dt;
 
 
-    /*
-    X / Y 따로 판정
-
-    벽에 닿더라도
-    벽을 따라 이동 가능
-    */
+    // X축과 Y축을 따로 판정
+    // 벽에 닿아도 벽을 따라 미끄러지듯 이동
 
     if (
         !collisionAt(
-            player.x + moveX,
+            player.x + movementX,
             player.y
         )
     ) {
 
         player.x +=
-            moveX;
+            movementX;
+
     }
 
 
     if (
         !collisionAt(
             player.x,
-            player.y + moveY
+            player.y + movementY
         )
     ) {
 
         player.y +=
-            moveY;
+            movementY;
+
     }
 
 
@@ -1272,6 +2179,7 @@ function updatePlayer(dt) {
 
             player.walkTimer =
                 0;
+
         }
 
     }
@@ -1280,14 +2188,15 @@ function updatePlayer(dt) {
 
         player.walkFrame =
             0;
+
     }
 
 }
 
 
-/* ============================================================
-   플레이어 중심
-============================================================ */
+// ============================================================
+// 플레이어 중심
+// ============================================================
 
 function playerCenter() {
 
@@ -1300,16 +2209,17 @@ function playerCenter() {
             player.y + 23
 
     };
+
 }
 
 
-/* ============================================================
-   타일 근처
-============================================================ */
+// ============================================================
+// 특정 오브젝트와 가까운지
+// ============================================================
 
 function nearTile(
     symbol,
-    distance = 41
+    distance = 42
 ) {
 
     const tile =
@@ -1323,6 +2233,7 @@ function nearTile(
     ) {
 
         return false;
+
     }
 
 
@@ -1352,12 +2263,13 @@ function nearTile(
         distance
 
     );
+
 }
 
 
-/* ============================================================
-   상호작용
-============================================================ */
+// ============================================================
+// 상호작용
+// ============================================================
 
 function interact() {
 
@@ -1371,8 +2283,17 @@ function interact() {
     ) {
 
         return;
+
     }
 
+
+    const labels =
+        currentLevel().labels;
+
+
+    // --------------------------------------------------------
+    // 출입카드
+    // --------------------------------------------------------
 
     if (
         nearTile("K")
@@ -1384,21 +2305,34 @@ function interact() {
             true;
 
 
+        state.score +=
+            100;
+
+
         setMessage(
-            "🪪 출입카드를 주웠어!"
+            "🪪 "
+            +
+            labels.K
+            +
+            "를 획득했어!"
         );
 
 
         addLog(
-            "출입카드 확보."
+            labels.K
+            +
+            " 확보."
         );
 
 
-        updatePanels();
-
         return;
+
     }
 
+
+    // --------------------------------------------------------
+    // 퓨즈
+    // --------------------------------------------------------
 
     if (
         nearTile("F")
@@ -1410,21 +2344,34 @@ function interact() {
             true;
 
 
+        state.score +=
+            100;
+
+
         setMessage(
-            "🧰 퓨즈를 주웠어!"
+            "🧰 "
+            +
+            labels.F
+            +
+            "를 획득했어!"
         );
 
 
         addLog(
-            "퓨즈 확보."
+            labels.F
+            +
+            " 확보."
         );
 
 
-        updatePanels();
-
         return;
+
     }
 
+
+    // --------------------------------------------------------
+    // 배터리
+    // --------------------------------------------------------
 
     if (
         nearTile("B")
@@ -1436,21 +2383,35 @@ function interact() {
             true;
 
 
+        state.score +=
+            100;
+
+
         setMessage(
-            "🔋 비상 배터리를 찾았어!"
+            "🔋 "
+            +
+            labels.B
+            +
+            "를 획득했어!"
         );
 
 
         addLog(
-            "배터리 확보."
+            labels.B
+            +
+            " 확보."
         );
 
 
-        updatePanels();
-
         return;
+
     }
 
+
+    // --------------------------------------------------------
+    // 발전기 / 제어판
+    // 필요한 아이템이 없을 때의 예외처리
+    // --------------------------------------------------------
 
     if (
         nearTile("P")
@@ -1461,10 +2422,16 @@ function interact() {
         ) {
 
             setMessage(
-                "⚡ 발전기는 이미 작동 중이야."
+                "⚡ "
+                +
+                labels.P
+                +
+                "은 이미 작동 중이야."
             );
 
+
             return;
+
         }
 
 
@@ -1478,61 +2445,79 @@ function interact() {
                 true;
 
 
+            state.score +=
+                300;
+
+
             setMessage(
-                "⚡ 병원 전원이 복구됐어!"
+                "⚡ "
+                +
+                labels.P
+                +
+                " 작동 성공!"
             );
 
 
             addLog(
-                "병원 전원 복구."
+                "전원 시스템 복구."
             );
 
 
-            updatePanels();
+            return;
 
         }
 
-        else {
 
-            const needed =
-                [];
-
-
-            if (
-                !state.hasFuse
-            ) {
-
-                needed.push(
-                    "퓨즈"
-                );
-            }
+        const needed =
+            [];
 
 
-            if (
-                !state.hasBattery
-            ) {
+        if (
+            !state.hasFuse
+        ) {
 
-                needed.push(
-                    "배터리"
-                );
-            }
-
-
-            setMessage(
-
-                "⚠️ 발전기에 "
-                +
-                needed.join(", ")
-                +
-                "가 필요해."
-
+            needed.push(
+                labels.F
             );
+
         }
+
+
+        if (
+            !state.hasBattery
+        ) {
+
+            needed.push(
+                labels.B
+            );
+
+        }
+
+
+        setMessage(
+
+            "⚠️ "
+            +
+            labels.P
+            +
+            "을 사용하려면 "
+            +
+            needed.join(", ")
+            +
+            "가 필요해."
+
+        );
 
 
         return;
+
     }
 
+
+    // --------------------------------------------------------
+    // 마스터키
+    // 전원 미복구 시 예외처리
+    // --------------------------------------------------------
 
     if (
         nearTile("M")
@@ -1545,10 +2530,16 @@ function interact() {
         ) {
 
             setMessage(
-                "🚪 전원을 먼저 복구해야 해."
+                "🚪 전원을 먼저 복구해야 "
+                +
+                labels.M
+                +
+                "를 얻을 수 있어."
             );
 
+
             return;
+
         }
 
 
@@ -1556,21 +2547,34 @@ function interact() {
             true;
 
 
+        state.score +=
+            200;
+
+
         setMessage(
-            "🗝️ 마스터 키를 찾았어!"
+            "🗝️ "
+            +
+            labels.M
+            +
+            "를 획득했어!"
         );
 
 
         addLog(
-            "마스터 키 확보."
+            labels.M
+            +
+            " 확보."
         );
 
 
-        updatePanels();
-
         return;
+
     }
 
+
+    // --------------------------------------------------------
+    // 출구
+    // --------------------------------------------------------
 
     if (
         nearTile("E")
@@ -1582,86 +2586,239 @@ function interact() {
             state.hasMasterKey
         ) {
 
-            state.won =
-                true;
+            state.score +=
+                500;
 
 
-            showResult(
-                "ESCAPED!",
-                "엘리베이터가 작동했습니다.<br><br>병원 탈출 성공!"
+            clearCurrentTheme();
+
+
+            return;
+
+        }
+
+
+        const needed =
+            [];
+
+
+        if (
+            !state.powerOn
+        ) {
+
+            needed.push(
+                "전원 복구"
             );
 
         }
 
-        else {
 
-            const needed =
-                [];
+        if (
+            !state.hasMasterKey
+        ) {
 
-
-            if (
-                !state.powerOn
-            ) {
-
-                needed.push(
-                    "전원 복구"
-                );
-            }
-
-
-            if (
-                !state.hasMasterKey
-            ) {
-
-                needed.push(
-                    "마스터 키"
-                );
-            }
-
-
-            setMessage(
-
-                "🚪 엘리베이터 이용에 "
-                +
-                needed.join(", ")
-                +
-                "가 필요해."
-
+            needed.push(
+                labels.M
             );
+
         }
+
+
+        setMessage(
+
+            "🚪 "
+            +
+            labels.E
+            +
+            "를 이용하려면 "
+            +
+            needed.join(", ")
+            +
+            "가 필요해."
+
+        );
 
 
         return;
+
+    }
+
+
+    // --------------------------------------------------------
+    // 잠긴 카드 보안문
+    // --------------------------------------------------------
+
+    if (
+        nearTile("C")
+        &&
+        !state.hasKeycard
+    ) {
+
+        setMessage(
+            "🔒 "
+            +
+            labels.C
+            +
+            "을 열려면 "
+            +
+            labels.K
+            +
+            "가 필요해."
+        );
+
+
+        return;
+
+    }
+
+
+    // --------------------------------------------------------
+    // 잠긴 전원문
+    // --------------------------------------------------------
+
+    if (
+        nearTile("D")
+        &&
+        !state.powerOn
+    ) {
+
+        setMessage(
+            "⚡ "
+            +
+            labels.D
+            +
+            "은 전원이 복구되어야 열려."
+        );
+
+
+        return;
+
     }
 
 
     setMessage(
-        "주변에 상호작용할 물건이 없어."
+        "주변에 지금 사용할 수 있는 물건이 없어."
     );
+
 }
 
 
-/* ============================================================
-   결과 화면
-============================================================ */
+// ============================================================
+// 테마 클리어
+// ============================================================
 
-function showResult(
-    title,
-    text
-) {
+function clearCurrentTheme() {
+
+    state.won =
+        true;
+
+
+    const level =
+        currentLevel();
+
+
+    const timeBonus =
+        Math.floor(
+            state.time
+        );
+
+
+    state.score +=
+        timeBonus;
+
+
+    if (
+        currentLevelIndex
+        <
+        LEVELS.length - 1
+    ) {
+
+        overlayBox.innerHTML = `
+
+            <div class="overlay-title">
+
+                THEME CLEAR
+
+            </div>
+
+
+            <div class="overlay-text">
+
+                <b>
+                ${level.title}
+                </b>
+
+                클리어!
+
+                <br><br>
+
+                현재 구역에서 탈출했지만
+                병원에는 아직 빠져나가야 할 구역이 남아 있어.
+
+                <br><br>
+
+                다음 테마
+
+                <br>
+
+                <b>
+                ${LEVELS[currentLevelIndex + 1].title}
+                </b>
+
+            </div>
+
+
+            <button onclick="nextTheme()">
+
+                다음 테마로 이동 →
+
+            </button>
+
+        `;
+
+
+        overlay.style.display =
+            "flex";
+
+
+        return;
+
+    }
+
+
+    // 마지막 테마 클리어
 
     overlayBox.innerHTML = `
 
         <div class="overlay-title">
-            ${title}
+
+            HOSPITAL ESCAPED!
+
         </div>
+
 
         <div class="overlay-text">
-            ${text}
+
+            마지막 옥상 출구까지 열었다.
+
+            <br><br>
+
+            세 개의 병원 구역을 모두 통과해
+            탈출에 성공했어!
+
+            <br><br>
+
+            <b>
+            MIDNIGHT HOSPITAL COMPLETE
+            </b>
+
         </div>
 
-        <button onclick="resetGame()">
-            다시 시작
+
+        <button onclick="startWholeGame()">
+
+            처음부터 다시 플레이
+
         </button>
 
     `;
@@ -1669,19 +2826,22 @@ function showResult(
 
     overlay.style.display =
         "flex";
+
 }
 
 
-/* ============================================================
-   화면 방향키
-============================================================ */
+// ============================================================
+// 화면 방향키
+// ============================================================
 
 function pressDirection(direction) {
 
     keys[direction] =
         true;
 
+
     canvas.focus();
+
 }
 
 
@@ -1689,12 +2849,13 @@ function releaseDirection(direction) {
 
     keys[direction] =
         false;
+
 }
 
 
-/* ============================================================
-   적
-============================================================ */
+// ============================================================
+// 그림자 NPC 이동
+// ============================================================
 
 function updateGhosts(dt) {
 
@@ -1704,6 +2865,7 @@ function updateGhosts(dt) {
 
         invulnerable -=
             dt;
+
     }
 
 
@@ -1716,6 +2878,7 @@ function updateGhosts(dt) {
             ) {
 
                 return;
+
             }
 
 
@@ -1725,13 +2888,13 @@ function updateGhosts(dt) {
                 ];
 
 
-            const cx =
+            const centerX =
                 ghost.x
                 +
                 ghost.w / 2;
 
 
-            const cy =
+            const centerY =
                 ghost.y
                 +
                 ghost.h / 2;
@@ -1740,13 +2903,13 @@ function updateGhosts(dt) {
             const dx =
                 target.x
                 -
-                cx;
+                centerX;
 
 
             const dy =
                 target.y
                 -
-                cy;
+                centerY;
 
 
             const distance =
@@ -1789,6 +2952,7 @@ function updateGhosts(dt) {
                     ghost.speed
                     *
                     dt;
+
             }
 
 
@@ -1824,7 +2988,7 @@ function updateGhosts(dt) {
 
                     )
                     <
-                    20
+                    21
                 ) {
 
                     state.hearts -=
@@ -1832,7 +2996,7 @@ function updateGhosts(dt) {
 
 
                     invulnerable =
-                        1.5;
+                        1.4;
 
 
                     const start =
@@ -1840,27 +3004,21 @@ function updateGhosts(dt) {
 
 
                     player.x =
-                        start.x
-                        *
-                        TILE
-                        +
-                        1;
+                        start.x * TILE + 1;
 
 
                     player.y =
-                        start.y
-                        *
-                        TILE
-                        -
-                        4;
+                        start.y * TILE - 4;
 
 
                     setMessage(
-                        "👻 그림자와 부딪혔어! 체력 -1"
+                        "👻 병원 안의 수상한 그림자와 부딪혔어! 체력 -1"
                     );
 
 
-                    updatePanels();
+                    addLog(
+                        "그림자와 충돌. 시작 위치로 복귀."
+                    );
 
 
                     if (
@@ -1871,21 +3029,67 @@ function updateGhosts(dt) {
                             true;
 
 
-                        showResult(
-                            "GAME OVER",
+                        showGameOver(
                             "체력이 모두 소진됐어."
                         );
+
                     }
+
                 }
+
             }
+
         }
+
     );
+
 }
 
 
-/* ============================================================
-   그리기 도우미
-============================================================ */
+// ============================================================
+// GAME OVER
+// ============================================================
+
+function showGameOver(reason) {
+
+    overlayBox.innerHTML = `
+
+        <div class="overlay-title">
+
+            GAME OVER
+
+        </div>
+
+
+        <div class="overlay-text">
+
+            ${reason}
+
+            <br><br>
+
+            현재 테마를 다시 도전할 수 있어.
+
+        </div>
+
+
+        <button onclick="restartCurrentTheme()">
+
+            현재 테마 다시 시작
+
+        </button>
+
+    `;
+
+
+    overlay.style.display =
+        "flex";
+
+}
+
+
+// ============================================================
+// 사각형 그리기
+// ============================================================
 
 function rect(
     x,
@@ -1910,14 +3114,19 @@ function rect(
         h
 
     );
+
 }
 
 
-/* ============================================================
-   바닥
-============================================================ */
+// ============================================================
+// 바닥
+// ============================================================
 
 function drawFloor() {
+
+    const level =
+        currentLevel();
+
 
     for (
         let y = 0;
@@ -1932,10 +3141,29 @@ function drawFloor() {
         ) {
 
             if (
-                MAP[y][x]
+                level.map[y][x]
                 !==
                 "#"
             ) {
+
+                const floorColor =
+
+                    (
+                        x + y
+                    )
+                    %
+                    2
+                    ===
+                    0
+
+                    ?
+
+                    level.palette.floor1
+
+                    :
+
+                    level.palette.floor2;
+
 
                 rect(
 
@@ -1947,14 +3175,12 @@ function drawFloor() {
 
                     TILE,
 
-                    FLOOR_COLORS[
-                        (x + y)
-                        %
-                        FLOOR_COLORS.length
-                    ]
+                    floorColor
 
                 );
 
+
+                // 작은 병원 바닥 무늬
 
                 rect(
 
@@ -1962,24 +3188,32 @@ function drawFloor() {
 
                     y * TILE + 5,
 
-                    4,
+                    3,
 
-                    4,
+                    3,
 
                     "rgba(255,255,255,0.12)"
 
                 );
+
             }
+
         }
+
     }
+
 }
 
 
-/* ============================================================
-   벽
-============================================================ */
+// ============================================================
+// 벽
+// ============================================================
 
 function drawWalls() {
+
+    const level =
+        currentLevel();
+
 
     for (
         let y = 0;
@@ -1994,7 +3228,7 @@ function drawWalls() {
         ) {
 
             if (
-                MAP[y][x]
+                level.map[y][x]
                 ===
                 "#"
             ) {
@@ -2009,7 +3243,7 @@ function drawWalls() {
 
                     TILE,
 
-                    "#334f5b"
+                    level.palette.wall1
 
                 );
 
@@ -2024,7 +3258,7 @@ function drawWalls() {
 
                     TILE - 6,
 
-                    "#4d6974"
+                    level.palette.wall2
 
                 );
 
@@ -2039,20 +3273,111 @@ function drawWalls() {
 
                     TILE - 12,
 
-                    "#5d7a85"
+                    level.palette.wall3
 
                 );
+
             }
+
         }
+
     }
+
 }
 
 
-/* ============================================================
-   가구 / 병원 장식
-============================================================ */
+// ============================================================
+// 오브젝트 이름표
+//
+// 사용자가 무엇인지 바로 알아볼 수 있게
+// 오브젝트 밑에 작은 한글 이름 표시
+// ============================================================
+
+function drawObjectLabel(
+    text,
+    centerX,
+    y
+) {
+
+    if (
+        !text
+    ) {
+
+        return;
+
+    }
+
+
+    ctx.save();
+
+
+    ctx.font =
+        '9px "Malgun Gothic", sans-serif';
+
+
+    ctx.textAlign =
+        "center";
+
+
+    ctx.textBaseline =
+        "middle";
+
+
+    const textWidth =
+        ctx.measureText(text).width;
+
+
+    const boxWidth =
+        Math.min(
+            textWidth + 8,
+            72
+        );
+
+
+    rect(
+
+        centerX - boxWidth / 2,
+
+        y - 7,
+
+        boxWidth,
+
+        13,
+
+        "rgba(20,37,45,0.78)"
+
+    );
+
+
+    ctx.fillStyle =
+        "#ffffff";
+
+
+    ctx.fillText(
+
+        text,
+
+        centerX,
+
+        y
+
+    );
+
+
+    ctx.restore();
+
+}
+
+
+// ============================================================
+// 병원 가구
+// ============================================================
 
 function drawFurniture() {
+
+    const level =
+        currentLevel();
+
 
     for (
         let y = 0;
@@ -2067,7 +3392,7 @@ function drawFurniture() {
         ) {
 
             const symbol =
-                MAP[y][x];
+                level.map[y][x];
 
 
             const px =
@@ -2078,7 +3403,9 @@ function drawFurniture() {
                 y * TILE;
 
 
-            /* 창문 */
+            // ------------------------------------------------
+            // 창문
+            // ------------------------------------------------
 
             if (
                 symbol === "W"
@@ -2086,73 +3413,69 @@ function drawFurniture() {
 
                 rect(
                     px + 3,
-                    py + 3,
+                    py + 2,
                     26,
-                    23,
+                    19,
                     "#9fb7c1"
                 );
 
                 rect(
                     px + 5,
-                    py + 5,
+                    py + 4,
                     22,
-                    19,
-                    "#376d91"
+                    15,
+                    "#153954"
                 );
 
                 rect(
                     px + 15,
-                    py + 5,
+                    py + 4,
                     2,
-                    19,
-                    "#d4edf7"
+                    15,
+                    "#d1e9f4"
                 );
 
                 rect(
                     px + 5,
-                    py + 13,
+                    py + 11,
                     22,
                     2,
-                    "#d4edf7"
+                    "#d1e9f4"
                 );
 
-                /* 밤하늘 */
 
-                rect(
-                    px + 7,
-                    py + 7,
-                    7,
-                    5,
-                    "#173750"
-                );
+                // 별
 
                 rect(
-                    px + 18,
-                    py + 7,
-                    7,
-                    5,
-                    "#173750"
+                    px + 8,
+                    py + 6,
+                    2,
+                    2,
+                    "#ffffff"
                 );
 
-                rect(
-                    px + 7,
-                    py + 16,
-                    7,
-                    6,
-                    "#173750"
-                );
 
                 rect(
-                    px + 18,
-                    py + 16,
-                    7,
-                    6,
-                    "#173750"
+                    px + 22,
+                    py + 15,
+                    2,
+                    2,
+                    "#ffffff"
                 );
+
+
+                drawObjectLabel(
+                    level.labels.W,
+                    px + 16,
+                    py + 28
+                );
+
             }
 
 
-            /* 데스크 */
+            // ------------------------------------------------
+            // 데스크
+            // ------------------------------------------------
 
             if (
                 symbol === "T"
@@ -2160,39 +3483,49 @@ function drawFurniture() {
 
                 rect(
                     px + 4,
-                    py + 9,
+                    py + 5,
                     24,
-                    14,
+                    13,
                     "#8d674a"
                 );
 
                 rect(
                     px + 4,
-                    py + 7,
+                    py + 3,
                     24,
                     4,
-                    "#b58c67"
+                    "#bb916b"
                 );
 
                 rect(
                     px + 7,
-                    py + 23,
+                    py + 18,
                     3,
-                    7,
+                    6,
                     "#70503b"
                 );
 
                 rect(
                     px + 22,
-                    py + 23,
+                    py + 18,
                     3,
-                    7,
+                    6,
                     "#70503b"
                 );
+
+
+                drawObjectLabel(
+                    level.labels.T,
+                    px + 16,
+                    py + 29
+                );
+
             }
 
 
-            /* 침대 */
+            // ------------------------------------------------
+            // 침대
+            // ------------------------------------------------
 
             if (
                 symbol === "H"
@@ -2200,95 +3533,83 @@ function drawFurniture() {
 
                 rect(
                     px + 2,
-                    py + 8,
+                    py + 5,
                     28,
-                    16,
+                    15,
                     "#d8e6eb"
                 );
 
                 rect(
                     px + 4,
-                    py + 10,
+                    py + 7,
                     9,
-                    7,
+                    6,
                     "#b9d5df"
                 );
 
                 rect(
                     px + 13,
-                    py + 10,
+                    py + 7,
                     15,
-                    12,
+                    11,
                     "#f6fafb"
                 );
 
-                rect(
-                    px + 3,
-                    py + 24,
-                    3,
-                    6,
-                    "#657b84"
+
+                drawObjectLabel(
+                    level.labels.H,
+                    px + 16,
+                    py + 28
                 );
 
-                rect(
-                    px + 26,
-                    py + 24,
-                    3,
-                    6,
-                    "#657b84"
-                );
             }
 
 
-            /* 휠체어 */
+            // ------------------------------------------------
+            // 휠체어
+            // ------------------------------------------------
 
             if (
                 symbol === "Q"
             ) {
 
                 rect(
-                    px + 6,
-                    py + 8,
-                    11,
-                    7,
-                    "#66859b"
-                );
-
-                rect(
-                    px + 11,
+                    px + 7,
                     py + 4,
-                    3,
+                    10,
                     6,
                     "#66859b"
                 );
 
                 rect(
                     px + 4,
-                    py + 17,
-                    9,
-                    9,
+                    py + 12,
+                    8,
+                    8,
                     "#33474f"
                 );
 
                 rect(
                     px + 17,
-                    py + 17,
-                    9,
-                    9,
+                    py + 12,
+                    8,
+                    8,
                     "#33474f"
                 );
 
-                rect(
-                    px + 15,
-                    py + 11,
-                    7,
-                    3,
-                    "#7593a7"
+
+                drawObjectLabel(
+                    level.labels.Q,
+                    px + 16,
+                    py + 28
                 );
+
             }
 
 
-            /* 간호 스테이션 */
+            // ------------------------------------------------
+            // 간호 스테이션
+            // ------------------------------------------------
 
             if (
                 symbol === "N"
@@ -2296,15 +3617,15 @@ function drawFurniture() {
 
                 rect(
                     px + 3,
-                    py + 10,
+                    py + 6,
                     26,
-                    14,
+                    13,
                     "#e7f0f3"
                 );
 
                 rect(
                     px + 5,
-                    py + 7,
+                    py + 3,
                     22,
                     5,
                     "#73a8ba"
@@ -2312,15 +3633,25 @@ function drawFurniture() {
 
                 rect(
                     px + 10,
-                    py + 13,
+                    py + 10,
                     12,
-                    6,
+                    5,
                     "#9cc6d3"
                 );
+
+
+                drawObjectLabel(
+                    level.labels.N,
+                    px + 16,
+                    py + 28
+                );
+
             }
 
 
-            /* 자판기 */
+            // ------------------------------------------------
+            // 자판기
+            // ------------------------------------------------
 
             if (
                 symbol === "V"
@@ -2328,39 +3659,41 @@ function drawFurniture() {
 
                 rect(
                     px + 7,
-                    py + 3,
+                    py + 2,
                     18,
-                    27,
+                    22,
                     "#bd4755"
                 );
 
                 rect(
                     px + 9,
-                    py + 6,
+                    py + 5,
                     14,
-                    10,
+                    8,
                     "#cfebf4"
                 );
 
                 rect(
                     px + 10,
-                    py + 18,
+                    py + 16,
                     12,
-                    5,
+                    4,
                     "#f3d26e"
                 );
 
-                rect(
-                    px + 12,
-                    py + 26,
-                    8,
-                    2,
-                    "#343f44"
+
+                drawObjectLabel(
+                    level.labels.V,
+                    px + 16,
+                    py + 29
                 );
+
             }
 
 
-            /* 카드 보안문 */
+            // ------------------------------------------------
+            // 카드 보안문
+            // ------------------------------------------------
 
             if (
                 symbol === "C"
@@ -2368,19 +3701,29 @@ function drawFurniture() {
 
                 rect(
                     px + 5,
-                    py + 2,
+                    py + 1,
                     22,
-                    28,
+                    23,
                     state.hasKeycard
                     ?
                     "#74aa89"
                     :
                     "#517fb5"
                 );
+
+
+                drawObjectLabel(
+                    level.labels.C,
+                    px + 16,
+                    py + 29
+                );
+
             }
 
 
-            /* 전원 보안문 */
+            // ------------------------------------------------
+            // 전원 보안문
+            // ------------------------------------------------
 
             if (
                 symbol === "D"
@@ -2388,19 +3731,29 @@ function drawFurniture() {
 
                 rect(
                     px + 5,
-                    py + 2,
+                    py + 1,
                     22,
-                    28,
+                    23,
                     state.powerOn
                     ?
                     "#74aa89"
                     :
                     "#806044"
                 );
+
+
+                drawObjectLabel(
+                    level.labels.D,
+                    px + 16,
+                    py + 29
+                );
+
             }
 
 
-            /* 발전기 */
+            // ------------------------------------------------
+            // 발전기 / 제어반
+            // ------------------------------------------------
 
             if (
                 symbol === "P"
@@ -2408,23 +3761,23 @@ function drawFurniture() {
 
                 rect(
                     px + 3,
-                    py + 7,
+                    py + 4,
                     26,
-                    19,
+                    18,
                     "#485d66"
                 );
 
                 rect(
                     px + 8,
-                    py + 11,
+                    py + 8,
                     16,
-                    10,
+                    9,
                     "#273940"
                 );
 
                 rect(
                     px + 10,
-                    py + 14,
+                    py + 11,
                     4,
                     4,
                     state.powerOn
@@ -2436,15 +3789,25 @@ function drawFurniture() {
 
                 rect(
                     px + 18,
-                    py + 14,
+                    py + 11,
                     4,
                     4,
                     "#e8c854"
                 );
+
+
+                drawObjectLabel(
+                    level.labels.P,
+                    px + 16,
+                    py + 29
+                );
+
             }
 
 
-            /* 엘리베이터 */
+            // ------------------------------------------------
+            // 출구 / 엘리베이터
+            // ------------------------------------------------
 
             if (
                 symbol === "E"
@@ -2452,31 +3815,31 @@ function drawFurniture() {
 
                 rect(
                     px + 2,
-                    py + 2,
+                    py + 1,
                     28,
-                    28,
+                    23,
                     "#6e858e"
                 );
 
                 rect(
                     px + 5,
-                    py + 4,
+                    py + 3,
                     10,
-                    24,
+                    20,
                     "#a4b9c0"
                 );
 
                 rect(
                     px + 17,
-                    py + 4,
+                    py + 3,
                     10,
-                    24,
+                    20,
                     "#a4b9c0"
                 );
 
                 rect(
                     px + 10,
-                    py + 7,
+                    py + 5,
                     12,
                     3,
                     state.powerOn
@@ -2485,17 +3848,32 @@ function drawFurniture() {
                     :
                     "#d45e67"
                 );
+
+
+                drawObjectLabel(
+                    level.labels.E,
+                    px + 16,
+                    py + 29
+                );
+
             }
+
         }
+
     }
+
 }
 
 
-/* ============================================================
-   아이템
-============================================================ */
+// ============================================================
+// 아이템 그리기 + 이름표
+// ============================================================
 
 function drawItems() {
+
+    const level =
+        currentLevel();
+
 
     for (
         let y = 0;
@@ -2510,7 +3888,7 @@ function drawItems() {
         ) {
 
             const symbol =
-                MAP[y][x];
+                level.map[y][x];
 
 
             const px =
@@ -2521,7 +3899,9 @@ function drawItems() {
                 y * TILE;
 
 
-            /* 출입카드 */
+            // ------------------------------------------------
+            // 출입카드
+            // ------------------------------------------------
 
             if (
                 symbol === "K"
@@ -2531,15 +3911,15 @@ function drawItems() {
 
                 rect(
                     px + 6,
-                    py + 10,
+                    py + 5,
                     20,
-                    12,
+                    11,
                     "#438bed"
                 );
 
                 rect(
                     px + 9,
-                    py + 13,
+                    py + 8,
                     5,
                     4,
                     "#e4f4ff"
@@ -2547,15 +3927,25 @@ function drawItems() {
 
                 rect(
                     px + 17,
-                    py + 13,
+                    py + 8,
                     6,
                     3,
                     "#23548b"
                 );
+
+
+                drawObjectLabel(
+                    level.labels.K,
+                    px + 16,
+                    py + 25
+                );
+
             }
 
 
-            /* 퓨즈 */
+            // ------------------------------------------------
+            // 퓨즈
+            // ------------------------------------------------
 
             if (
                 symbol === "F"
@@ -2565,31 +3955,33 @@ function drawItems() {
 
                 rect(
                     px + 9,
-                    py + 7,
+                    py + 3,
                     14,
-                    18,
+                    17,
                     "#e5c44e"
                 );
 
                 rect(
                     px + 11,
-                    py + 10,
+                    py + 6,
                     10,
                     4,
                     "#fff3aa"
                 );
 
-                rect(
-                    px + 12,
-                    py + 21,
-                    8,
-                    2,
-                    "#927418"
+
+                drawObjectLabel(
+                    level.labels.F,
+                    px + 16,
+                    py + 27
                 );
+
             }
 
 
-            /* 배터리 */
+            // ------------------------------------------------
+            // 배터리
+            // ------------------------------------------------
 
             if (
                 symbol === "B"
@@ -2599,31 +3991,41 @@ function drawItems() {
 
                 rect(
                     px + 9,
-                    py + 7,
+                    py + 3,
                     14,
-                    20,
+                    18,
                     "#46a760"
                 );
 
                 rect(
                     px + 13,
-                    py + 4,
+                    py + 1,
                     6,
-                    4,
+                    3,
                     "#d6e4e8"
                 );
 
                 rect(
                     px + 13,
-                    py + 13,
+                    py + 9,
                     6,
                     2,
                     "#c5f5ce"
                 );
+
+
+                drawObjectLabel(
+                    level.labels.B,
+                    px + 16,
+                    py + 28
+                );
+
             }
 
 
-            /* 마스터 키 */
+            // ------------------------------------------------
+            // 마스터 키
+            // ------------------------------------------------
 
             if (
                 symbol === "M"
@@ -2632,37 +4034,40 @@ function drawItems() {
             ) {
 
                 rect(
-                    px + 8,
-                    py + 13,
+                    px + 7,
+                    py + 7,
                     13,
                     4,
                     "#f0c13b"
                 );
 
                 rect(
-                    px + 19,
-                    py + 11,
-                    6,
+                    px + 18,
+                    py + 5,
+                    7,
                     8,
                     "#f0c13b"
                 );
 
-                rect(
-                    px + 21,
-                    py + 13,
-                    2,
-                    2,
-                    "#9f7511"
+
+                drawObjectLabel(
+                    level.labels.M,
+                    px + 16,
+                    py + 25
                 );
+
             }
+
         }
+
     }
+
 }
 
 
-/* ============================================================
-   플레이어 캐릭터
-============================================================ */
+// ============================================================
+// 플레이어 캐릭터
+// ============================================================
 
 function drawPlayer() {
 
@@ -2678,7 +4083,7 @@ function drawPlayer() {
         );
 
 
-    /* 바닥 그림자 */
+    // 캐릭터 바닥 그림자
 
     rect(
         x + 5,
@@ -2689,7 +4094,7 @@ function drawPlayer() {
     );
 
 
-    /* 캐릭터 외곽선 */
+    // 외곽선
 
     rect(
         x + 6,
@@ -2716,7 +4121,7 @@ function drawPlayer() {
     );
 
 
-    /* 갈색 머리 */
+    // 갈색 머리
 
     rect(
         x + 7,
@@ -2751,7 +4156,7 @@ function drawPlayer() {
     );
 
 
-    /* 얼굴 */
+    // 얼굴
 
     rect(
         x + 9,
@@ -2761,6 +4166,8 @@ function drawPlayer() {
         "#f3c4a3"
     );
 
+
+    // 얼굴 방향
 
     if (
         player.facing === "down"
@@ -2789,6 +4196,7 @@ function drawPlayer() {
             1,
             "#a96764"
         );
+
     }
 
 
@@ -2803,6 +4211,7 @@ function drawPlayer() {
             2,
             "#1e2528"
         );
+
     }
 
 
@@ -2817,10 +4226,11 @@ function drawPlayer() {
             2,
             "#1e2528"
         );
+
     }
 
 
-    /* 청록색 의료복 */
+    // 의료복
 
     rect(
         x + 11,
@@ -2831,7 +4241,7 @@ function drawPlayer() {
     );
 
 
-    /* 흰 의사가운 */
+    // 흰 가운
 
     rect(
         x + 6,
@@ -2866,7 +4276,7 @@ function drawPlayer() {
     );
 
 
-    /* 명찰 */
+    // 명찰
 
     rect(
         x + 20,
@@ -2877,7 +4287,7 @@ function drawPlayer() {
     );
 
 
-    /* 팔 */
+    // 팔
 
     rect(
         x + 3,
@@ -2896,7 +4306,7 @@ function drawPlayer() {
     );
 
 
-    /* 손 */
+    // 손
 
     rect(
         x + 3,
@@ -2915,7 +4325,7 @@ function drawPlayer() {
     );
 
 
-    /* 다리 걷기 애니메이션 */
+    // 걷기 애니메이션
 
     if (
         player.walkFrame === 1
@@ -2958,10 +4368,11 @@ function drawPlayer() {
             5,
             "#344f76"
         );
+
     }
 
 
-    /* 신발 */
+    // 신발
 
     rect(
         x + 8,
@@ -2980,7 +4391,7 @@ function drawPlayer() {
     );
 
 
-    /* 청진기 */
+    // 청진기
 
     rect(
         x + 13,
@@ -3005,12 +4416,13 @@ function drawPlayer() {
         3,
         "#31464f"
     );
+
 }
 
 
-/* ============================================================
-   그림자
-============================================================ */
+// ============================================================
+// 그림자 NPC
+// ============================================================
 
 function drawGhost(ghost) {
 
@@ -3019,6 +4431,7 @@ function drawGhost(ghost) {
     ) {
 
         return;
+
     }
 
 
@@ -3081,12 +4494,13 @@ function drawGhost(ghost) {
         2,
         "#ffffff"
     );
+
 }
 
 
-/* ============================================================
-   어둠
-============================================================ */
+// ============================================================
+// 야간 어둠
+// ============================================================
 
 function drawDarkness() {
 
@@ -3095,11 +4509,12 @@ function drawDarkness() {
     ) {
 
         return;
+
     }
 
 
     ctx.fillStyle =
-        "rgba(5,18,28,0.23)";
+        "rgba(5,18,28,0.22)";
 
 
     ctx.fillRect(
@@ -3108,24 +4523,25 @@ function drawDarkness() {
         canvas.width,
         canvas.height
     );
+
 }
 
 
-/* ============================================================
-   HUD
-============================================================ */
+// ============================================================
+// HUD
+// ============================================================
 
 function drawHud() {
 
     ctx.fillStyle =
-        "rgba(18,42,52,0.88)";
+        "rgba(18,42,52,0.90)";
 
 
     ctx.fillRect(
         0,
         0,
         canvas.width,
-        25
+        26
     );
 
 
@@ -3134,7 +4550,7 @@ function drawHud() {
 
 
     ctx.font =
-        "12px monospace";
+        '12px monospace';
 
 
     const minutes =
@@ -3155,6 +4571,19 @@ function drawHud() {
 
 
     ctx.fillText(
+        "THEME "
+        +
+        (currentLevelIndex + 1)
+        +
+        "/"
+        +
+        LEVELS.length,
+        10,
+        17
+    );
+
+
+    ctx.fillText(
         "TIME "
         +
         minutes
@@ -3162,7 +4591,7 @@ function drawHud() {
         ":"
         +
         seconds,
-        10,
+        125,
         17
     );
 
@@ -3176,7 +4605,7 @@ function drawHud() {
                 state.hearts
             )
         ),
-        170,
+        250,
         17
     );
 
@@ -3191,15 +4620,16 @@ function drawHud() {
             :
             "OFF"
         ),
-        300,
+        370,
         17
     );
+
 }
 
 
-/* ============================================================
-   렌더링
-============================================================ */
+// ============================================================
+// 렌더링
+// ============================================================
 
 function render() {
 
@@ -3220,9 +4650,8 @@ function render() {
     drawItems();
 
 
-    /*
-    어둠은 캐릭터보다 먼저
-    */
+    // 어둠을 캐릭터보다 먼저 그려
+    // 캐릭터가 검게 보이지 않도록 함.
 
     drawDarkness();
 
@@ -3237,30 +4666,30 @@ function render() {
     );
 
 
-    /*
-    캐릭터를 가장 위에
-    */
-
     drawPlayer();
 
 
     drawHud();
+
 }
 
 
-/* ============================================================
-   업데이트
-============================================================ */
+// ============================================================
+// 게임 업데이트
+// ============================================================
 
 function update(dt) {
 
     if (
+        !state
+        ||
         state.won
         ||
         state.lost
     ) {
 
         return;
+
     }
 
 
@@ -3280,13 +4709,13 @@ function update(dt) {
             true;
 
 
-        showResult(
-            "GAME OVER",
-            "시간 안에 병원에서 탈출하지 못했어."
+        showGameOver(
+            "제한 시간이 끝났어."
         );
 
 
         return;
+
     }
 
 
@@ -3301,25 +4730,28 @@ function update(dt) {
 
 
     updatePanels();
+
 }
 
 
-/* ============================================================
-   게임 루프
-============================================================ */
+// ============================================================
+// 게임 루프
+// ============================================================
 
 function gameLoop(now) {
 
     const dt =
+
         Math.min(
+
             (
-                now
-                -
-                lastTime
+                now - lastTime
             )
             /
             1000,
+
             0.05
+
         );
 
 
@@ -3327,23 +4759,30 @@ function gameLoop(now) {
         now;
 
 
-    update(
-        dt
-    );
+    if (
+        state
+    ) {
+
+        update(
+            dt
+        );
 
 
-    render();
+        render();
+
+    }
 
 
     requestAnimationFrame(
         gameLoop
     );
+
 }
 
 
-/* ============================================================
-   키보드
-============================================================ */
+// ============================================================
+// 키보드 입력
+// ============================================================
 
 function handleKeyDown(event) {
 
@@ -3380,6 +4819,7 @@ function handleKeyDown(event) {
     ) {
 
         event.preventDefault();
+
     }
 
 
@@ -3394,6 +4834,7 @@ function handleKeyDown(event) {
     ) {
 
         interact();
+
     }
 
 
@@ -3403,8 +4844,10 @@ function handleKeyDown(event) {
         key === "R"
     ) {
 
-        resetGame();
+        restartCurrentTheme();
+
     }
+
 }
 
 
@@ -3412,6 +4855,7 @@ function handleKeyUp(event) {
 
     keys[event.key] =
         false;
+
 }
 
 
@@ -3437,8 +4881,9 @@ canvas.addEventListener(
 
 
         setMessage(
-            "✅ 방향키 입력 활성화!"
+            "✅ 게임 입력 활성화. 방향키 또는 WASD로 움직일 수 있어."
         );
+
     }
 );
 
@@ -3448,26 +4893,29 @@ window.addEventListener(
     () => {
 
         keys = {};
+
     }
 );
 
 
-/* ============================================================
-   시작
-============================================================ */
+// ============================================================
+// 시작
+// ============================================================
 
 window.addEventListener(
     "load",
     () => {
 
-        resetGame();
+        startWholeGame();
 
 
         requestAnimationFrame(
             gameLoop
         );
+
     }
 );
+
 
 </script>
 
@@ -3479,6 +4927,6 @@ window.addEventListener(
 
 components.html(
     game_html,
-    height=1050,
+    height=1180,
     scrolling=False
 )
