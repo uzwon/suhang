@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+<meta charset="UTF-8">
+<title>MIDNIGHT HOSPITAL</title>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+
+<body tabindex="0">
+
+
+<div class="wrap">
+
+
+    <div class="topbar">
+
+        <div class="title">
+            MIDNIGHT HOSPITAL
+        </div>
+
+        <div
+            class="subtitle"
+            id="subtitleText">
+        </div>
+
+    </div>
+
+
+    <div class="layout">
+
+
+        <div class="game-area">
+
+
+            <div id="messageBar">
+                게임을 불러오는 중입니다.
+            </div>
+
+
+            <canvas
+                id="game"
+                width="1056"
+                height="640"
+                tabindex="0">
+            </canvas>
+
+
+            <div class="help">
+
+                <b>조작법</b><br>
+
+                방향키 / WASD : 이동<br>
+
+                Shift + 이동 : 달리기<br>
+
+                Space / Enter :
+                상호작용 · 숨기 · 미니게임 입력<br>
+
+                R : 현재 스테이지 재시작
+
+
+                <div class="dpad">
+
+                    <button class="empty">.</button>
+
+                    <button
+                        onmousedown="pressDirection('ArrowUp')"
+                        onmouseup="releaseDirection('ArrowUp')"
+                        onmouseleave="releaseDirection('ArrowUp')">
+                        ↑
+                    </button>
+
+                    <button class="empty">.</button>
+
+
+                    <button
+                        onmousedown="pressDirection('ArrowLeft')"
+                        onmouseup="releaseDirection('ArrowLeft')"
+                        onmouseleave="releaseDirection('ArrowLeft')">
+                        ←
+                    </button>
+
+
+                    <button onclick="interact()">
+                        ◎
+                    </button>
+
+
+                    <button
+                        onmousedown="pressDirection('ArrowRight')"
+                        onmouseup="releaseDirection('ArrowRight')"
+                        onmouseleave="releaseDirection('ArrowRight')">
+                        →
+                    </button>
+
+
+                    <button class="empty">.</button>
+
+
+                    <button
+                        onmousedown="pressDirection('ArrowDown')"
+                        onmouseup="releaseDirection('ArrowDown')"
+                        onmouseleave="releaseDirection('ArrowDown')">
+                        ↓
+                    </button>
+
+
+                    <button class="empty">.</button>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 프롤로그
+            ================================================== -->
+
+            <div id="prologueOverlay">
+
+                <div class="prologue-box">
+
+
+                    <div class="prologue-top">
+
+                        <div class="prologue-stage">
+                            NIGHT SHIFT GUIDE
+                        </div>
+
+                        <div
+                            class="prologue-stage"
+                            id="prologuePageNumber">
+                            1 / 5
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="prologue-title"
+                        id="prologueTitle">
+                    </div>
+
+
+                    <div
+                        class="prologue-text"
+                        id="prologueText">
+                    </div>
+
+
+                    <!--
+                    프롤로그에서 게임 속 물체를
+                    실제 픽셀 그림으로 보여주는 Canvas
+                    -->
+                    <canvas
+                        id="tutorialCanvas"
+                        width="780"
+                        height="245">
+                    </canvas>
+
+
+                    <div
+                        class="tutorial-tip"
+                        id="tutorialTip">
+                    </div>
+
+
+                    <div class="prologue-buttons">
+
+                        <button
+                            class="secondary-button"
+                            id="previousTutorialButton"
+                            onclick="previousTutorialPage()">
+
+                            ← 이전
+
+                        </button>
+
+
+                        <button
+                            id="nextTutorialButton"
+                            onclick="nextTutorialPage()">
+
+                            다음 →
+
+                        </button>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+
+            <!-- GAME OVER / CLEAR -->
+            <div
+                class="overlay"
+                id="overlay">
+
+                <div
+                    class="overlay-box"
+                    id="overlayBox">
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- =====================================================
+             오른쪽 상태창
+        ====================================================== -->
+
+        <div class="side">
+
+
+            <div class="card">
+
+                <h3>
+                    🏥 현재 스테이지
+                </h3>
+
+                <div
+                    class="stage-card"
+                    id="stageBox">
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <h3>
+                    🎯 미션
+                </h3>
+
+                <div
+                    class="objective"
+                    id="objectiveBox">
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <h3>
+                    📊 상태
+                </h3>
+
+                <div id="statusBox">
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <h3 id="progressTitle">
+                    🎒 진행
+                </h3>
+
+                <div id="progressBox">
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <h3>
+                    📟 야간 기록
+                </h3>
+
+                <div id="logBox">
+                </div>
+
+            </div>
+
+
+            <button onclick="restartStage()">
+
+                🔄 현재 스테이지 다시 시작
+
+            </button>
+
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<script src="script.js"></script>
+
+</body>
+</html>
