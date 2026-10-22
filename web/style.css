@@ -1,0 +1,552 @@
+* {
+    box-sizing: border-box;
+    user-select: none;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+
+    background: #dce7ea;
+
+    font-family:
+        Arial,
+        "Malgun Gothic",
+        sans-serif;
+
+    overflow: hidden;
+}
+
+.wrap {
+    padding: 12px;
+}
+
+
+/* ============================================================
+   상단 제목
+============================================================ */
+
+.topbar {
+    background:
+        linear-gradient(
+            180deg,
+            #263f4a,
+            #1d333d
+        );
+
+    color: white;
+
+    border-radius: 16px;
+
+    padding: 14px 18px;
+
+    margin-bottom: 12px;
+}
+
+.title {
+    font-size: 29px;
+
+    font-weight: 900;
+
+    letter-spacing: 2px;
+}
+
+.subtitle {
+    margin-top: 5px;
+
+    font-size: 13px;
+
+    opacity: 0.9;
+}
+
+
+/* ============================================================
+   전체 배치
+============================================================ */
+
+.layout {
+    display: flex;
+
+    gap: 12px;
+
+    align-items: flex-start;
+}
+
+.game-area {
+    position: relative;
+
+    padding: 10px;
+
+    background: #edf4f6;
+
+    border: 2px solid #9db3bb;
+
+    border-radius: 16px;
+}
+
+
+/* ============================================================
+   게임 메시지
+============================================================ */
+
+#messageBar {
+    min-height: 50px;
+
+    margin-bottom: 8px;
+
+    padding: 10px 13px;
+
+    background: #fff3d5;
+
+    border-left: 6px solid #d5ae45;
+
+    border-radius: 10px;
+
+    color: #594c29;
+
+    font-size: 14px;
+
+    line-height: 1.55;
+}
+
+
+/* ============================================================
+   실제 게임 Canvas
+============================================================ */
+
+#game {
+    display: block;
+
+    width: 1056px;
+    height: 640px;
+
+    border: 3px solid #688792;
+
+    border-radius: 8px;
+
+    background: #132832;
+
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+
+    outline: none;
+}
+
+
+/* ============================================================
+   조작법
+============================================================ */
+
+.help {
+    margin-top: 8px;
+
+    padding: 9px 12px;
+
+    background: #e4eff2;
+
+    border-radius: 10px;
+
+    color: #2b4751;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+}
+
+
+/* ============================================================
+   오른쪽 정보창
+============================================================ */
+
+.side {
+    width: 290px;
+
+    flex: 0 0 290px;
+}
+
+.card {
+    margin-bottom: 10px;
+
+    padding: 14px;
+
+    background: #fbfdfe;
+
+    border: 1px solid #acbec5;
+
+    border-radius: 14px;
+}
+
+.card h3 {
+    margin: 0 0 10px 0;
+
+    color: #263e47;
+
+    font-size: 17px;
+}
+
+.stage-card {
+    padding: 11px;
+
+    background: #263f49;
+
+    border-radius: 9px;
+
+    color: white;
+
+    font-size: 13px;
+
+    line-height: 1.65;
+}
+
+.objective {
+    padding: 10px;
+
+    background: #e8f1fb;
+
+    border-left: 5px solid #6b8eb4;
+
+    border-radius: 9px;
+
+    color: #304c61;
+
+    font-size: 13px;
+
+    line-height: 1.7;
+}
+
+.stat,
+.item {
+    margin-bottom: 7px;
+
+    font-size: 13px;
+}
+
+.item {
+    padding: 7px 9px;
+
+    background: #edf4f6;
+
+    border-radius: 8px;
+}
+
+.log {
+    margin-bottom: 5px;
+
+    padding: 7px;
+
+    background: #283b44;
+
+    border-radius: 8px;
+
+    color: #dbe8eb;
+
+    font-family: monospace;
+
+    font-size: 11px;
+
+    line-height: 1.5;
+}
+
+
+/* ============================================================
+   버튼
+============================================================ */
+
+button {
+    width: 100%;
+
+    padding: 11px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: #416675;
+
+    color: white;
+
+    font-weight: 800;
+
+    cursor: pointer;
+}
+
+button:hover {
+    filter: brightness(1.08);
+}
+
+
+/* ============================================================
+   GAME OVER / STAGE CLEAR Overlay
+============================================================ */
+
+.overlay {
+    position: absolute;
+
+    top: 68px;
+    left: 10px;
+
+    width: 1056px;
+    height: 640px;
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    background:
+        rgba(
+            5,
+            13,
+            19,
+            0.78
+        );
+
+    border-radius: 8px;
+
+    z-index: 20;
+}
+
+.overlay-box {
+    width: 500px;
+
+    padding: 26px;
+
+    background: white;
+
+    border-radius: 18px;
+
+    text-align: center;
+}
+
+.overlay-title {
+    margin-bottom: 12px;
+
+    color: #213942;
+
+    font-size: 32px;
+
+    font-weight: 900;
+}
+
+.overlay-text {
+    margin-bottom: 18px;
+
+    color: #344e58;
+
+    line-height: 1.8;
+}
+
+
+/* ============================================================
+   프롤로그 / 튜토리얼
+============================================================ */
+
+#prologueOverlay {
+    position: absolute;
+
+    top: 10px;
+    left: 10px;
+
+    width: 1056px;
+    height: 698px;
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    background:
+        rgba(
+            10,
+            23,
+            30,
+            0.96
+        );
+
+    border-radius: 12px;
+
+    z-index: 100;
+}
+
+.prologue-box {
+    width: 850px;
+
+    min-height: 585px;
+
+    padding: 28px 34px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #fafdfe,
+            #e9f1f4
+        );
+
+    border: 2px solid #78939e;
+
+    border-radius: 22px;
+
+    box-shadow:
+        0 20px 50px
+        rgba(0, 0, 0, 0.35);
+}
+
+.prologue-top {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 12px;
+}
+
+.prologue-stage {
+    color: #68818b;
+
+    font-size: 12px;
+
+    font-weight: 800;
+
+    letter-spacing: 1px;
+}
+
+.prologue-title {
+    margin: 6px 0 10px 0;
+
+    color: #213a44;
+
+    font-size: 28px;
+
+    font-weight: 900;
+}
+
+.prologue-text {
+    min-height: 104px;
+
+    color: #425c65;
+
+    font-size: 14px;
+
+    line-height: 1.85;
+}
+
+#tutorialCanvas {
+    display: block;
+
+    width: 780px;
+    height: 245px;
+
+    margin: 16px auto;
+
+    background:
+        #c4d2d6;
+
+    border: 2px solid #8299a2;
+
+    border-radius: 14px;
+
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+.tutorial-tip {
+    min-height: 48px;
+
+    margin-top: 8px;
+
+    padding: 10px 13px;
+
+    background: #fff6d8;
+
+    border-left: 5px solid #e0bc54;
+
+    border-radius: 9px;
+
+    color: #66562f;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+}
+
+.prologue-buttons {
+    display: flex;
+
+    gap: 10px;
+
+    margin-top: 16px;
+}
+
+.prologue-buttons button {
+    flex: 1;
+}
+
+.secondary-button {
+    background: #8a9ba2;
+}
+
+.start-button {
+    background: #367b62;
+}
+
+
+/* ============================================================
+   방향키 버튼
+============================================================ */
+
+.dpad {
+    display: grid;
+
+    grid-template-columns:
+        46px
+        46px
+        46px;
+
+    grid-template-rows:
+        42px
+        42px
+        42px;
+
+    justify-content: center;
+
+    margin-top: 9px;
+
+    gap: 3px;
+}
+
+.dpad button {
+    padding: 0;
+
+    font-size: 20px;
+}
+
+.empty {
+    visibility: hidden;
+}
+
+
+/* ============================================================
+   작은 화면 대응
+============================================================ */
+
+@media(max-width:1450px) {
+
+    .layout {
+        flex-direction: column;
+    }
+
+    .side {
+        width: 100%;
+
+        flex: auto;
+    }
+
+    #game {
+        width: 100%;
+
+        height: auto;
+    }
+
+}
