@@ -2,621 +2,333 @@
 // HTML 요소
 // ============================================================
 
-const canvas =
-    document.getElementById(
-        "game"
-    );
-
-
-const ctx =
-    canvas.getContext(
-        "2d"
-    );
-
-
-ctx.imageSmoothingEnabled =
-    false;
-
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+ctx.imageSmoothingEnabled = false;
 
 // 게임 메시지
-const messageBar =
-    document.getElementById(
-        "messageBar"
-    );
-
+const messageBar = document.getElementById("messageBar");
 
 // 오른쪽 UI
-const objectiveBox =
-    document.getElementById(
-        "objectiveBox"
-    );
-
-const statusBox =
-    document.getElementById(
-        "statusBox"
-    );
-
-const progressBox =
-    document.getElementById(
-        "progressBox"
-    );
-
-const progressTitle =
-    document.getElementById(
-        "progressTitle"
-    );
-
-const logBox =
-    document.getElementById(
-        "logBox"
-    );
-
-const stageBox =
-    document.getElementById(
-        "stageBox"
-    );
-
-const subtitleText =
-    document.getElementById(
-        "subtitleText"
-    );
-
+const objectiveBox = document.getElementById("objectiveBox");
+const statusBox = document.getElementById("statusBox");
+const progressBox = document.getElementById("progressBox");
+const progressTitle = document.getElementById("progressTitle");
+const logBox = document.getElementById("logBox");
+const stageBox = document.getElementById("stageBox");
+const subtitleText = document.getElementById("subtitleText");
 
 // 결과 Overlay
-const overlay =
-    document.getElementById(
-        "overlay"
-    );
-
-const overlayBox =
-    document.getElementById(
-        "overlayBox"
-    );
-
+const overlay = document.getElementById("overlay");
+const overlayBox = document.getElementById("overlayBox");
 
 // ============================================================
 // 프롤로그 관련 HTML 요소
 // ============================================================
-
 // 프롤로그 전체 화면
-const prologueOverlay =
-    document.getElementById(
-        "prologueOverlay"
-    );
-
+const prologueOverlay = document.getElementById("prologueOverlay");
 
 // 프롤로그 제목
-const prologueTitle =
-    document.getElementById(
-        "prologueTitle"
-    );
-
+const prologueTitle = document.getElementById("prologueTitle");
 
 // 프롤로그 설명
-const prologueText =
-    document.getElementById(
-        "prologueText"
-    );
-
+const prologueText = document.getElementById("prologueText");
 
 // 프롤로그 하단 팁
-const tutorialTip =
-    document.getElementById(
-        "tutorialTip"
-    );
-
+const tutorialTip = document.getElementById("tutorialTip");
 
 // 현재 페이지 번호
-const prologuePageNumber =
-    document.getElementById(
-        "prologuePageNumber"
-    );
-
+const prologuePageNumber = document.getElementById("prologuePageNumber");
 
 // 이전 / 다음 버튼
-const previousTutorialButton =
-    document.getElementById(
-        "previousTutorialButton"
-    );
-
-const nextTutorialButton =
-    document.getElementById(
-        "nextTutorialButton"
-    );
-
+const previousTutorialButton = document.getElementById(
+  "previousTutorialButton",
+);
+const nextTutorialButton = document.getElementById("nextTutorialButton");
 
 // 프롤로그용 그림 Canvas
-const tutorialCanvas =
-    document.getElementById(
-        "tutorialCanvas"
-    );
-
-
-const tutorialCtx =
-    tutorialCanvas.getContext(
-        "2d"
-    );
-
-
-tutorialCtx.imageSmoothingEnabled =
-    false;
-
+const tutorialCanvas = document.getElementById("tutorialCanvas");
+const tutorialCtx = tutorialCanvas.getContext("2d");
+tutorialCtx.imageSmoothingEnabled = false;
 
 // ============================================================
 // 맵 설정
 // ============================================================
 
-const TILE =
-    32;
-
-const COLS =
-    33;
-
-const ROWS =
-    20;
-
+const TILE = 32;
+const COLS = 33;
+const ROWS = 20;
 
 // ============================================================
 // 스테이지 데이터
 // ============================================================
 
 const LEVELS = [
+  // ========================================================
+  // STAGE 1
+  // ========================================================
 
-
-    // ========================================================
-    // STAGE 1
-    // ========================================================
-
-    {
-
-        type:
-            "collect",
-
-        title:
-            "STAGE 1 · 정전된 본관",
-
-        story:
-            "본관 전체가 정전됐다. 부품을 찾아 발전기를 수리하고 추격을 피해 엘리베이터로 탈출하라.",
-
-        time:
-            430,
-
-        palette: {
-
-            floor1:
-                "#b6c8ce",
-
-            floor2:
-                "#adc1c8",
-
-            wall1:
-                "#334f5b",
-
-            wall2:
-                "#4d6974",
-
-            wall3:
-                "#607d87"
-
-        },
-
-        map: [
-
-            "#################################",
-            "#S....W..h.T.....#.............E#",
-            "#......######....#....Z.........#",
-            "#......#....#....#....H....G....#",
-            "#......#.K..#.........H.........#",
-            "#......#....#####...............#",
-            "#......####..............######.#",
-            "#....C........F.................#",
-            "#.........................h.....#",
-            "#..B..............######........#",
-            "#.................#....#........#",
-            "#.....G...........#....#........#",
-            "#.P...............#....#......D.#",
-            "#.................#....#........#",
-            "#.....######......#....######...#",
-            "#.....#....#......#.............#",
-            "#..N..#....#..M...#.......Q.....#",
-            "#.....######................V...#",
-            "#...............................#",
-            "#################################"
-
-        ],
-
-        records: [
-
-            {
-                x:
-                    12,
-
-                y:
-                    8,
-
-                text:
-                    "기록 1: 정전 직전 자동문 제어기에 이상 신호가 남아 있다."
-            },
-
-
-            {
-                x:
-                    26,
-
-                y:
-                    15,
-
-                text:
-                    "기록 2: 발전기실에서 반복되는 경보음이 기록되었다."
-            }
-
-        ]
-
+  {
+    type: "collect",
+    title: "STAGE 1 · 정전된 본관",
+    story:
+      "본관 전체가 정전됐다. 부품을 찾아 발전기를 수리하고 추격을 피해 엘리베이터로 탈출하라.",
+    time: 430,
+    palette: {
+      floor1: "#b6c8ce",
+      floor2: "#adc1c8",
+      wall1: "#334f5b",
+      wall2: "#4d6974",
+      wall3: "#607d87",
     },
+    map: [
+      "#################################",
+      "#S....W..h.T.....#.............E#",
+      "#......######....#....Z.........#",
+      "#......#....#....#....H....G....#",
+      "#......#.K..#.........H.........#",
+      "#......#....#####...............#",
+      "#......####..............######.#",
+      "#....C........F.................#",
+      "#.........................h.....#",
+      "#..B..............######........#",
+      "#.................#....#........#",
+      "#.....G...........#....#........#",
+      "#.P...............#....#......D.#",
+      "#.................#....#........#",
+      "#.....######......#....######...#",
+      "#.....#....#......#.............#",
+      "#..N..#....#..M...#.......Q.....#",
+      "#.....######................V...#",
+      "#...............................#",
+      "#################################",
+    ],
+    records: [
+      {
+        x: 12,
+        y: 8,
+        text: "기록 1: 정전 직전 자동문 제어기에 이상 신호가 남아 있다.",
+      },
+      {
+        x: 26,
+        y: 15,
+        text: "기록 2: 발전기실에서 반복되는 경보음이 기록되었다.",
+      },
+    ],
+  },
 
+  // ========================================================
+  // STAGE 2
+  // ========================================================
 
-    // ========================================================
-    // STAGE 2
-    // ========================================================
-
-    {
-
-        type:
-            "switch",
-
-        title:
-            "STAGE 2 · 격리 연구동",
-
-        story:
-            "격리 시스템이 잠겼다. 연구 메모 또는 CCTV에서 순서를 확인하고 세 단말기를 올바르게 작동시켜라.",
-
-        time:
-            400,
-
-        palette: {
-
-            floor1:
-                "#bacbbd",
-
-            floor2:
-                "#adbfaf",
-
-            wall1:
-                "#304c47",
-
-            wall2:
-                "#476a62",
-
-            wall3:
-                "#5c8379"
-
-        },
-
-        map: [
-
-            "#################################",
-            "#S...W..h.T.....................#",
-            "#..#####...........#####........#",
-            "#..#...#.....Z.....#...#........#",
-            "#..#...#....A......#...#........#",
-            "#..#...#####.......#...#####....#",
-            "#..#............L..#............#",
-            "#..#####....#####..#....#####...#",
-            "#......#....#...#..#....#...#...#",
-            "#......#..B.#...#.......#...#...#",
-            "#..G...#....#...#####...#...#...#",
-            "#..H...#....#...........#...#...#",
-            "#......#####......C.....#####...#",
-            "#.........................h.....#",
-            "#....N...........Q..............#",
-            "#...............................#",
-            "#.................V.............#",
-            "#.............................X.#",
-            "#...............................#",
-            "#################################"
-
-        ],
-
-        records: [
-
-            {
-                x:
-                    27,
-
-                y:
-                    4,
-
-                text:
-                    "기록 3: 격리 단말기의 순서는 매 야간 점검 때 무작위로 변경된다."
-            },
-
-
-            {
-                x:
-                    6,
-
-                y:
-                    17,
-
-                text:
-                    "기록 4: 잘못된 입력은 격리 시스템을 초기화한다."
-            }
-
-        ]
-
+  {
+    type: "switch",
+    title: "STAGE 2 · 격리 연구동",
+    story:
+      "격리 시스템이 잠겼다. 연구 메모 또는 CCTV에서 순서를 확인하고 세 단말기를 올바르게 작동시켜라.",
+    time: 400,
+    palette: {
+      floor1: "#bacbbd",
+      floor2: "#adbfaf",
+      wall1: "#304c47",
+      wall2: "#476a62",
+      wall3: "#5c8379",
     },
+    map: [
+      "#################################",
+      "#S...W..h.T.....................#",
+      "#..#####...........#####........#",
+      "#..#...#.....Z.....#...#........#",
+      "#..#...#....A......#...#........#",
+      "#..#...#####.......#...#####....#",
+      "#..#............L..#............#",
+      "#..#####....#####..#....#####...#",
+      "#......#....#...#..#....#...#...#",
+      "#......#..B.#...#.......#...#...#",
+      "#..G...#....#...#####...#...#...#",
+      "#..H...#....#...........#...#...#",
+      "#......#####......C.....#####...#",
+      "#.........................h.....#",
+      "#....N...........Q..............#",
+      "#...............................#",
+      "#.................V.............#",
+      "#.............................X.#",
+      "#...............................#",
+      "#################################",
+    ],
+    records: [
+      {
+        x: 27,
+        y: 4,
+        text: "기록 3: 격리 단말기의 순서는 매 야간 점검 때 무작위로 변경된다.",
+      },
+      {
+        x: 6,
+        y: 17,
+        text: "기록 4: 잘못된 입력은 격리 시스템을 초기화한다.",
+      },
+    ],
+  },
 
+  // ========================================================
+  // STAGE 3
+  // ========================================================
 
-    // ========================================================
-    // STAGE 3
-    // ========================================================
-
-    {
-
-        type:
-            "rescue",
-
-        title:
-            "STAGE 3 · 옥상 연결 병동",
-
-        story:
-            "병동에 남은 환자를 찾아 상태를 안정화한 뒤 대피구역까지 직접 데려와라. 세 명 모두 구조하면 마지막 추격이 시작된다.",
-
-        time:
-            520,
-
-        palette: {
-
-            floor1:
-                "#c7c3d4",
-
-            floor2:
-                "#b8b4c8",
-
-            wall1:
-                "#44425b",
-
-            wall2:
-                "#5b5875",
-
-            wall3:
-                "#716d8f"
-
-        },
-
-        map: [
-
-            "#################################",
-            "#SY..W..h..T....................#",
-            "#..#####.............#####......#",
-            "#..#...#......Z......#...#......#",
-            "#..#...#.......H.....#...#......#",
-            "#..#...#####.........#...#####..#",
-            "#..#.........................#..#",
-            "#..#####....#####............#..#",
-            "#......#....#...#............#..#",
-            "#......#....#...#............#..#",
-            "#...G..#....#...#####........#..#",
-            "#..H...#....#.................#.#",
-            "#......#####....................#",
-            "#.........................h.....#",
-            "#....N...........Q..............#",
-            "#...............................#",
-            "#.................V.............#",
-            "#.............................R.#",
-            "#...............................#",
-            "#################################"
-
-        ],
-
-        patientCandidates: [
-
-            {
-                x:
-                    5,
-
-                y:
-                    4
-            },
-
-            {
-                x:
-                    14,
-
-                y:
-                    6
-            },
-
-            {
-                x:
-                    24,
-
-                y:
-                    7
-            },
-
-            {
-                x:
-                    11,
-
-                y:
-                    13
-            },
-
-            {
-                x:
-                    20,
-
-                y:
-                    15
-            },
-
-            {
-                x:
-                    27,
-
-                y:
-                    11
-            }
-
-        ],
-
-        records: [
-
-            {
-                x:
-                    8,
-
-                y:
-                    16,
-
-                text:
-                    "기록 5: 옥상 통로는 모든 병동 인원이 확인된 뒤에만 개방된다."
-            },
-
-            {
-                x:
-                    28,
-
-                y:
-                    5,
-
-                text:
-                    "기록 6: 야간 대피 규정은 환자 확인을 우선하도록 한다."
-            }
-
-        ]
-
-    }
-
+  {
+    type: "rescue",
+    title: "STAGE 3 · 옥상 연결 병동",
+    story:
+      "병동에 남은 환자를 찾아 상태를 안정화한 뒤 대피구역까지 직접 데려와라. 세 명 모두 구조하면 마지막 추격이 시작된다.",
+    time: 520,
+    palette: {
+      floor1: "#c7c3d4",
+      floor2: "#b8b4c8",
+      wall1: "#44425b",
+      wall2: "#5b5875",
+      wall3: "#716d8f",
+    },
+    map: [
+      "#################################",
+      "#SY..W..h..T....................#",
+      "#..#####.............#####......#",
+      "#..#...#......Z......#...#......#",
+      "#..#...#.......H.....#...#......#",
+      "#..#...#####.........#...#####..#",
+      "#..#.........................#..#",
+      "#..#####....#####............#..#",
+      "#......#....#...#............#..#",
+      "#......#....#...#............#..#",
+      "#...G..#....#...#####........#..#",
+      "#..H...#....#.................#.#",
+      "#......#####....................#",
+      "#.........................h.....#",
+      "#....N...........Q..............#",
+      "#...............................#",
+      "#.................V.............#",
+      "#.............................R.#",
+      "#...............................#",
+      "#################################",
+    ],
+    patientCandidates: [
+      {
+        x: 5,
+        y: 4,
+      },
+      {
+        x: 14,
+        y: 6,
+      },
+      {
+        x: 24,
+        y: 7,
+      },
+      {
+        x: 11,
+        y: 13,
+      },
+      {
+        x: 20,
+        y: 15,
+      },
+      {
+        x: 27,
+        y: 11,
+      },
+    ],
+    records: [
+      {
+        x: 8,
+        y: 16,
+        text: "기록 5: 옥상 통로는 모든 병동 인원이 확인된 뒤에만 개방된다.",
+      },
+      {
+        x: 28,
+        y: 6,
+        text: "기록 6: 야간 대피 규정은 환자 확인을 우선하도록 한다.",
+      },
+    ],
+  },
 ];
-
 
 // ============================================================
 // 게임 핵심 변수
 // ============================================================
 
-let currentLevelIndex =
-    0;
-
+let currentLevelIndex = 0;
 
 // 플레이어 정보
-let player =
-    null;
-
+let player = null;
 
 // 현재 스테이지 상태
-let state =
-    null;
-
+let state = null;
 
 // 그림자 적 배열
-let ghosts =
-    [];
-
+let ghosts = [];
 
 // 현재 눌린 키
-let keys =
-    {};
-
+let keys = {};
 
 // 그림자 충돌 직후 무적시간
-let invulnerable =
-    0;
-
+let invulnerable = 0;
 
 // 프레임 시간 계산용
-let lastTime =
-    performance.now();
-
+let lastTime = performance.now();
 
 // 전체 게임 기록
-let meta =
-    null;
-
+let meta = null;
 
 // 프롤로그 현재 페이지
-let tutorialPageIndex =
-    0;
-
+let tutorialPageIndex = 0;
 
 // 프롤로그를 완료했는지
-let tutorialFinished =
-    false;
-
+let tutorialFinished = false;
 
 // ============================================================
 // 프롤로그 페이지 데이터
 // ============================================================
 
 const TUTORIAL_PAGES = [
+  // --------------------------------------------------------
+  // PAGE 1
+  // --------------------------------------------------------
 
-
-    // --------------------------------------------------------
-    // PAGE 1
-    // --------------------------------------------------------
-
-    {
-
-        title:
-            "한밤중, 병원에 갇혔다.",
-
-        text:
-            `
+  {
+    title: "한밤중, 병원에 갇혔다.",
+    text: `
             당신은 야간 근무 중이던 의료진입니다.
             갑작스러운 정전과 시스템 오류로 병원의 출입문이 모두 잠겼습니다.
             <br><br>
             병원 곳곳을 직접 탐색하고, 필요한 장비를 찾고,
             시스템을 복구하면서 마지막 옥상 출구까지 도달해야 합니다.
             `,
+    tip: "💡 총 3개의 스테이지가 있으며, 스테이지마다 탈출 방법이 달라집니다.",
+    scene: "intro",
+  },
 
-        tip:
-            "💡 총 3개의 스테이지가 있으며, 스테이지마다 탈출 방법이 달라집니다.",
+  // --------------------------------------------------------
+  // PAGE 2
+  // --------------------------------------------------------
 
-        scene:
-            "intro"
-
-    },
-
-
-    // --------------------------------------------------------
-    // PAGE 2
-    // --------------------------------------------------------
-
-    {
-
-        title:
-            "이 캐릭터가 바로 당신입니다.",
-
-        text:
-            `
+  {
+    title: "이 캐릭터가 바로 당신입니다.",
+    text: `
             흰색 의사가운을 입은 캐릭터가 플레이어입니다.
             병원의 복도를 직접 돌아다니며 물건을 조사하고 미션을 해결합니다.
             <br><br>
             물체 근처에서 <b>Space</b>를 누르면 아이템 획득,
             기계 조작, 환자 구조 등 다양한 상호작용을 할 수 있습니다.
             `,
+    tip: "🎮 방향키 또는 WASD로 이동하고, Shift를 누른 채 움직이면 스태미나를 사용해 빠르게 달릴 수 있습니다.",
+    scene: "player",
+  },
 
-        tip:
-            "🎮 방향키 또는 WASD로 이동하고, Shift를 누른 채 움직이면 스태미나를 사용해 빠르게 달릴 수 있습니다.",
+  // --------------------------------------------------------
+  // PAGE 3
+  // --------------------------------------------------------
 
-        scene:
-            "player"
-
-    },
-
-
-    // --------------------------------------------------------
-    // PAGE 3
-    // --------------------------------------------------------
-
-    {
-
-        title:
-            "발전기를 복구하려면 부품이 필요합니다.",
-
-        text:
-            `
+  {
+    title: "발전기를 복구하려면 부품이 필요합니다.",
+    text: `
             첫 번째 스테이지에서는 <b>출입카드</b>, <b>퓨즈</b>,
             <b>비상 배터리</b>를 찾아야 합니다.
             <br><br>
@@ -624,27 +336,17 @@ const TUTORIAL_PAGES = [
             발전기 수리 미니게임을 진행할 수 있습니다.
             노란 포인터가 초록색 영역에 들어왔을 때 Space를 눌러야 성공합니다.
             `,
+    tip: "⚡ 발전기를 켜는 순간 병원의 경보가 작동하고 그림자가 플레이어를 추격할 수 있습니다.",
+    scene: "items",
+  },
 
-        tip:
-            "⚡ 발전기를 켜는 순간 병원의 경보가 작동하고 그림자가 플레이어를 추격할 수 있습니다.",
+  // --------------------------------------------------------
+  // PAGE 4
+  // --------------------------------------------------------
 
-        scene:
-            "items"
-
-    },
-
-
-    // --------------------------------------------------------
-    // PAGE 4
-    // --------------------------------------------------------
-
-    {
-
-        title:
-            "이 그림자를 발견하면 조심하세요.",
-
-        text:
-            `
+  {
+    title: "이 그림자를 발견하면 조심하세요.",
+    text: `
             색깔이 있는 유령 모양의 캐릭터가 병원 안을 돌아다니는 <b>그림자</b>입니다.
             평소에는 정해진 구역을 순찰하지만,
             특정 미션을 완료하거나 경보가 발생하면 플레이어의 위치를 감지하고 직접 추격합니다.
@@ -652,27 +354,17 @@ const TUTORIAL_PAGES = [
             그림자와 부딪히면 체력이 감소합니다.
             위험할 때는 달리거나 병원의 <b>숨는 곳</b>에 들어가 추격을 피할 수 있습니다.
             `,
+    tip: "🫥 숨는 곳 옆에서 Space → 숨기 / 다시 Space → 나오기. 추격 중에 특히 유용합니다.",
+    scene: "enemy",
+  },
 
-        tip:
-            "🫥 숨는 곳 옆에서 Space → 숨기 / 다시 Space → 나오기. 추격 중에 특히 유용합니다.",
+  // --------------------------------------------------------
+  // PAGE 5
+  // --------------------------------------------------------
 
-        scene:
-            "enemy"
-
-    },
-
-
-    // --------------------------------------------------------
-    // PAGE 5
-    // --------------------------------------------------------
-
-    {
-
-        title:
-            "준비 완료! 이제 병원을 탈출하세요.",
-
-        text:
-            `
+  {
+    title: "준비 완료! 이제 병원을 탈출하세요.",
+    text: `
             <b>STAGE 1</b>에서는 아이템을 모아 발전기를 수리하고 엘리베이터를 작동시킵니다.
             <br>
             <b>STAGE 2</b>에서는 CCTV와 연구 메모를 이용해 단말기 순서를 찾아야 합니다.
@@ -682,2435 +374,779 @@ const TUTORIAL_PAGES = [
             <br><br>
             병원에는 <b>CCTV</b>와 <b>야간 기록</b>도 숨겨져 있습니다.
             `,
-
-        tip:
-            "🏥 목표를 모르겠을 때는 화면 오른쪽의 '미션'을 확인하세요. 이제 게임을 시작할 수 있습니다.",
-
-        scene:
-            "final"
-
-    }
-
+    tip: "🏥 목표를 모르겠을 때는 화면 오른쪽의 '미션'을 확인하세요. 이제 게임을 시작할 수 있습니다.",
+    scene: "final",
+  },
 ];
-
 
 // ============================================================
 // 현재 레벨 반환
 // ============================================================
 
 function level() {
-
-    return LEVELS[
-        currentLevelIndex
-    ];
-
+  return LEVELS[currentLevelIndex];
 }
-
 
 // ============================================================
 // 배열 무작위 섞기
 // ============================================================
 
 function shuffled(array) {
-
-    const result =
-        [...array];
-
-
-    for (
-        let i =
-            result.length - 1;
-
-        i > 0;
-
-        i--
-    ) {
-
-        const j =
-            Math.floor(
-                Math.random()
-                *
-                (i + 1)
-            );
-
-
-        const temp =
-            result[i];
-
-
-        result[i] =
-            result[j];
-
-
-        result[j] =
-            temp;
-
-    }
-
-
-    return result;
-
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = result[i];
+    result[i] = result[j];
+    result[j] = temp;
+  }
+  return result;
 }
-
 
 // ============================================================
 // 특정 타일 찾기
 // ============================================================
 
 function findTile(symbol) {
-
-    for (
-        let y = 0;
-
-        y < ROWS;
-
-        y++
-    ) {
-
-        for (
-            let x = 0;
-
-            x < COLS;
-
-            x++
-        ) {
-
-            if (
-                level().map[y][x]
-                ===
-                symbol
-            ) {
-
-                return {
-
-                    x:
-                        x,
-
-                    y:
-                        y
-
-                };
-
-            }
-
-        }
-
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      if (level().map[y][x] === symbol) {
+        return {
+          x: x,
+          y: y,
+        };
+      }
     }
-
-
-    return null;
-
+  }
+  return null;
 }
-
 
 // ============================================================
 // 타일 중앙 좌표
 // ============================================================
 
-function tileCenter(
-    x,
-    y
-) {
-
-    return {
-
-        x:
-            x * TILE
-            +
-            TILE / 2,
-
-        y:
-            y * TILE
-            +
-            TILE / 2
-
-    };
-
+function tileCenter(x, y) {
+  return {
+    x: x * TILE + TILE / 2,
+    y: y * TILE + TILE / 2,
+  };
 }
-
 
 // ============================================================
 // 프롤로그 시작
 // ============================================================
 
 function showPrologue() {
-
-    // 아직 실제 게임은 시작하지 않는다.
-    tutorialPageIndex =
-        0;
-
-
-    prologueOverlay.style.display =
-        "flex";
-
-
-    drawTutorialPage();
-
+  // 아직 실제 게임은 시작하지 않는다.
+  tutorialPageIndex = 0;
+  prologueOverlay.style.display = "flex";
+  drawTutorialPage();
 }
-
 
 // ============================================================
 // 현재 프롤로그 페이지 표시
 // ============================================================
 
 function drawTutorialPage() {
+  const page = TUTORIAL_PAGES[tutorialPageIndex];
+  prologueTitle.innerHTML = page.title;
+  prologueText.innerHTML = page.text;
+  tutorialTip.innerHTML = page.tip;
+  prologuePageNumber.innerHTML =
+    tutorialPageIndex + 1 + " / " + TUTORIAL_PAGES.length;
 
-    const page =
-        TUTORIAL_PAGES[
-            tutorialPageIndex
-        ];
+  // 첫 페이지에서는 이전 버튼 비활성화
+  previousTutorialButton.style.visibility =
+    tutorialPageIndex === 0 ? "hidden" : "visible";
 
-
-    prologueTitle.innerHTML =
-        page.title;
-
-
-    prologueText.innerHTML =
-        page.text;
-
-
-    tutorialTip.innerHTML =
-        page.tip;
-
-
-    prologuePageNumber.innerHTML =
-        (
-            tutorialPageIndex + 1
-        )
-        +
-        " / "
-        +
-        TUTORIAL_PAGES.length;
-
-
-    // 첫 페이지에서는 이전 버튼 비활성화
-    previousTutorialButton.style.visibility =
-
-        tutorialPageIndex === 0
-
-        ?
-
-        "hidden"
-
-        :
-
-        "visible";
-
-
-    // 마지막 페이지에서는 버튼을 '게임 시작'으로 변경
-    if (
-        tutorialPageIndex
-        ===
-        TUTORIAL_PAGES.length - 1
-    ) {
-
-        nextTutorialButton.innerHTML =
-            "게임 시작 ▶";
-
-
-        nextTutorialButton.className =
-            "start-button";
-
-    }
-
-    else {
-
-        nextTutorialButton.innerHTML =
-            "다음 →";
-
-
-        nextTutorialButton.className =
-            "";
-
-    }
-
-
-    drawTutorialScene(
-        page.scene
-    );
-
+  // 마지막 페이지에서는 버튼을 '게임 시작'으로 변경
+  if (tutorialPageIndex === TUTORIAL_PAGES.length - 1) {
+    nextTutorialButton.innerHTML = "게임 시작 ▶";
+    nextTutorialButton.className = "start-button";
+  } else {
+    nextTutorialButton.innerHTML = "다음 →";
+    nextTutorialButton.className = "";
+  }
+  drawTutorialScene(page.scene);
 }
-
 
 // ============================================================
 // 다음 프롤로그 페이지
 // ============================================================
 
 function nextTutorialPage() {
+  if (tutorialPageIndex < TUTORIAL_PAGES.length - 1) {
+    tutorialPageIndex += 1;
+    drawTutorialPage();
+    return;
+  }
 
-    if (
-        tutorialPageIndex
-        <
-        TUTORIAL_PAGES.length - 1
-    ) {
-
-        tutorialPageIndex +=
-            1;
-
-
-        drawTutorialPage();
-
-
-        return;
-
-    }
-
-
-    // 마지막 페이지에서 게임 시작
-    tutorialFinished =
-        true;
-
-
-    prologueOverlay.style.display =
-        "none";
-
-
-    startWholeGame();
-
+  // 마지막 페이지에서 게임 시작
+  tutorialFinished = true;
+  prologueOverlay.style.display = "none";
+  startWholeGame();
 }
-
 
 // ============================================================
 // 이전 프롤로그 페이지
 // ============================================================
 
 function previousTutorialPage() {
-
-    if (
-        tutorialPageIndex > 0
-    ) {
-
-        tutorialPageIndex -=
-            1;
-
-
-        drawTutorialPage();
-
-    }
-
+  if (tutorialPageIndex > 0) {
+    tutorialPageIndex -= 1;
+    drawTutorialPage();
+  }
 }
-
 
 // ============================================================
 // 프롤로그용 사각형
 // ============================================================
 
-function tutorialRect(
-    x,
-    y,
-    w,
-    h,
-    color
-) {
-
-    tutorialCtx.fillStyle =
-        color;
-
-
-    tutorialCtx.fillRect(
-
-        Math.round(x),
-
-        Math.round(y),
-
-        w,
-
-        h
-
-    );
-
+function tutorialRect(x, y, w, h, color) {
+  tutorialCtx.fillStyle = color;
+  tutorialCtx.fillRect(Math.round(x), Math.round(y), w, h);
 }
-
 
 // ============================================================
 // 프롤로그용 라벨
 // ============================================================
 
-function tutorialLabel(
-    text,
-    x,
-    y
-) {
-
-    tutorialCtx.font =
-        'bold 13px "Malgun Gothic"';
-
-
-    tutorialCtx.textAlign =
-        "center";
-
-
-    const width =
-
-        tutorialCtx.measureText(
-            text
-        ).width
-        +
-        16;
-
-
-    tutorialRect(
-
-        x - width / 2,
-
-        y - 11,
-
-        width,
-
-        22,
-
-        "rgba(25,43,51,0.88)"
-
-    );
-
-
-    tutorialCtx.fillStyle =
-        "#ffffff";
-
-
-    tutorialCtx.fillText(
-
-        text,
-
-        x,
-
-        y + 5
-
-    );
-
+function tutorialLabel(text, x, y) {
+  tutorialCtx.font = 'bold 13px "Malgun Gothic"';
+  tutorialCtx.textAlign = "center";
+  const width = tutorialCtx.measureText(text).width + 16;
+  tutorialRect(x - width / 2, y - 11, width, 22, "rgba(25,43,51,0.88)");
+  tutorialCtx.fillStyle = "#ffffff";
+  tutorialCtx.fillText(text, x, y + 5);
 }
-
 
 // ============================================================
 // 프롤로그용 플레이어 캐릭터
 // ============================================================
 
-function drawTutorialPlayer(
-    x,
-    y,
-    scale = 3
-) {
+function drawTutorialPlayer(x, y, scale = 3) {
+  const r = (px, py, w, h, color) => {
+    tutorialRect(x + px * scale, y + py * scale, w * scale, h * scale, color);
+  };
 
-    const r =
-        (
-            px,
-            py,
-            w,
-            h,
-            color
-        ) => {
+  // 외곽
+  r(6, 0, 18, 5, "#253038");
+  r(4, 4, 22, 12, "#253038");
+  r(6, 16, 18, 17, "#253038");
 
-            tutorialRect(
+  // 머리
+  r(7, 1, 16, 5, "#684334");
+  r(5, 5, 20, 5, "#79513e");
 
-                x + px * scale,
+  // 얼굴
+  r(9, 8, 12, 9, "#f3c4a3");
 
-                y + py * scale,
+  // 눈
+  r(11, 11, 2, 2, "#20272b");
+  r(17, 11, 2, 2, "#20272b");
 
-                w * scale,
+  // 의료복
+  r(11, 19, 9, 11, "#4ca8bb");
 
-                h * scale,
+  // 가운
+  r(6, 19, 6, 14, "#ffffff");
+  r(19, 19, 6, 14, "#ffffff");
 
-                color
+  // 바지
+  r(9, 31, 6, 5, "#344f76");
+  r(17, 31, 6, 5, "#344f76");
 
-            );
-
-        };
-
-
-    // 외곽
-    r(
-        6,
-        0,
-        18,
-        5,
-        "#253038"
-    );
-
-    r(
-        4,
-        4,
-        22,
-        12,
-        "#253038"
-    );
-
-    r(
-        6,
-        16,
-        18,
-        17,
-        "#253038"
-    );
-
-
-    // 머리
-    r(
-        7,
-        1,
-        16,
-        5,
-        "#684334"
-    );
-
-    r(
-        5,
-        5,
-        20,
-        5,
-        "#79513e"
-    );
-
-
-    // 얼굴
-    r(
-        9,
-        8,
-        12,
-        9,
-        "#f3c4a3"
-    );
-
-
-    // 눈
-    r(
-        11,
-        11,
-        2,
-        2,
-        "#20272b"
-    );
-
-    r(
-        17,
-        11,
-        2,
-        2,
-        "#20272b"
-    );
-
-
-    // 의료복
-    r(
-        11,
-        19,
-        9,
-        11,
-        "#4ca8bb"
-    );
-
-
-    // 가운
-    r(
-        6,
-        19,
-        6,
-        14,
-        "#ffffff"
-    );
-
-    r(
-        19,
-        19,
-        6,
-        14,
-        "#ffffff"
-    );
-
-
-    // 바지
-    r(
-        9,
-        31,
-        6,
-        5,
-        "#344f76"
-    );
-
-    r(
-        17,
-        31,
-        6,
-        5,
-        "#344f76"
-    );
-
-
-    // 신발
-    r(
-        8,
-        35,
-        7,
-        3,
-        "#202b32"
-    );
-
-    r(
-        17,
-        35,
-        7,
-        3,
-        "#202b32"
-    );
-
+  // 신발
+  r(8, 35, 7, 3, "#202b32");
+  r(17, 35, 7, 3, "#202b32");
 }
-
 
 // ============================================================
 // 프롤로그용 그림자
 // ============================================================
 
-function drawTutorialGhost(
-    x,
-    y,
-    color,
-    scale = 4
-) {
+function drawTutorialGhost(x, y, color, scale = 4) {
+  const r = (px, py, w, h, c) => {
+    tutorialRect(x + px * scale, y + py * scale, w * scale, h * scale, c);
+  };
+  r(2, 2, 16, 13, color);
+  r(4, 14, 4, 6, color);
+  r(9, 14, 4, 6, color);
+  r(14, 14, 4, 6, color);
 
-    const r =
-        (
-            px,
-            py,
-            w,
-            h,
-            c
-        ) => {
-
-            tutorialRect(
-
-                x + px * scale,
-
-                y + py * scale,
-
-                w * scale,
-
-                h * scale,
-
-                c
-
-            );
-
-        };
-
-
-    r(
-        2,
-        2,
-        16,
-        13,
-        color
-    );
-
-    r(
-        4,
-        14,
-        4,
-        6,
-        color
-    );
-
-    r(
-        9,
-        14,
-        4,
-        6,
-        color
-    );
-
-    r(
-        14,
-        14,
-        4,
-        6,
-        color
-    );
-
-
-    // 눈
-    r(
-        5,
-        6,
-        2,
-        2,
-        "#ffffff"
-    );
-
-    r(
-        12,
-        6,
-        2,
-        2,
-        "#ffffff"
-    );
-
+  // 눈
+  r(5, 6, 2, 2, "#ffffff");
+  r(12, 6, 2, 2, "#ffffff");
 }
-
 
 // ============================================================
 // 프롤로그용 카드
 // ============================================================
 
-function drawTutorialCard(
-    x,
-    y
-) {
-
-    tutorialRect(
-        x,
-        y,
-        68,
-        38,
-        "#438bed"
-    );
-
-
-    tutorialRect(
-        x + 10,
-        y + 10,
-        16,
-        13,
-        "#edf7ff"
-    );
-
-
-    tutorialRect(
-        x + 35,
-        y + 10,
-        22,
-        5,
-        "#245788"
-    );
-
+function drawTutorialCard(x, y) {
+  tutorialRect(x, y, 68, 38, "#438bed");
+  tutorialRect(x + 10, y + 10, 16, 13, "#edf7ff");
+  tutorialRect(x + 35, y + 10, 22, 5, "#245788");
 }
-
 
 // ============================================================
 // 프롤로그용 퓨즈
 // ============================================================
 
-function drawTutorialFuse(
-    x,
-    y
-) {
-
-    tutorialRect(
-        x + 15,
-        y,
-        38,
-        55,
-        "#e5c44e"
-    );
-
-
-    tutorialRect(
-        x + 20,
-        y + 8,
-        28,
-        12,
-        "#fff3aa"
-    );
-
+function drawTutorialFuse(x, y) {
+  tutorialRect(x + 15, y, 38, 55, "#e5c44e");
+  tutorialRect(x + 20, y + 8, 28, 12, "#fff3aa");
 }
-
 
 // ============================================================
 // 프롤로그용 배터리
 // ============================================================
 
-function drawTutorialBattery(
-    x,
-    y
-) {
-
-    tutorialRect(
-        x + 12,
-        y + 8,
-        42,
-        54,
-        "#46a760"
-    );
-
-
-    tutorialRect(
-        x + 25,
-        y,
-        16,
-        9,
-        "#d6e4e8"
-    );
-
-
-    tutorialRect(
-        x + 25,
-        y + 27,
-        15,
-        6,
-        "#d7f9de"
-    );
-
+function drawTutorialBattery(x, y) {
+  tutorialRect(x + 12, y + 8, 42, 54, "#46a760");
+  tutorialRect(x + 25, y, 16, 9, "#d6e4e8");
+  tutorialRect(x + 25, y + 27, 15, 6, "#d7f9de");
 }
-
 
 // ============================================================
 // 프롤로그용 발전기
 // ============================================================
 
-function drawTutorialGenerator(
-    x,
-    y
-) {
-
-    tutorialRect(
-        x,
-        y,
-        100,
-        65,
-        "#485d66"
-    );
-
-
-    tutorialRect(
-        x + 17,
-        y + 15,
-        64,
-        30,
-        "#273940"
-    );
-
-
-    tutorialRect(
-        x + 25,
-        y + 23,
-        14,
-        14,
-        "#e86666"
-    );
-
-
-    tutorialRect(
-        x + 56,
-        y + 23,
-        14,
-        14,
-        "#e8c854"
-    );
-
+function drawTutorialGenerator(x, y) {
+  tutorialRect(x, y, 100, 65, "#485d66");
+  tutorialRect(x + 17, y + 15, 64, 30, "#273940");
+  tutorialRect(x + 25, y + 23, 14, 14, "#e86666");
+  tutorialRect(x + 56, y + 23, 14, 14, "#e8c854");
 }
-
 
 // ============================================================
 // 프롤로그용 숨는 곳
 // ============================================================
 
-function drawTutorialHideSpot(
-    x,
-    y
-) {
-
-    tutorialRect(
-        x,
-        y,
-        80,
-        82,
-        "#657a86"
-    );
-
-
-    tutorialRect(
-        x + 12,
-        y + 8,
-        56,
-        66,
-        "#d2e0e5"
-    );
-
-
-    tutorialRect(
-        x + 38,
-        y + 8,
-        5,
-        66,
-        "#8aa0aa"
-    );
-
+function drawTutorialHideSpot(x, y) {
+  tutorialRect(x, y, 80, 82, "#657a86");
+  tutorialRect(x + 12, y + 8, 56, 66, "#d2e0e5");
+  tutorialRect(x + 38, y + 8, 5, 66, "#8aa0aa");
 }
-
 
 // ============================================================
 // 프롤로그용 CCTV
 // ============================================================
 
-function drawTutorialCCTV(
-    x,
-    y
-) {
-
-    tutorialRect(
-        x,
-        y,
-        85,
-        60,
-        "#344b53"
-    );
-
-
-    tutorialRect(
-        x + 10,
-        y + 10,
-        65,
-        34,
-        "#6bb2d2"
-    );
-
-
-    tutorialRect(
-        x + 31,
-        y + 61,
-        24,
-        8,
-        "#65777e"
-    );
-
+function drawTutorialCCTV(x, y) {
+  tutorialRect(x, y, 85, 60, "#344b53");
+  tutorialRect(x + 10, y + 10, 65, 34, "#6bb2d2");
+  tutorialRect(x + 31, y + 61, 24, 8, "#65777e");
 }
-
 
 // ============================================================
 // 프롤로그용 환자
 // ============================================================
 
-function drawTutorialPatient(
-    x,
-    y,
-    color
-) {
-
-    tutorialRect(
-        x + 22,
-        y,
-        30,
-        16,
-        "#544038"
-    );
-
-
-    tutorialRect(
-        x + 25,
-        y + 14,
-        24,
-        23,
-        "#efc3a5"
-    );
-
-
-    tutorialRect(
-        x + 15,
-        y + 36,
-        45,
-        32,
-        color
-    );
-
+function drawTutorialPatient(x, y, color) {
+  tutorialRect(x + 22, y, 30, 16, "#544038");
+  tutorialRect(x + 25, y + 14, 24, 23, "#efc3a5");
+  tutorialRect(x + 15, y + 36, 45, 32, color);
 }
-
 
 // ============================================================
 // 프롤로그 장면 그리기
 // ============================================================
 
-function drawTutorialScene(
-    scene
-) {
-
-    // 화면 초기화
-    tutorialCtx.clearRect(
-        0,
-        0,
-        tutorialCanvas.width,
-        tutorialCanvas.height
-    );
-
-
-    // 바닥
-    tutorialCtx.fillStyle =
-        "#bacacf";
-
-
-    tutorialCtx.fillRect(
-        0,
-        0,
-        tutorialCanvas.width,
-        tutorialCanvas.height
-    );
-
-
-    // 바닥 타일 느낌
-    for (
-        let x = 0;
-        x < 780;
-        x += 48
-    ) {
-
-        tutorialCtx.fillStyle =
-            "rgba(255,255,255,0.13)";
-
-
-        tutorialCtx.fillRect(
-            x,
-            0,
-            2,
-            245
-        );
-
-    }
-
-
-    for (
-        let y = 0;
-        y < 245;
-        y += 48
-    ) {
-
-        tutorialCtx.fillStyle =
-            "rgba(255,255,255,0.13)";
-
-
-        tutorialCtx.fillRect(
-            0,
-            y,
-            780,
-            2
-        );
-
-    }
-
-
-    // --------------------------------------------------------
-    // PAGE 1
-    // --------------------------------------------------------
-
-    if (
-        scene
-        ===
-        "intro"
-    ) {
-
-        // 왼쪽 병원 문
-        tutorialRect(
-            35,
-            30,
-            170,
-            165,
-            "#536c76"
-        );
-
-
-        tutorialRect(
-            50,
-            45,
-            63,
-            135,
-            "#a8bdc4"
-        );
-
-
-        tutorialRect(
-            125,
-            45,
-            63,
-            135,
-            "#a8bdc4"
-        );
-
-
-        tutorialRect(
-            82,
-            58,
-            77,
-            10,
-            "#d95f69"
-        );
-
-
-        tutorialLabel(
-            "잠긴 병원 출구",
-            120,
-            215
-        );
-
-
-        // 가운데 플레이어
-        drawTutorialPlayer(
-            330,
-            65,
-            3
-        );
-
-
-        tutorialLabel(
-            "플레이어",
-            375,
-            205
-        );
-
-
-        // 오른쪽 그림자
-        drawTutorialGhost(
-            600,
-            75,
-            "#957cff",
-            4
-        );
-
-
-        tutorialLabel(
-            "정체불명의 그림자",
-            640,
-            205
-        );
-
-    }
-
-
-    // --------------------------------------------------------
-    // PAGE 2
-    // --------------------------------------------------------
-
-    else if (
-        scene
-        ===
-        "player"
-    ) {
-
-        drawTutorialPlayer(
-            90,
-            42,
-            4
-        );
-
-
-        tutorialLabel(
-            "흰 가운 = 나",
-            150,
-            215
-        );
-
-
-        // 방향키
-        tutorialRect(
-            370,
-            58,
-            52,
-            52,
-            "#426675"
-        );
-
-
-        tutorialRect(
-            310,
-            118,
-            52,
-            52,
-            "#426675"
-        );
-
-
-        tutorialRect(
-            370,
-            118,
-            52,
-            52,
-            "#426675"
-        );
-
-
-        tutorialRect(
-            430,
-            118,
-            52,
-            52,
-            "#426675"
-        );
-
-
-        tutorialCtx.fillStyle =
-            "#ffffff";
-
-
-        tutorialCtx.font =
-            "bold 28px Arial";
-
-
-        tutorialCtx.textAlign =
-            "center";
-
-
-        tutorialCtx.fillText(
-            "↑",
-            396,
-            94
-        );
-
-
-        tutorialCtx.fillText(
-            "←",
-            336,
-            154
-        );
-
-
-        tutorialCtx.fillText(
-            "↓",
-            396,
-            154
-        );
-
-
-        tutorialCtx.fillText(
-            "→",
-            456,
-            154
-        );
-
-
-        tutorialLabel(
-            "방향키 / WASD",
-            396,
-            210
-        );
-
-
-        // Space 키
-        tutorialRect(
-            570,
-            90,
-            150,
-            58,
-            "#416675"
-        );
-
-
-        tutorialCtx.fillStyle =
-            "#ffffff";
-
-
-        tutorialCtx.font =
-            "bold 20px Arial";
-
-
-        tutorialCtx.fillText(
-            "SPACE",
-            645,
-            126
-        );
-
-
-        tutorialLabel(
-            "상호작용",
-            645,
-            190
-        );
-
-    }
-
-
-    // --------------------------------------------------------
-    // PAGE 3
-    // --------------------------------------------------------
-
-    else if (
-        scene
-        ===
-        "items"
-    ) {
-
-        drawTutorialCard(
-            45,
-            60
-        );
-
-
-        tutorialLabel(
-            "출입카드",
-            79,
-            130
-        );
-
-
-        drawTutorialFuse(
-            205,
-            50
-        );
-
-
-        tutorialLabel(
-            "퓨즈",
-            238,
-            130
-        );
-
-
-        drawTutorialBattery(
-            350,
-            43
-        );
-
-
-        tutorialLabel(
-            "비상 배터리",
-            383,
-            130
-        );
-
-
-        drawTutorialGenerator(
-            530,
-            45
-        );
-
-
-        tutorialLabel(
-            "발전기",
-            580,
-            130
-        );
-
-
-        // 타이밍 게이지
-        tutorialRect(
-            150,
-            180,
-            480,
-            18,
-            "#263a43"
-        );
-
-
-        tutorialRect(
-            352,
-            180,
-            76,
-            18,
-            "#52d981"
-        );
-
-
-        tutorialRect(
-            387,
-            171,
-            7,
-            36,
-            "#ffe067"
-        );
-
-
-        tutorialLabel(
-            "노란 포인터를 초록 구간에서 멈추기",
-            390,
-            225
-        );
-
-    }
-
-
-    // --------------------------------------------------------
-    // PAGE 4
-    // --------------------------------------------------------
-
-    else if (
-        scene
-        ===
-        "enemy"
-    ) {
-
-        // 그림자
-        drawTutorialGhost(
-            90,
-            70,
-            "#ff74a9",
-            4
-        );
-
-
-        tutorialLabel(
-            "그림자 · 피해야 함",
-            130,
-            200
-        );
-
-
-        // 추격 화살표
-        tutorialCtx.fillStyle =
-            "#a24f5f";
-
-
-        tutorialCtx.font =
-            "bold 42px Arial";
-
-
-        tutorialCtx.textAlign =
-            "center";
-
-
-        tutorialCtx.fillText(
-            "→ → →",
-            330,
-            120
-        );
-
-
-        // 플레이어
-        drawTutorialPlayer(
-            420,
-            60,
-            3
-        );
-
-
-        tutorialLabel(
-            "Shift로 달리기",
-            465,
-            200
-        );
-
-
-        // 숨는 곳
-        drawTutorialHideSpot(
-            625,
-            52
-        );
-
-
-        tutorialLabel(
-            "숨는 곳",
-            665,
-            200
-        );
-
-    }
-
-
-    // --------------------------------------------------------
-    // PAGE 5
-    // --------------------------------------------------------
-
-    else if (
-        scene
-        ===
-        "final"
-    ) {
-
-        // CCTV
-        drawTutorialCCTV(
-            55,
-            60
-        );
-
-
-        tutorialLabel(
-            "CCTV",
-            98,
-            160
-        );
-
-
-        // 기록
-        tutorialRect(
-            225,
-            55,
-            60,
-            78,
-            "#f4e7b8"
-        );
-
-
-        tutorialRect(
-            238,
-            73,
-            34,
-            5,
-            "#8e805f"
-        );
-
-
-        tutorialRect(
-            238,
-            89,
-            34,
-            5,
-            "#8e805f"
-        );
-
-
-        tutorialLabel(
-            "야간 기록",
-            255,
-            160
-        );
-
-
-        // 환자
-        drawTutorialPatient(
-            360,
-            55,
-            "#77b8e8"
-        );
-
-
-        tutorialLabel(
-            "구조할 환자",
-            397,
-            160
-        );
-
-
-        // 대피 구역
-        tutorialRect(
-            525,
-            62,
-            85,
-            65,
-            "#5ba878"
-        );
-
-
-        tutorialRect(
-            539,
-            75,
-            57,
-            39,
-            "#9fe2b8"
-        );
-
-
-        tutorialLabel(
-            "대피 구역",
-            567,
-            160
-        );
-
-
-        // 출구
-        tutorialRect(
-            670,
-            50,
-            75,
-            90,
-            "#6e858e"
-        );
-
-
-        tutorialRect(
-            682,
-            60,
-            23,
-            72,
-            "#a4b9c0"
-        );
-
-
-        tutorialRect(
-            711,
-            60,
-            23,
-            72,
-            "#a4b9c0"
-        );
-
-
-        tutorialRect(
-            694,
-            67,
-            28,
-            8,
-            "#6fe484"
-        );
-
-
-        tutorialLabel(
-            "최종 출구",
-            708,
-            160
-        );
-
-
-        tutorialCtx.fillStyle =
-            "#395761";
-
-
-        tutorialCtx.font =
-            'bold 18px "Malgun Gothic"';
-
-
-        tutorialCtx.textAlign =
-            "center";
-
-
-        tutorialCtx.fillText(
-            "탐색 → 퍼즐 → 구조 → 탈출",
-            390,
-            220
-        );
-
-    }
-
-
-    tutorialCtx.textAlign =
-        "left";
-
+function drawTutorialScene(scene) {
+  // 화면 초기화
+  tutorialCtx.clearRect(0, 0, tutorialCanvas.width, tutorialCanvas.height);
+
+  // 바닥
+  tutorialCtx.fillStyle = "#bacacf";
+  tutorialCtx.fillRect(0, 0, tutorialCanvas.width, tutorialCanvas.height);
+
+  // 바닥 타일 느낌
+  for (let x = 0; x < 780; x += 48) {
+    tutorialCtx.fillStyle = "rgba(255,255,255,0.13)";
+    tutorialCtx.fillRect(x, 0, 2, 245);
+  }
+  for (let y = 0; y < 245; y += 48) {
+    tutorialCtx.fillStyle = "rgba(255,255,255,0.13)";
+    tutorialCtx.fillRect(0, y, 780, 2);
+  }
+
+  // --------------------------------------------------------
+  // PAGE 1
+  // --------------------------------------------------------
+
+  if (scene === "intro") {
+    // 왼쪽 병원 문
+    tutorialRect(35, 30, 170, 165, "#536c76");
+    tutorialRect(50, 45, 63, 135, "#a8bdc4");
+    tutorialRect(125, 45, 63, 135, "#a8bdc4");
+    tutorialRect(82, 58, 77, 10, "#d95f69");
+    tutorialLabel("잠긴 병원 출구", 120, 215);
+
+    // 가운데 플레이어
+    drawTutorialPlayer(330, 65, 3);
+    tutorialLabel("플레이어", 375, 205);
+
+    // 오른쪽 그림자
+    drawTutorialGhost(600, 75, "#957cff", 4);
+    tutorialLabel("정체불명의 그림자", 640, 205);
+  }
+
+  // --------------------------------------------------------
+  // PAGE 2
+  // --------------------------------------------------------
+
+  else if (scene === "player") {
+    drawTutorialPlayer(90, 42, 4);
+    tutorialLabel("흰 가운 = 나", 150, 215);
+
+    // 방향키
+    tutorialRect(370, 58, 52, 52, "#426675");
+    tutorialRect(310, 118, 52, 52, "#426675");
+    tutorialRect(370, 118, 52, 52, "#426675");
+    tutorialRect(430, 118, 52, 52, "#426675");
+    tutorialCtx.fillStyle = "#ffffff";
+    tutorialCtx.font = "bold 28px Arial";
+    tutorialCtx.textAlign = "center";
+    tutorialCtx.fillText("↑", 396, 94);
+    tutorialCtx.fillText("←", 336, 154);
+    tutorialCtx.fillText("↓", 396, 154);
+    tutorialCtx.fillText("→", 456, 154);
+    tutorialLabel("방향키 / WASD", 396, 210);
+
+    // Space 키
+    tutorialRect(570, 90, 150, 58, "#416675");
+    tutorialCtx.fillStyle = "#ffffff";
+    tutorialCtx.font = "bold 20px Arial";
+    tutorialCtx.fillText("SPACE", 645, 126);
+    tutorialLabel("상호작용", 645, 190);
+  }
+
+  // --------------------------------------------------------
+  // PAGE 3
+  // --------------------------------------------------------
+
+  else if (scene === "items") {
+    drawTutorialCard(45, 60);
+    tutorialLabel("출입카드", 79, 130);
+    drawTutorialFuse(205, 50);
+    tutorialLabel("퓨즈", 238, 130);
+    drawTutorialBattery(350, 43);
+    tutorialLabel("비상 배터리", 383, 130);
+    drawTutorialGenerator(530, 45);
+    tutorialLabel("발전기", 580, 130);
+
+    // 타이밍 게이지
+    tutorialRect(150, 180, 480, 18, "#263a43");
+    tutorialRect(352, 180, 76, 18, "#52d981");
+    tutorialRect(387, 171, 7, 36, "#ffe067");
+    tutorialLabel("노란 포인터를 초록 구간에서 멈추기", 390, 225);
+  }
+
+  // --------------------------------------------------------
+  // PAGE 4
+  // --------------------------------------------------------
+
+  else if (scene === "enemy") {
+    // 그림자
+    drawTutorialGhost(90, 70, "#ff74a9", 4);
+    tutorialLabel("그림자 · 피해야 함", 130, 200);
+
+    // 추격 화살표
+    tutorialCtx.fillStyle = "#a24f5f";
+    tutorialCtx.font = "bold 42px Arial";
+    tutorialCtx.textAlign = "center";
+    tutorialCtx.fillText("→ → →", 330, 120);
+
+    // 플레이어
+    drawTutorialPlayer(420, 60, 3);
+    tutorialLabel("Shift로 달리기", 465, 200);
+
+    // 숨는 곳
+    drawTutorialHideSpot(625, 52);
+    tutorialLabel("숨는 곳", 665, 200);
+  }
+
+  // --------------------------------------------------------
+  // PAGE 5
+  // --------------------------------------------------------
+
+  else if (scene === "final") {
+    // CCTV
+    drawTutorialCCTV(55, 60);
+    tutorialLabel("CCTV", 98, 160);
+
+    // 기록
+    tutorialRect(225, 55, 60, 78, "#f4e7b8");
+    tutorialRect(238, 73, 34, 5, "#8e805f");
+    tutorialRect(238, 89, 34, 5, "#8e805f");
+    tutorialLabel("야간 기록", 255, 160);
+
+    // 환자
+    drawTutorialPatient(360, 55, "#77b8e8");
+    tutorialLabel("구조할 환자", 397, 160);
+
+    // 대피 구역
+    tutorialRect(525, 62, 85, 65, "#5ba878");
+    tutorialRect(539, 75, 57, 39, "#9fe2b8");
+    tutorialLabel("대피 구역", 567, 160);
+
+    // 출구
+    tutorialRect(670, 50, 75, 90, "#6e858e");
+    tutorialRect(682, 60, 23, 72, "#a4b9c0");
+    tutorialRect(711, 60, 23, 72, "#a4b9c0");
+    tutorialRect(694, 67, 28, 8, "#6fe484");
+    tutorialLabel("최종 출구", 708, 160);
+    tutorialCtx.fillStyle = "#395761";
+    tutorialCtx.font = 'bold 18px "Malgun Gothic"';
+    tutorialCtx.textAlign = "center";
+    tutorialCtx.fillText("탐색 → 퍼즐 → 구조 → 탈출", 390, 220);
+  }
+  tutorialCtx.textAlign = "left";
 }
-
 
 // ============================================================
 // 전체 게임 시작
 // ============================================================
 
 function startWholeGame() {
-
-    meta = {
-
-        totalRecords:
-            0,
-
-        stageResults:
-            [],
-
-        allPatientsRescued:
-            false
-
-    };
-
-
-    currentLevelIndex =
-        0;
-
-
-    startStage();
-
+  meta = {
+    totalRecords: 0,
+    stageResults: [],
+    allPatientsRescued: false,
+  };
+  currentLevelIndex = 0;
+  startStage();
 }
-
 
 // ============================================================
 // 스테이지 초기화
 // ============================================================
 
 function startStage() {
+  const start = findTile("S");
+  if (!start) {
+    showFatalError("시작 위치를 찾을 수 없습니다.");
+    return;
+  }
 
-    const start =
-        findTile(
-            "S"
-        );
+  // ========================================================
+  // 플레이어
+  // ========================================================
 
+  player = {
+    x: start.x * TILE + 1,
+    y: start.y * TILE - 4,
 
-    if (
-        !start
-    ) {
+    // 실제 충돌 영역
+    hitW: 12,
+    hitH: 8,
+    hitOffsetX: 9,
+    hitOffsetY: 20,
 
-        showFatalError(
-            "시작 위치를 찾을 수 없습니다."
-        );
+    // 기본 걷기 속도
+    speed: 160,
 
+    // 현재 보는 방향
+    facing: "down",
 
-        return;
+    // 걷기 애니메이션
+    walking: false,
+    walkFrame: 0,
+    walkTimer: 0,
+  };
 
-    }
+  // ========================================================
+  // 현재 스테이지 상태
+  // ========================================================
 
+  state = {
+    // 체력
+    hearts: 4,
 
-    // ========================================================
-    // 플레이어
-    // ========================================================
+    // 제한시간
+    time: level().time,
 
-    player = {
+    // 달리기에 사용하는 스태미나
+    stamina: 100,
 
-        x:
-            start.x * TILE
-            +
-            1,
-
-        y:
-            start.y * TILE
-            -
-            4,
-
-
-        // 실제 충돌 영역
-        hitW:
-            12,
-
-        hitH:
-            8,
-
-        hitOffsetX:
-            9,
-
-        hitOffsetY:
-            20,
-
-
-        // 기본 걷기 속도
-        speed:
-            160,
-
-
-        // 현재 보는 방향
-        facing:
-            "down",
-
-
-        // 걷기 애니메이션
-        walking:
-            false,
-
-        walkFrame:
-            0,
-
-        walkTimer:
-            0
-
-    };
-
-
-    // ========================================================
-    // 현재 스테이지 상태
-    // ========================================================
-
-    state = {
-
-        // 체력
-        hearts:
-            4,
-
-
-        // 제한시간
-        time:
-            level().time,
-
-
-        // 달리기에 사용하는 스태미나
-        stamina:
-            100,
-
-
-        // 게임 종료 여부
-        won:
-            false,
-
-        lost:
-            false,
-
-
-        // 숨기 관련
-        hidden:
-            false,
-
-        hideSeconds:
-            0,
-
-
-        // 로그
-        logs:
-            [],
-
-
-        // ----------------------------------------------------
-        // STAGE 1
-        // ----------------------------------------------------
-
-        hasKeycard:
-            false,
-
-        hasFuse:
-            false,
-
-        hasBattery:
-            false,
-
-        powerOn:
-            false,
-
-        hasMasterKey:
-            false,
-
-
-        // ----------------------------------------------------
-        // STAGE 2
-        // ----------------------------------------------------
-
-        switchProgress:
-            0,
-
-
-        // A/B/C 무작위 순서
-        sequence:
-            shuffled(
-                [
-                    "A",
-                    "B",
-                    "C"
-                ]
-            ),
-
-
-        // 순서를 확인했는지
-        sequenceKnown:
-            false,
-
-
-        // ----------------------------------------------------
-        // STAGE 3
-        // ----------------------------------------------------
-
-        patients:
-            [],
-
-
-        // 현재 호송 중인 환자 번호
-        escortPatientId:
-            null,
-
-
-        // 마지막 탈출 단계
-        finalEscapeStarted:
-            false,
-
-
-        // ----------------------------------------------------
-        // 추격
-        // ----------------------------------------------------
-
-        chaseTimer:
-            0,
-
-
-        // CCTV 활성시간
-        cctvTimer:
-            0,
-
-
-        // 현재 미니게임
-        miniGame:
-            null,
-
-
-        // ----------------------------------------------------
-        // 야간 기록
-        // ----------------------------------------------------
-
-        records:
-            level().records.map(
-
-                (record, index) => ({
-
-                    ...record,
-
-                    id:
-                        index,
-
-                    collected:
-                        false
-
-                })
-
-            ),
-
-
-        // ----------------------------------------------------
-        // 이벤트 효과
-        // ----------------------------------------------------
-
-        event: {
-
-            blackout:
-                0,
-
-            enemyBoost:
-                0,
-
-            alarm:
-                0
-
-        }
-
-    };
-
-
-    // ========================================================
-    // STAGE 3 환자 위치 무작위 설정
-    // ========================================================
-
-    if (
-        level().type
-        ===
-        "rescue"
-    ) {
-
-        const chosen =
-            shuffled(
-                level().patientCandidates
-            )
-            .slice(
-                0,
-                3
-            );
-
-
-        state.patients =
-            chosen.map(
-
-                (position, index) => ({
-
-                    id:
-                        index + 1,
-
-                    x:
-                        position.x,
-
-                    y:
-                        position.y,
-
-
-                    // 환자 안정화 여부
-                    stabilized:
-                        false,
-
-
-                    // 현재 따라오는지
-                    following:
-                        false,
-
-
-                    // 최종 구조 완료
-                    rescued:
-                        false,
-
-
-                    // 환자별 미니게임
-                    mission:
-                        [
-                            "timing",
-                            "direction",
-                            "memory"
-                        ][index]
-
-                })
-
-            );
-
-    }
-
-
-    ghosts =
-        createGhosts();
-
-
-    invulnerable =
-        0;
-
-
-    state.logs.push(
-
-        "현재 구역 진입 : "
-        +
-        level().title
-
-    );
-
-
-    setMessage(
-        level().story
-    );
-
-
-    subtitleText.innerHTML =
-        level().title
-        +
-        " · Shift 달리기 · Space 상호작용";
-
-
-    overlay.style.display =
-        "none";
-
-
-    updatePanels();
-
-
-    canvas.focus();
-
+    // 게임 종료 여부
+    won: false,
+    lost: false,
+
+    // 숨기 관련
+    hidden: false,
+    hideSeconds: 0,
+
+    // 로그
+    logs: [],
+
+    // ----------------------------------------------------
+    // STAGE 1
+    // ----------------------------------------------------
+
+    hasKeycard: false,
+    hasFuse: false,
+    hasBattery: false,
+    powerOn: false,
+    hasMasterKey: false,
+
+    // ----------------------------------------------------
+    // STAGE 2
+    // ----------------------------------------------------
+
+    switchProgress: 0,
+
+    // A/B/C 무작위 순서
+    sequence: shuffled(["A", "B", "C"]),
+
+    // 순서를 확인했는지
+    sequenceKnown: false,
+
+    // ----------------------------------------------------
+    // STAGE 3
+    // ----------------------------------------------------
+
+    patients: [],
+
+    // 현재 호송 중인 환자 번호
+    escortPatientId: null,
+
+    // 마지막 탈출 단계
+    finalEscapeStarted: false,
+
+    // ----------------------------------------------------
+    // 추격
+    // ----------------------------------------------------
+
+    chaseTimer: 0,
+
+    // CCTV 활성시간
+    cctvTimer: 0,
+
+    // 현재 미니게임
+    miniGame: null,
+
+    // ----------------------------------------------------
+    // 야간 기록
+    // ----------------------------------------------------
+
+    records: level().records.map((record, index) => ({
+      ...record,
+      id: index,
+      collected: false,
+    })),
+
+    // ----------------------------------------------------
+    // 이벤트 효과
+    // ----------------------------------------------------
+
+    event: {
+      blackout: 0,
+      enemyBoost: 0,
+      alarm: 0,
+    },
+  };
+
+  // ========================================================
+  // STAGE 3 환자 위치 무작위 설정
+  // ========================================================
+
+  if (level().type === "rescue") {
+    const chosen = shuffled(level().patientCandidates).slice(0, 3);
+    state.patients = chosen.map((position, index) => ({
+      id: index + 1,
+      x: position.x,
+      y: position.y,
+
+      // 환자 안정화 여부
+      stabilized: false,
+
+      // 현재 따라오는지
+      following: false,
+
+      // 최종 구조 완료
+      rescued: false,
+
+      // 환자별 미니게임
+      mission: ["timing", "direction", "memory"][index],
+    }));
+  }
+  ghosts = createGhosts();
+  invulnerable = 0;
+  state.logs.push("현재 구역 진입 : " + level().title);
+  setMessage(level().story);
+  subtitleText.innerHTML = level().title + " · Shift 달리기 · Space 상호작용";
+  overlay.style.display = "none";
+  updatePanels();
+  canvas.focus();
 }
-
 
 // ============================================================
 // 재시작
 // ============================================================
 
 function restartStage() {
-
-    // 프롤로그가 아직 끝나지 않았다면 무시
-    if (
-        !tutorialFinished
-    ) {
-
-        return;
-
-    }
-
-
-    startStage();
-
+  // 프롤로그가 아직 끝나지 않았다면 무시
+  if (!tutorialFinished) {
+    return;
+  }
+  startStage();
 }
-
 
 // ============================================================
 // 그림자 생성
 // ============================================================
 
 function createGhosts() {
-
-    if (
-        currentLevelIndex
-        ===
-        0
-    ) {
-
-        return [
-
-            {
-
-                x:
-                    23 * TILE,
-
-                y:
-                    8 * TILE,
-
-                w:
-                    20,
-
-                h:
-                    20,
-
-                speed:
-                    42,
-
-                color:
-                    "#9277ff",
-
-                path: [
-
-                    tileCenter(
-                        23,
-                        8
-                    ),
-
-                    tileCenter(
-                        29,
-                        8
-                    ),
-
-                    tileCenter(
-                        29,
-                        13
-                    ),
-
-                    tileCenter(
-                        23,
-                        13
-                    )
-
-                ],
-
-                pathIndex:
-                    1
-
-            }
-
-        ];
-
-    }
-
-
-    if (
-        currentLevelIndex
-        ===
-        1
-    ) {
-
-        return [
-
-            {
-
-                x:
-                    21 * TILE,
-
-                y:
-                    6 * TILE,
-
-                w:
-                    20,
-
-                h:
-                    20,
-
-                speed:
-                    49,
-
-                color:
-                    "#4fd9ab",
-
-                path: [
-
-                    tileCenter(
-                        21,
-                        6
-                    ),
-
-                    tileCenter(
-                        28,
-                        6
-                    ),
-
-                    tileCenter(
-                        28,
-                        12
-                    ),
-
-                    tileCenter(
-                        21,
-                        12
-                    )
-
-                ],
-
-                pathIndex:
-                    1
-
-            },
-
-
-            {
-
-                x:
-                    5 * TILE,
-
-                y:
-                    14 * TILE,
-
-                w:
-                    20,
-
-                h:
-                    20,
-
-                speed:
-                    42,
-
-                color:
-                    "#94e758",
-
-                path: [
-
-                    tileCenter(
-                        5,
-                        14
-                    ),
-
-                    tileCenter(
-                        12,
-                        14
-                    ),
-
-                    tileCenter(
-                        12,
-                        18
-                    ),
-
-                    tileCenter(
-                        5,
-                        18
-                    )
-
-                ],
-
-                pathIndex:
-                    1
-
-            }
-
-        ];
-
-    }
-
-
+  if (currentLevelIndex === 0) {
     return [
-
-        {
-
-            x:
-                20 * TILE,
-
-            y:
-                6 * TILE,
-
-            w:
-                20,
-
-            h:
-                20,
-
-            speed:
-                53,
-
-            color:
-                "#ff74a9",
-
-            path: [
-
-                tileCenter(
-                    20,
-                    6
-                ),
-
-                tileCenter(
-                    29,
-                    6
-                ),
-
-                tileCenter(
-                    29,
-                    12
-                ),
-
-                tileCenter(
-                    20,
-                    12
-                )
-
-            ],
-
-            pathIndex:
-                1
-
-        },
-
-
-        {
-
-            x:
-                8 * TILE,
-
-            y:
-                14 * TILE,
-
-            w:
-                20,
-
-            h:
-                20,
-
-            speed:
-                47,
-
-            color:
-                "#be8dff",
-
-            path: [
-
-                tileCenter(
-                    8,
-                    14
-                ),
-
-                tileCenter(
-                    17,
-                    14
-                ),
-
-                tileCenter(
-                    17,
-                    18
-                ),
-
-                tileCenter(
-                    8,
-                    18
-                )
-
-            ],
-
-            pathIndex:
-                1
-
-        }
-
+      {
+        x: 23 * TILE,
+        y: 8 * TILE,
+        w: 20,
+        h: 20,
+        speed: 42,
+        color: "#9277ff",
+        path: [
+          tileCenter(24, 8),
+          tileCenter(29, 8),
+          tileCenter(29, 13),
+          tileCenter(24, 13),
+        ],
+        pathIndex: 1,
+      },
     ];
-
+  }
+  if (currentLevelIndex === 1) {
+    return [
+      {
+        x: 21 * TILE,
+        y: 6 * TILE,
+        w: 20,
+        h: 20,
+        speed: 49,
+        color: "#4fd9ab",
+        path: [
+          tileCenter(21, 6),
+          tileCenter(30, 6),
+          tileCenter(30, 13),
+          tileCenter(21, 13),
+        ],
+        pathIndex: 1,
+      },
+      {
+        x: 5 * TILE,
+        y: 14 * TILE,
+        w: 20,
+        h: 20,
+        speed: 42,
+        color: "#94e758",
+        path: [
+          tileCenter(5, 14),
+          tileCenter(12, 14),
+          tileCenter(12, 18),
+          tileCenter(5, 18),
+        ],
+        pathIndex: 1,
+      },
+    ];
+  }
+  return [
+    {
+      x: 20 * TILE,
+      y: 6 * TILE,
+      w: 20,
+      h: 20,
+      speed: 53,
+      color: "#ff74a9",
+      path: [
+        tileCenter(21, 6),
+        tileCenter(28, 6),
+        tileCenter(28, 12),
+        tileCenter(21, 12),
+      ],
+      pathIndex: 1,
+    },
+    {
+      x: 8 * TILE,
+      y: 14 * TILE,
+      w: 20,
+      h: 20,
+      speed: 47,
+      color: "#be8dff",
+      path: [
+        tileCenter(8, 14),
+        tileCenter(17, 14),
+        tileCenter(17, 18),
+        tileCenter(8, 18),
+      ],
+      pathIndex: 1,
+    },
+  ];
 }
-
 
 // ============================================================
 // 메시지
 // ============================================================
 
 function setMessage(text) {
-
-    messageBar.innerHTML =
-        text;
-
+  messageBar.innerHTML = text;
 }
-
 
 // ============================================================
 // 로그
 // ============================================================
 
 function addLog(text) {
-
-    state.logs.unshift(
-        text
-    );
-
-
-    if (
-        state.logs.length
-        >
-        7
-    ) {
-
-        state.logs.pop();
-
-    }
-
-
-    updatePanels();
-
+  state.logs.unshift(text);
+  if (state.logs.length > 7) {
+    state.logs.pop();
+  }
+  updatePanels();
 }
-
 
 // ============================================================
 // 플레이어 중심
 // ============================================================
 
 function playerCenter() {
-
-    return {
-
-        x:
-            player.x
-            +
-            15,
-
-        y:
-            player.y
-            +
-            23
-
-    };
-
+  return {
+    x: player.x + 15,
+    y: player.y + 23,
+  };
 }
-
 
 // ============================================================
 // 특정 위치와 거리 확인
 // ============================================================
 
-function nearPos(
-    x,
-    y,
-    distance = 42
-) {
-
-    const pc =
-        playerCenter();
-
-
-    const tc =
-        tileCenter(
-            x,
-            y
-        );
-
-
-    return (
-
-        Math.hypot(
-
-            pc.x
-            -
-            tc.x,
-
-            pc.y
-            -
-            tc.y
-
-        )
-
-        <=
-
-        distance
-
-    );
-
+function nearPos(x, y, distance = 42) {
+  const pc = playerCenter();
+  const tc = tileCenter(x, y);
+  return Math.hypot(pc.x - tc.x, pc.y - tc.y) <= distance;
 }
-
 
 // ============================================================
 // 특정 오브젝트 근처인지
 // ============================================================
 
-function nearTile(
-    symbol,
-    distance = 42
-) {
-
-    const tile =
-        findTile(
-            symbol
-        );
-
-
-    if (
-        !tile
-    ) {
-
-        return false;
-
-    }
-
-
-    return nearPos(
-
-        tile.x,
-
-        tile.y,
-
-        distance
-
-    );
-
+function nearTile(symbol, distance = 42) {
+  const tile = findTile(symbol);
+  if (!tile) {
+    return false;
+  }
+  return nearPos(tile.x, tile.y, distance);
 }
-
 
 // ============================================================
 // 구조 완료 인원
 // ============================================================
 
 function rescueCount() {
-
-    if (
-        level().type
-        !==
-        "rescue"
-    ) {
-
-        return 0;
-
-    }
-
-
-    return state.patients.filter(
-
-        patient =>
-            patient.rescued
-
-    ).length;
-
+  if (level().type !== "rescue") {
+    return 0;
+  }
+  return state.patients.filter((patient) => patient.rescued).length;
 }
 
 
