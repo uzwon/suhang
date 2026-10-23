@@ -2124,3266 +2124,975 @@ function updateGhosts(dt) {
 // ============================================================
 
 function updateTimedSystems(dt) {
+  // CCTV
+  if (state.cctvTimer > 0) {
+    state.cctvTimer -= dt;
+  }
 
-    // CCTV
-    if (
-        state.cctvTimer > 0
-    ) {
+  // 추격시간
+  if (state.chaseTimer > 0) {
+    state.chaseTimer -= dt;
+    if (state.chaseTimer <= 0) {
+      state.chaseTimer = 0;
+      setMessage("✅ 그림자의 추격이 끝났어. 다시 순찰 상태로 돌아갔어.");
+    }
+  }
 
-        state.cctvTimer -=
-            dt;
+  // 적 속도 증가
+  if (state.event.enemyBoost > 0) {
+    state.event.enemyBoost -= dt;
+  }
 
+  // 정전 효과
+  if (state.event.blackout > 0) {
+    state.event.blackout -= dt;
+  }
+
+  // 경고등
+  if (state.event.alarm > 0) {
+    state.event.alarm -= dt;
+  }
+
+  // 숨은 시간
+  if (state.hidden) {
+    state.hideSeconds += dt;
+
+    // 너무 오래 숨어 있으면 시간 추가 감소
+    if (state.hideSeconds > 7) {
+      state.time = Math.max(0, state.time - dt * 1.5);
+    }
+  }
+
+  // ========================================================
+  // 미니게임 시간 업데이트
+  // ========================================================
+
+  if (state.miniGame) {
+    const game = state.miniGame;
+
+    // 타이밍 미니게임 포인터 이동
+    if (game.type === "generator" || game.type === "patientTiming") {
+      game.pos += game.dir * dt * 0.75;
+      if (game.pos >= 1) {
+        game.pos = 1;
+        game.dir = -1;
+      }
+      if (game.pos <= 0) {
+        game.pos = 0;
+        game.dir = 1;
+      }
     }
 
-
-    // 추격시간
-    if (
-        state.chaseTimer > 0
-    ) {
-
-        state.chaseTimer -=
-            dt;
-
-
-        if (
-            state.chaseTimer <= 0
-        ) {
-
-            state.chaseTimer =
-                0;
-
-
-            setMessage(
-                "✅ 그림자의 추격이 끝났어. 다시 순찰 상태로 돌아갔어."
-            );
-
+    // 기억 미니게임
+    if (game.type === "patientDirection" || game.type === "patientMemory") {
+      if (game.reveal > 0) {
+        game.reveal -= dt;
+        if (game.reveal <= 0) {
+          setMessage(
+            game.type === "patientDirection"
+              ? "이제 기억한 방향키 순서를 입력해!"
+              : "이제 기억한 숫자 코드를 키보드 1~4로 입력해!",
+          );
         }
-
+      }
     }
-
-
-    // 적 속도 증가
-    if (
-        state.event.enemyBoost > 0
-    ) {
-
-        state.event.enemyBoost -=
-            dt;
-
-    }
-
-
-    // 정전 효과
-    if (
-        state.event.blackout > 0
-    ) {
-
-        state.event.blackout -=
-            dt;
-
-    }
-
-
-    // 경고등
-    if (
-        state.event.alarm > 0
-    ) {
-
-        state.event.alarm -=
-            dt;
-
-    }
-
-
-    // 숨은 시간
-    if (
-        state.hidden
-    ) {
-
-        state.hideSeconds +=
-            dt;
-
-
-        // 너무 오래 숨어 있으면 시간 추가 감소
-        if (
-            state.hideSeconds > 7
-        ) {
-
-            state.time =
-
-                Math.max(
-
-                    0,
-
-                    state.time
-                    -
-                    dt
-                    *
-                    1.5
-
-                );
-
-        }
-
-    }
-
-
-    // ========================================================
-    // 미니게임 시간 업데이트
-    // ========================================================
-
-    if (
-        state.miniGame
-    ) {
-
-        const game =
-            state.miniGame;
-
-
-        // 타이밍 미니게임 포인터 이동
-        if (
-            game.type
-            ===
-            "generator"
-            ||
-            game.type
-            ===
-            "patientTiming"
-        ) {
-
-            game.pos +=
-
-                game.dir
-
-                *
-
-                dt
-
-                *
-
-                0.75;
-
-
-            if (
-                game.pos >= 1
-            ) {
-
-                game.pos =
-                    1;
-
-
-                game.dir =
-                    -1;
-
-            }
-
-
-            if (
-                game.pos <= 0
-            ) {
-
-                game.pos =
-                    0;
-
-
-                game.dir =
-                    1;
-
-            }
-
-        }
-
-
-        // 기억 미니게임
-        if (
-            game.type
-            ===
-            "patientDirection"
-            ||
-            game.type
-            ===
-            "patientMemory"
-        ) {
-
-            if (
-                game.reveal > 0
-            ) {
-
-                game.reveal -=
-                    dt;
-
-
-                if (
-                    game.reveal <= 0
-                ) {
-
-                    setMessage(
-
-                        game.type
-                        ===
-                        "patientDirection"
-
-                        ?
-
-                        "이제 기억한 방향키 순서를 입력해!"
-
-                        :
-
-                        "이제 기억한 숫자 코드를 키보드 1~4로 입력해!"
-
-                    );
-
-                }
-
-            }
-
-        }
-
-    }
-
+  }
 }
-
 
 // ============================================================
 // 게임 업데이트
 // ============================================================
 
 function update(dt) {
+  if (!state || state.won || state.lost || !tutorialFinished) {
+    return;
+  }
 
-    if (
-        !state
-        ||
-        state.won
-        ||
-        state.lost
-        ||
-        !tutorialFinished
-    ) {
-
-        return;
-
-    }
-
-
-    // 제한시간 감소
-    state.time -=
-        dt;
-
-
-    if (
-        state.time <= 0
-    ) {
-
-        state.time =
-            0;
-
-
-        state.lost =
-            true;
-
-
-        showGameOver(
-            "제한 시간이 끝났어."
-        );
-
-
-        return;
-
-    }
-
-
-    updateTimedSystems(
-        dt
-    );
-
-
-    updatePlayer(
-        dt
-    );
-
-
-    updateGhosts(
-        dt
-    );
-
-
-    updatePanels();
-
+  // 제한시간 감소
+  state.time -= dt;
+  if (state.time <= 0) {
+    state.time = 0;
+    state.lost = true;
+    showGameOver("제한 시간이 끝났어.");
+    return;
+  }
+  updateTimedSystems(dt);
+  updatePlayer(dt);
+  updateGhosts(dt);
+  updatePanels();
 }
-
 
 // ============================================================
 // 랭크 계산
 // ============================================================
 
 function calculateRank() {
-
-    let points =
-
-        state.hearts
-        *
-        120
-
-        +
-
-        (
-            state.time
-            /
-            level().time
-        )
-
-        *
-        500
-
-        +
-
-        stageRecordCount()
-        *
-        120;
-
-
-    if (
-        points >= 900
-    ) {
-
-        return "S";
-
-    }
-
-
-    if (
-        points >= 720
-    ) {
-
-        return "A";
-
-    }
-
-
-    if (
-        points >= 540
-    ) {
-
-        return "B";
-
-    }
-
-
-    return "C";
-
+  let points =
+    state.hearts * 120 +
+    (state.time / level().time) * 500 +
+    stageRecordCount() * 120;
+  if (points >= 900) {
+    return "S";
+  }
+  if (points >= 720) {
+    return "A";
+  }
+  if (points >= 540) {
+    return "B";
+  }
+  return "C";
 }
-
 
 // ============================================================
 // 스테이지 클리어
 // ============================================================
 
 function clearStage() {
-
-    state.won =
-        true;
-
-
-    const rank =
-        calculateRank();
-
-
-    meta.stageResults.push(
-
-        {
-
-            stage:
-                currentLevelIndex
-                +
-                1,
-
-            rank:
-                rank
-
-        }
-
-    );
-
-
-    if (
-        currentLevelIndex < 2
-    ) {
-
-        overlayBox.innerHTML = `
-
+  // stageRecordCount() : 현재 스테이지에서 수집한 기록 수
+  // state.records.length : 현재 스테이지에서 존재하는 기록 수
+  if (stageRecordCount() < state.records.length) {
+    setMessage("⚠️ 아직 수집하지 못한 야간 기록이 있어. 모두 수집해야 해.");
+    return;
+  }
+  // 우승로직
+  state.won = true;
+  const rank = calculateRank();
+  meta.stageResults.push({
+    stage: currentLevelIndex + 1,
+    rank: rank,
+  });
+  if (currentLevelIndex < 2) {
+    overlayBox.innerHTML = `
             <div class="overlay-title">
-
                 STAGE CLEAR · ${rank} RANK
-
             </div>
-
-
             <div class="overlay-text">
-
                 <b>
                     ${level().title}
                 </b>
-
                 완료!
-
                 <br><br>
-
                 다음 구역으로 이동합니다.
-
                 <br><br>
-
                 <b>
                     ${LEVELS[currentLevelIndex + 1].title}
                 </b>
-
                 <br><br>
-
                 ${LEVELS[currentLevelIndex + 1].story}
-
             </div>
-
-
             <button onclick="nextStage()">
-
                 다음 스테이지 →
-
             </button>
-
         `;
-
-
-        overlay.style.display =
-            "flex";
-
-    }
-
-    else {
-
-        showFinalEnding();
-
-    }
-
+    overlay.style.display = "flex";
+  } else {
+    showFinalEnding();
+  }
 }
-
 
 // ============================================================
 // 다음 스테이지
 // ============================================================
 
 function nextStage() {
-
-    currentLevelIndex +=
-        1;
-
-
-    startStage();
-
+  currentLevelIndex += 1;
+  startStage();
 }
-
 
 // ============================================================
 // 최종 엔딩
 // ============================================================
 
 function showFinalEnding() {
-
-    let title =
-        "탈출 엔딩";
-
-
-    let text =
-        "세 개의 병원 구역을 모두 통과해 탈출에 성공했다.";
-
-
-    if (
-        meta.totalRecords >= 6
-        &&
-        meta.allPatientsRescued
-    ) {
-
-        title =
-            "진실 구조 엔딩";
-
-
-        text =
-            "모든 환자를 구조하고 야간 기록까지 모두 확보한 뒤 병원에서 탈출했다.";
-
-    }
-
-    else if (
-        meta.allPatientsRescued
-    ) {
-
-        title =
-            "구조 엔딩";
-
-
-        text =
-            "병동에 남아 있던 환자 세 명을 모두 구조한 뒤 옥상으로 탈출했다.";
-
-    }
-
-
-    overlayBox.innerHTML = `
-
+  let title = "탈출 엔딩";
+  let text = "세 개의 병원 구역을 모두 통과해 탈출에 성공했다.";
+  if (meta.totalRecords >= 6 && meta.allPatientsRescued) {
+    title = "진실 구조 엔딩";
+    text =
+      "모든 환자를 구조하고 야간 기록까지 모두 확보한 뒤 병원에서 탈출했다.";
+  } else if (meta.allPatientsRescued) {
+    title = "구조 엔딩";
+    text = "병동에 남아 있던 환자 세 명을 모두 구조한 뒤 옥상으로 탈출했다.";
+  }
+  overlayBox.innerHTML = `
         <div class="overlay-title">
-
             ${title}
-
         </div>
-
-
         <div class="overlay-text">
-
             ${text}
-
             <br><br>
-
             <b>
                 야간 기록
             </b>
-
             ${meta.totalRecords}/6
-
             <br>
-
             <b>
                 스테이지 랭크
             </b>
-
-            ${meta.stageResults.map(
-
-                result =>
-                    result.rank
-
-            ).join(" · ")}
-
+            ${meta.stageResults.map((result) => result.rank).join(" · ")}
         </div>
-
-
         <button onclick="startWholeGame()">
-
             처음부터 다시 플레이
-
         </button>
-
     `;
-
-
-    overlay.style.display =
-        "flex";
-
+  overlay.style.display = "flex";
 }
-
 
 // ============================================================
 // GAME OVER
 // ============================================================
 
-function showGameOver(
-    reason
-) {
-
-    overlayBox.innerHTML = `
-
+function showGameOver(reason) {
+  overlayBox.innerHTML = `
         <div class="overlay-title">
-
             GAME OVER
-
         </div>
-
-
         <div class="overlay-text">
-
             ${reason}
-
             <br><br>
-
             현재 스테이지를 다시 도전할 수 있어.
-
         </div>
-
-
         <button onclick="restartStage()">
-
             다시 도전
-
         </button>
-
     `;
-
-
-    overlay.style.display =
-        "flex";
-
+  overlay.style.display = "flex";
 }
-
 
 // ============================================================
 // 오류
 // ============================================================
 
-function showFatalError(
-    reason
-) {
-
-    overlayBox.innerHTML = `
-
+function showFatalError(reason) {
+  overlayBox.innerHTML = `
         <div class="overlay-title">
-
             MAP ERROR
-
         </div>
-
-
         <div class="overlay-text">
-
             ${reason}
-
         </div>
-
-
         <button onclick="startWholeGame()">
-
             다시 불러오기
-
         </button>
-
     `;
-
-
-    overlay.style.display =
-        "flex";
-
+  overlay.style.display = "flex";
 }
-
 
 // ============================================================
 // Canvas 사각형
 // ============================================================
 
-function rect(
-    x,
-    y,
-    w,
-    h,
-    color
-) {
-
-    ctx.fillStyle =
-        color;
-
-
-    ctx.fillRect(
-
-        Math.round(
-            x
-        ),
-
-        Math.round(
-            y
-        ),
-
-        w,
-
-        h
-
-    );
-
+function rect(x, y, w, h, color) {
+  ctx.fillStyle = color;
+  ctx.fillRect(Math.round(x), Math.round(y), w, h);
 }
-
 
 // ============================================================
 // 오브젝트 이름표
 // ============================================================
 
-function drawLabel(
-    text,
-    centerX,
-    y
-) {
-
-    ctx.save();
-
-
-    ctx.font =
-        '9px "Malgun Gothic", sans-serif';
-
-
-    ctx.textAlign =
-        "center";
-
-
-    ctx.textBaseline =
-        "middle";
-
-
-    const width =
-
-        Math.min(
-
-            ctx.measureText(
-                text
-            ).width
-            +
-            8,
-
-            82
-
-        );
-
-
-    rect(
-
-        centerX
-        -
-        width / 2,
-
-        y - 7,
-
-        width,
-
-        13,
-
-        "rgba(18,34,42,0.82)"
-
-    );
-
-
-    ctx.fillStyle =
-        "#ffffff";
-
-
-    ctx.fillText(
-
-        text,
-
-        centerX,
-
-        y
-
-    );
-
-
-    ctx.restore();
-
+function drawLabel(text, centerX, y) {
+  ctx.save();
+  ctx.font = '9px "Malgun Gothic", sans-serif';
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  const width = Math.min(ctx.measureText(text).width + 8, 82);
+  rect(centerX - width / 2, y - 7, width, 13, "rgba(18,34,42,0.82)");
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText(text, centerX, y);
+  ctx.restore();
 }
-
 
 // ============================================================
 // 바닥
 // ============================================================
 
 function drawFloor() {
-
-    for (
-        let y = 0;
-        y < ROWS;
-        y++
-    ) {
-
-        for (
-            let x = 0;
-            x < COLS;
-            x++
-        ) {
-
-            if (
-                level().map[y][x]
-                !==
-                "#"
-            ) {
-
-                const floorColor =
-
-                    (
-                        x + y
-                    )
-
-                    %
-
-                    2
-
-                    ===
-
-                    0
-
-                    ?
-
-                    level().palette.floor1
-
-                    :
-
-                    level().palette.floor2;
-
-
-                rect(
-
-                    x * TILE,
-
-                    y * TILE,
-
-                    TILE,
-
-                    TILE,
-
-                    floorColor
-
-                );
-
-            }
-
-        }
-
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      if (level().map[y][x] !== "#") {
+        const floorColor =
+          (x + y) % 2 === 0 ? level().palette.floor1 : level().palette.floor2;
+        rect(x * TILE, y * TILE, TILE, TILE, floorColor);
+      }
     }
-
+  }
 }
-
 
 // ============================================================
 // 벽
 // ============================================================
 
 function drawWalls() {
-
-    for (
-        let y = 0;
-        y < ROWS;
-        y++
-    ) {
-
-        for (
-            let x = 0;
-            x < COLS;
-            x++
-        ) {
-
-            if (
-                level().map[y][x]
-                ===
-                "#"
-            ) {
-
-                rect(
-
-                    x * TILE,
-
-                    y * TILE,
-
-                    TILE,
-
-                    TILE,
-
-                    level().palette.wall1
-
-                );
-
-
-                rect(
-
-                    x * TILE + 3,
-
-                    y * TILE + 3,
-
-                    TILE - 6,
-
-                    TILE - 6,
-
-                    level().palette.wall2
-
-                );
-
-
-                rect(
-
-                    x * TILE + 6,
-
-                    y * TILE + 6,
-
-                    TILE - 12,
-
-                    TILE - 12,
-
-                    level().palette.wall3
-
-                );
-
-            }
-
-        }
-
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      if (level().map[y][x] === "#") {
+        rect(x * TILE, y * TILE, TILE, TILE, level().palette.wall1);
+        rect(
+          x * TILE + 3,
+          y * TILE + 3,
+          TILE - 6,
+          TILE - 6,
+          level().palette.wall2,
+        );
+        rect(
+          x * TILE + 6,
+          y * TILE + 6,
+          TILE - 12,
+          TILE - 12,
+          level().palette.wall3,
+        );
+      }
     }
-
+  }
 }
-
 
 // ============================================================
 // 병원 공통 오브젝트
 // ============================================================
 
 function drawFurniture() {
-
-    for (
-        let y = 0;
-        y < ROWS;
-        y++
-    ) {
-
-        for (
-            let x = 0;
-            x < COLS;
-            x++
-        ) {
-
-            const symbol =
-                level().map[y][x];
-
-
-            const px =
-                x * TILE;
-
-
-            const py =
-                y * TILE;
-
-
-            // 창문
-            if (
-                symbol
-                ===
-                "W"
-            ) {
-
-                rect(
-                    px + 3,
-                    py + 2,
-                    26,
-                    19,
-                    "#9fb7c1"
-                );
-
-                rect(
-                    px + 5,
-                    py + 4,
-                    22,
-                    15,
-                    "#153954"
-                );
-
-
-                drawLabel(
-                    "창문",
-                    px + 16,
-                    py + 28
-                );
-
-            }
-
-
-            // 안내 데스크
-            if (
-                symbol
-                ===
-                "T"
-            ) {
-
-                rect(
-                    px + 4,
-                    py + 5,
-                    24,
-                    13,
-                    "#8d674a"
-                );
-
-                rect(
-                    px + 4,
-                    py + 3,
-                    24,
-                    4,
-                    "#bb916b"
-                );
-
-
-                drawLabel(
-                    "안내 데스크",
-                    px + 16,
-                    py + 28
-                );
-
-            }
-
-
-            // 침대
-            if (
-                symbol
-                ===
-                "H"
-            ) {
-
-                rect(
-                    px + 2,
-                    py + 5,
-                    28,
-                    15,
-                    "#d8e6eb"
-                );
-
-                rect(
-                    px + 4,
-                    py + 7,
-                    9,
-                    6,
-                    "#b9d5df"
-                );
-
-
-                drawLabel(
-                    "병원 침대",
-                    px + 16,
-                    py + 28
-                );
-
-            }
-
-
-            // 간호 스테이션
-            if (
-                symbol
-                ===
-                "N"
-            ) {
-
-                rect(
-                    px + 3,
-                    py + 6,
-                    26,
-                    13,
-                    "#e7f0f3"
-                );
-
-                rect(
-                    px + 5,
-                    py + 3,
-                    22,
-                    5,
-                    "#73a8ba"
-                );
-
-
-                drawLabel(
-                    "간호 스테이션",
-                    px + 16,
-                    py + 28
-                );
-
-            }
-
-
-            // 휠체어
-            if (
-                symbol
-                ===
-                "Q"
-            ) {
-
-                rect(
-                    px + 7,
-                    py + 4,
-                    10,
-                    6,
-                    "#66859b"
-                );
-
-                rect(
-                    px + 4,
-                    py + 12,
-                    8,
-                    8,
-                    "#33474f"
-                );
-
-                rect(
-                    px + 17,
-                    py + 12,
-                    8,
-                    8,
-                    "#33474f"
-                );
-
-
-                drawLabel(
-                    "휠체어",
-                    px + 16,
-                    py + 28
-                );
-
-            }
-
-
-            // 자판기
-            if (
-                symbol
-                ===
-                "V"
-            ) {
-
-                rect(
-                    px + 7,
-                    py + 2,
-                    18,
-                    22,
-                    "#bd4755"
-                );
-
-                rect(
-                    px + 9,
-                    py + 5,
-                    14,
-                    8,
-                    "#cfebf4"
-                );
-
-
-                drawLabel(
-                    "자판기",
-                    px + 16,
-                    py + 29
-                );
-
-            }
-
-
-            // 숨는 곳
-            if (
-                symbol
-                ===
-                "h"
-            ) {
-
-                rect(
-                    px + 5,
-                    py + 3,
-                    22,
-                    20,
-                    "#657a86"
-                );
-
-                rect(
-                    px + 8,
-                    py + 5,
-                    16,
-                    17,
-                    "#d2e0e5"
-                );
-
-                rect(
-                    px + 15,
-                    py + 5,
-                    2,
-                    17,
-                    "#8aa0aa"
-                );
-
-
-                drawLabel(
-                    "숨는 곳",
-                    px + 16,
-                    py + 29
-                );
-
-            }
-
-
-            // CCTV
-            if (
-                symbol
-                ===
-                "Z"
-            ) {
-
-                rect(
-                    px + 4,
-                    py + 3,
-                    24,
-                    18,
-                    "#344b53"
-                );
-
-                rect(
-                    px + 7,
-                    py + 6,
-                    18,
-                    10,
-                    "#6bb2d2"
-                );
-
-
-                drawLabel(
-                    "CCTV",
-                    px + 16,
-                    py + 29
-                );
-
-            }
-
-
-            // STAGE 3 대피구역
-            if (
-                symbol
-                ===
-                "Y"
-            ) {
-
-                rect(
-                    px + 2,
-                    py + 3,
-                    28,
-                    18,
-                    "#5ba878"
-                );
-
-                rect(
-                    px + 6,
-                    py + 7,
-                    20,
-                    10,
-                    "#9fe2b8"
-                );
-
-
-                drawLabel(
-                    "대피 구역",
-                    px + 16,
-                    py + 29
-                );
-
-            }
-
-        }
-
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      const symbol = level().map[y][x];
+      const px = x * TILE;
+      const py = y * TILE;
+
+      // 창문
+      if (symbol === "W") {
+        rect(px + 3, py + 2, 26, 19, "#9fb7c1");
+        rect(px + 5, py + 4, 22, 15, "#153954");
+        drawLabel("창문", px + 16, py + 28);
+      }
+
+      // 안내 데스크
+      if (symbol === "T") {
+        rect(px + 4, py + 5, 24, 13, "#8d674a");
+        rect(px + 4, py + 3, 24, 4, "#bb916b");
+        drawLabel("안내 데스크", px + 16, py + 28);
+      }
+
+      // 침대
+      if (symbol === "H") {
+        rect(px + 2, py + 5, 28, 15, "#d8e6eb");
+        rect(px + 4, py + 7, 9, 6, "#b9d5df");
+        drawLabel("병원 침대", px + 16, py + 28);
+      }
+
+      // 간호 스테이션
+      if (symbol === "N") {
+        rect(px + 3, py + 6, 26, 13, "#e7f0f3");
+        rect(px + 5, py + 3, 22, 5, "#73a8ba");
+        drawLabel("간호 스테이션", px + 16, py + 28);
+      }
+
+      // 휠체어
+      if (symbol === "Q") {
+        rect(px + 7, py + 4, 10, 6, "#66859b");
+        rect(px + 4, py + 12, 8, 8, "#33474f");
+        rect(px + 17, py + 12, 8, 8, "#33474f");
+        drawLabel("휠체어", px + 16, py + 28);
+      }
+
+      // 자판기
+      if (symbol === "V") {
+        rect(px + 7, py + 2, 18, 22, "#bd4755");
+        rect(px + 9, py + 5, 14, 8, "#cfebf4");
+        drawLabel("자판기", px + 16, py + 29);
+      }
+
+      // 숨는 곳
+      if (symbol === "h") {
+        rect(px + 5, py + 3, 22, 20, "#657a86");
+        rect(px + 8, py + 5, 16, 17, "#d2e0e5");
+        rect(px + 15, py + 5, 2, 17, "#8aa0aa");
+        drawLabel("숨는 곳", px + 16, py + 29);
+      }
+
+      // CCTV
+      if (symbol === "Z") {
+        rect(px + 4, py + 3, 24, 18, "#344b53");
+        rect(px + 7, py + 6, 18, 10, "#6bb2d2");
+        drawLabel("CCTV", px + 16, py + 29);
+      }
+
+      // STAGE 3 대피구역
+      if (symbol === "Y") {
+        rect(px + 2, py + 3, 28, 18, "#5ba878");
+        rect(px + 6, py + 7, 20, 10, "#9fe2b8");
+        drawLabel("대피 구역", px + 16, py + 29);
+      }
     }
-
+  }
 }
-
 
 // ============================================================
 // 출구
 // ============================================================
 
-function drawExitDoor(
-    px,
-    py,
-    label,
-    open
-) {
+function drawExitDoor(px, py, label, open) {
+  rect(px + 2, py + 1, 28, 23, "#6e858e");
+  rect(px + 5, py + 3, 10, 20, "#a4b9c0");
+  rect(px + 17, py + 3, 10, 20, "#a4b9c0");
 
-    rect(
-        px + 2,
-        py + 1,
-        28,
-        23,
-        "#6e858e"
-    );
-
-
-    rect(
-        px + 5,
-        py + 3,
-        10,
-        20,
-        "#a4b9c0"
-    );
-
-
-    rect(
-        px + 17,
-        py + 3,
-        10,
-        20,
-        "#a4b9c0"
-    );
-
-
-    // 초록 = 사용 가능 / 빨강 = 잠김
-    rect(
-        px + 10,
-        py + 5,
-        12,
-        3,
-
-        open
-        ?
-        "#6fe484"
-        :
-        "#d45f68"
-    );
-
-
-    drawLabel(
-        label,
-        px + 16,
-        py + 29
-    );
-
+  // 초록 = 사용 가능 / 빨강 = 잠김
+  rect(px + 10, py + 5, 12, 3, open ? "#6fe484" : "#d45f68");
+  drawLabel(label, px + 16, py + 29);
 }
-
 
 // ============================================================
 // 스테이지 특수 오브젝트
 // ============================================================
 
 function drawStageObjects() {
-
-    for (
-        let y = 0;
-        y < ROWS;
-        y++
-    ) {
-
-        for (
-            let x = 0;
-            x < COLS;
-            x++
-        ) {
-
-            const symbol =
-                level().map[y][x];
-
-
-            const px =
-                x * TILE;
-
-
-            const py =
-                y * TILE;
-
-
-            // =================================================
-            // STAGE 1
-            // =================================================
-
-            if (
-                level().type
-                ===
-                "collect"
-            ) {
-
-                // 카드
-                if (
-                    symbol
-                    ===
-                    "K"
-                    &&
-                    !state.hasKeycard
-                ) {
-
-                    rect(
-                        px + 6,
-                        py + 5,
-                        20,
-                        11,
-                        "#438bed"
-                    );
-
-
-                    rect(
-                        px + 9,
-                        py + 8,
-                        5,
-                        4,
-                        "#e4f4ff"
-                    );
-
-
-                    drawLabel(
-                        "출입카드",
-                        px + 16,
-                        py + 25
-                    );
-
-                }
-
-
-                // 퓨즈
-                if (
-                    symbol
-                    ===
-                    "F"
-                    &&
-                    !state.hasFuse
-                ) {
-
-                    rect(
-                        px + 9,
-                        py + 3,
-                        14,
-                        17,
-                        "#e5c44e"
-                    );
-
-
-                    drawLabel(
-                        "퓨즈",
-                        px + 16,
-                        py + 27
-                    );
-
-                }
-
-
-                // 배터리
-                if (
-                    symbol
-                    ===
-                    "B"
-                    &&
-                    !state.hasBattery
-                ) {
-
-                    rect(
-                        px + 9,
-                        py + 3,
-                        14,
-                        18,
-                        "#46a760"
-                    );
-
-
-                    drawLabel(
-                        "비상 배터리",
-                        px + 16,
-                        py + 28
-                    );
-
-                }
-
-
-                // 발전기
-                if (
-                    symbol
-                    ===
-                    "P"
-                ) {
-
-                    rect(
-                        px + 3,
-                        py + 4,
-                        26,
-                        18,
-                        "#485d66"
-                    );
-
-
-                    rect(
-                        px + 8,
-                        py + 8,
-                        16,
-                        8,
-                        "#273940"
-                    );
-
-
-                    drawLabel(
-                        "발전기",
-                        px + 16,
-                        py + 29
-                    );
-
-                }
-
-
-                // 마스터 키
-                if (
-                    symbol
-                    ===
-                    "M"
-                    &&
-                    !state.hasMasterKey
-                ) {
-
-                    rect(
-                        px + 7,
-                        py + 7,
-                        18,
-                        6,
-                        "#f0c13b"
-                    );
-
-
-                    drawLabel(
-                        "마스터 키",
-                        px + 16,
-                        py + 25
-                    );
-
-                }
-
-
-                // 카드 보안문
-                if (
-                    symbol
-                    ===
-                    "C"
-                ) {
-
-                    rect(
-                        px + 5,
-                        py + 1,
-                        22,
-                        23,
-
-                        state.hasKeycard
-
-                        ?
-
-                        "#74aa89"
-
-                        :
-
-                        "#517fb5"
-                    );
-
-
-                    drawLabel(
-                        "보안문",
-                        px + 16,
-                        py + 29
-                    );
-
-                }
-
-
-                // 전원문
-                if (
-                    symbol
-                    ===
-                    "D"
-                ) {
-
-                    rect(
-                        px + 5,
-                        py + 1,
-                        22,
-                        23,
-
-                        state.powerOn
-
-                        ?
-
-                        "#74aa89"
-
-                        :
-
-                        "#806044"
-                    );
-
-
-                    drawLabel(
-                        "전원문",
-                        px + 16,
-                        py + 29
-                    );
-
-                }
-
-
-                // 엘리베이터
-                if (
-                    symbol
-                    ===
-                    "E"
-                ) {
-
-                    drawExitDoor(
-
-                        px,
-
-                        py,
-
-                        "엘리베이터",
-
-                        state.hasMasterKey
-                        &&
-                        state.powerOn
-
-                    );
-
-                }
-
-            }
-
-
-            // =================================================
-            // STAGE 2
-            // =================================================
-
-            if (
-                level().type
-                ===
-                "switch"
-            ) {
-
-                // 단말기
-                if (
-                    [
-                        "A",
-                        "B",
-                        "C"
-                    ].includes(
-                        symbol
-                    )
-                ) {
-
-                    rect(
-                        px + 6,
-                        py + 3,
-                        20,
-                        20,
-                        "#344b53"
-                    );
-
-
-                    rect(
-                        px + 9,
-                        py + 6,
-                        14,
-                        9,
-                        "#6bb2d2"
-                    );
-
-
-                    drawLabel(
-
-                        "단말기 "
-                        +
-                        symbol,
-
-                        px + 16,
-
-                        py + 29
-
-                    );
-
-                }
-
-
-                // 연구 메모
-                if (
-                    symbol
-                    ===
-                    "L"
-                ) {
-
-                    rect(
-                        px + 8,
-                        py + 4,
-                        16,
-                        19,
-                        "#efe2b6"
-                    );
-
-
-                    drawLabel(
-                        "연구 메모",
-                        px + 16,
-                        py + 29
-                    );
-
-                }
-
-
-                // 제독실 출구
-                if (
-                    symbol
-                    ===
-                    "X"
-                ) {
-
-                    drawExitDoor(
-
-                        px,
-
-                        py,
-
-                        "제독실 출구",
-
-                        state.switchProgress
-                        ===
-                        3
-
-                    );
-
-                }
-
-            }
-
-
-            // =================================================
-            // STAGE 3
-            // =================================================
-
-            if (
-                level().type
-                ===
-                "rescue"
-                &&
-                symbol
-                ===
-                "R"
-            ) {
-
-                drawExitDoor(
-
-                    px,
-
-                    py,
-
-                    "옥상 출구",
-
-                    rescueCount()
-                    ===
-                    3
-
-                );
-
-            }
-
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      const symbol = level().map[y][x];
+      const px = x * TILE;
+      const py = y * TILE;
+
+      // =================================================
+      // STAGE 1
+      // =================================================
+
+      if (level().type === "collect") {
+        // 카드
+        if (symbol === "K" && !state.hasKeycard) {
+          rect(px + 6, py + 5, 20, 11, "#438bed");
+          rect(px + 9, py + 8, 5, 4, "#e4f4ff");
+          drawLabel("출입카드", px + 16, py + 25);
         }
 
+        // 퓨즈
+        if (symbol === "F" && !state.hasFuse) {
+          rect(px + 9, py + 3, 14, 17, "#e5c44e");
+          drawLabel("퓨즈", px + 16, py + 27);
+        }
+
+        // 배터리
+        if (symbol === "B" && !state.hasBattery) {
+          rect(px + 9, py + 3, 14, 18, "#46a760");
+          drawLabel("비상 배터리", px + 16, py + 28);
+        }
+
+        // 발전기
+        if (symbol === "P") {
+          rect(px + 3, py + 4, 26, 18, "#485d66");
+          rect(px + 8, py + 8, 16, 8, "#273940");
+          drawLabel("발전기", px + 16, py + 29);
+        }
+
+        // 마스터 키
+        if (symbol === "M" && !state.hasMasterKey) {
+          rect(px + 7, py + 7, 18, 6, "#f0c13b");
+          drawLabel("마스터 키", px + 16, py + 25);
+        }
+
+        // 카드 보안문
+        if (symbol === "C") {
+          rect(
+            px + 5,
+            py + 1,
+            22,
+            23,
+            state.hasKeycard ? "#74aa89" : "#517fb5",
+          );
+          drawLabel("보안문", px + 16, py + 29);
+        }
+
+        // 전원문
+        if (symbol === "D") {
+          rect(px + 5, py + 1, 22, 23, state.powerOn ? "#74aa89" : "#806044");
+          drawLabel("전원문", px + 16, py + 29);
+        }
+
+        // 엘리베이터
+        if (symbol === "E") {
+          drawExitDoor(
+            px,
+            py,
+            "엘리베이터",
+            state.hasMasterKey && state.powerOn,
+          );
+        }
+      }
+
+      // =================================================
+      // STAGE 2
+      // =================================================
+
+      if (level().type === "switch") {
+        // 단말기
+        if (["A", "B", "C"].includes(symbol)) {
+          rect(px + 6, py + 3, 20, 20, "#344b53");
+          rect(px + 9, py + 6, 14, 9, "#6bb2d2");
+          drawLabel("단말기 " + symbol, px + 16, py + 29);
+        }
+
+        // 연구 메모
+        if (symbol === "L") {
+          rect(px + 8, py + 4, 16, 19, "#efe2b6");
+          drawLabel("연구 메모", px + 16, py + 29);
+        }
+
+        // 제독실 출구
+        if (symbol === "X") {
+          drawExitDoor(px, py, "제독실 출구", state.switchProgress === 3);
+        }
+      }
+
+      // =================================================
+      // STAGE 3
+      // =================================================
+
+      if (level().type === "rescue" && symbol === "R") {
+        drawExitDoor(px, py, "옥상 출구", rescueCount() === 3);
+      }
     }
-
+  }
 }
-
 
 // ============================================================
 // 환자
 // ============================================================
 
 function drawPatients() {
-
-    if (
-        level().type
-        !==
-        "rescue"
-    ) {
-
-        return;
-
+  if (level().type !== "rescue") {
+    return;
+  }
+  for (const patient of state.patients) {
+    // 이미 구조되거나 따라오면 원래 자리에서는 숨김
+    if (patient.rescued || patient.following) {
+      continue;
     }
+    const px = patient.x * TILE;
+    const py = patient.y * TILE;
+    const colors = ["#77b8e8", "#83c985", "#e5a26c"];
 
+    // 머리
+    rect(px + 11, py + 3, 10, 5, "#544038");
 
-    for (
-        const patient
-        of
-        state.patients
-    ) {
+    // 얼굴
+    rect(px + 12, py + 7, 8, 7, "#efc3a5");
 
-        // 이미 구조되거나 따라오면 원래 자리에서는 숨김
-        if (
-            patient.rescued
-            ||
-            patient.following
-        ) {
-
-            continue;
-
-        }
-
-
-        const px =
-            patient.x * TILE;
-
-
-        const py =
-            patient.y * TILE;
-
-
-        const colors = [
-
-            "#77b8e8",
-
-            "#83c985",
-
-            "#e5a26c"
-
-        ];
-
-
-        // 머리
-        rect(
-            px + 11,
-            py + 3,
-            10,
-            5,
-            "#544038"
-        );
-
-
-        // 얼굴
-        rect(
-            px + 12,
-            py + 7,
-            8,
-            7,
-            "#efc3a5"
-        );
-
-
-        // 환자복
-        rect(
-            px + 9,
-            py + 14,
-            14,
-            9,
-
-            colors[
-                patient.id
-                -
-                1
-            ]
-
-        );
-
-
-        drawLabel(
-
-            "환자 "
-            +
-            patient.id,
-
-            px + 16,
-
-            py + 29
-
-        );
-
-    }
-
+    // 환자복
+    rect(px + 9, py + 14, 14, 9, colors[patient.id - 1]);
+    drawLabel("환자 " + patient.id, px + 16, py + 29);
+  }
 }
-
 
 // ============================================================
 // 호송 중인 환자
 // ============================================================
 
 function drawEscortPatient() {
+  if (state.escortPatientId === null) {
+    return;
+  }
+  const patient = state.patients.find(
+    (item) => item.id === state.escortPatientId,
+  );
 
-    if (
-        state.escortPatientId
-        ===
-        null
-    ) {
-
-        return;
-
-    }
-
-
-    const patient =
-
-        state.patients.find(
-
-            item =>
-                item.id
-                ===
-                state.escortPatientId
-
-        );
-
-
-    // 플레이어 뒤쪽에 표시
-    const x =
-        player.x
-        -
-        22;
-
-
-    const y =
-        player.y
-        +
-        9;
-
-
-    rect(
-        x + 7,
-        y,
-        10,
-        5,
-        "#544038"
-    );
-
-
-    rect(
-        x + 8,
-        y + 5,
-        8,
-        7,
-        "#efc3a5"
-    );
-
-
-    rect(
-        x + 5,
-        y + 12,
-        14,
-        9,
-        "#88b9d5"
-    );
-
-
-    ctx.fillStyle =
-        "#ffffff";
-
-
-    ctx.font =
-        '9px "Malgun Gothic"';
-
-
-    ctx.fillText(
-
-        "환자 "
-        +
-        patient.id,
-
-        x,
-
-        y + 30
-
-    );
-
+  // 플레이어 뒤쪽에 표시
+  const x = player.x - 22;
+  const y = player.y + 9;
+  rect(x + 7, y, 10, 5, "#544038");
+  rect(x + 8, y + 5, 8, 7, "#efc3a5");
+  rect(x + 5, y + 12, 14, 9, "#88b9d5");
+  ctx.fillStyle = "#ffffff";
+  ctx.font = '9px "Malgun Gothic"';
+  ctx.fillText("환자 " + patient.id, x, y + 30);
 }
-
 
 // ============================================================
 // 야간 기록
 // ============================================================
 
 function drawRecords() {
-
-    for (
-        const record
-        of
-        state.records
-    ) {
-
-        if (
-            record.collected
-        ) {
-
-            continue;
-
-        }
-
-
-        const px =
-            record.x
-            *
-            TILE;
-
-
-        const py =
-            record.y
-            *
-            TILE;
-
-
-        rect(
-            px + 9,
-            py + 4,
-            14,
-            17,
-            "#f4e7b8"
-        );
-
-
-        rect(
-            px + 12,
-            py + 8,
-            8,
-            2,
-            "#8e805f"
-        );
-
-
-        drawLabel(
-            "야간 기록",
-            px + 16,
-            py + 29
-        );
-
+  for (const record of state.records) {
+    if (record.collected) {
+      continue;
     }
-
+    const px = record.x * TILE;
+    const py = record.y * TILE;
+    rect(px + 9, py + 4, 14, 17, "#f4e7b8");
+    rect(px + 12, py + 8, 8, 2, "#8e805f");
+    drawLabel("야간 기록", px + 16, py + 29);
+  }
 }
-
 
 // ============================================================
 // 플레이어 그리기
 // ============================================================
 
 function drawPlayer() {
+  const x = Math.round(player.x);
+  const y = Math.round(player.y);
 
-    const x =
-        Math.round(
-            player.x
-        );
+  // 숨는 중이면 반투명
+  if (state.hidden) {
+    ctx.globalAlpha = 0.35;
+  }
 
+  // 바닥 그림자
+  rect(x + 5, y + 34, 20, 4, "rgba(0,0,0,0.20)");
 
-    const y =
-        Math.round(
-            player.y
-        );
+  // 검은 외곽선
+  rect(x + 6, y, 18, 5, "#253038");
+  rect(x + 4, y + 4, 22, 12, "#253038");
+  rect(x + 6, y + 16, 18, 17, "#253038");
 
+  // 머리
+  rect(x + 7, y + 1, 16, 5, "#684334");
+  rect(x + 5, y + 5, 20, 5, "#79513e");
 
-    // 숨는 중이면 반투명
-    if (
-        state.hidden
-    ) {
+  // 얼굴
+  rect(x + 9, y + 8, 12, 9, "#f3c4a3");
 
-        ctx.globalAlpha =
-            0.35;
+  // 눈
+  if (player.facing === "down") {
+    rect(x + 11, y + 11, 2, 2, "#1e2528");
+    rect(x + 17, y + 11, 2, 2, "#1e2528");
+  }
 
-    }
+  // 의료복
+  rect(x + 11, y + 19, 9, 11, "#4ca8bb");
 
+  // 흰 의사가운
+  rect(x + 6, y + 19, 6, 14, "#ffffff");
+  rect(x + 19, y + 19, 6, 14, "#ffffff");
 
-    // 바닥 그림자
-    rect(
-        x + 5,
-        y + 34,
-        20,
-        4,
-        "rgba(0,0,0,0.20)"
-    );
+  // 바지
+  rect(x + 9, y + 31, 6, 5, "#344f76");
+  rect(x + 17, y + 31, 6, 5, "#344f76");
 
-
-    // 검은 외곽선
-    rect(
-        x + 6,
-        y,
-        18,
-        5,
-        "#253038"
-    );
-
-    rect(
-        x + 4,
-        y + 4,
-        22,
-        12,
-        "#253038"
-    );
-
-    rect(
-        x + 6,
-        y + 16,
-        18,
-        17,
-        "#253038"
-    );
-
-
-    // 머리
-    rect(
-        x + 7,
-        y + 1,
-        16,
-        5,
-        "#684334"
-    );
-
-    rect(
-        x + 5,
-        y + 5,
-        20,
-        5,
-        "#79513e"
-    );
-
-
-    // 얼굴
-    rect(
-        x + 9,
-        y + 8,
-        12,
-        9,
-        "#f3c4a3"
-    );
-
-
-    // 눈
-    if (
-        player.facing
-        ===
-        "down"
-    ) {
-
-        rect(
-            x + 11,
-            y + 11,
-            2,
-            2,
-            "#1e2528"
-        );
-
-        rect(
-            x + 17,
-            y + 11,
-            2,
-            2,
-            "#1e2528"
-        );
-
-    }
-
-
-    // 의료복
-    rect(
-        x + 11,
-        y + 19,
-        9,
-        11,
-        "#4ca8bb"
-    );
-
-
-    // 흰 의사가운
-    rect(
-        x + 6,
-        y + 19,
-        6,
-        14,
-        "#ffffff"
-    );
-
-    rect(
-        x + 19,
-        y + 19,
-        6,
-        14,
-        "#ffffff"
-    );
-
-
-    // 바지
-    rect(
-        x + 9,
-        y + 31,
-        6,
-        5,
-        "#344f76"
-    );
-
-    rect(
-        x + 17,
-        y + 31,
-        6,
-        5,
-        "#344f76"
-    );
-
-
-    // 신발
-    rect(
-        x + 8,
-        y + 35,
-        7,
-        3,
-        "#202b32"
-    );
-
-    rect(
-        x + 17,
-        y + 35,
-        7,
-        3,
-        "#202b32"
-    );
-
-
-    ctx.globalAlpha =
-        1;
-
+  // 신발
+  rect(x + 8, y + 35, 7, 3, "#202b32");
+  rect(x + 17, y + 35, 7, 3, "#202b32");
+  ctx.globalAlpha = 1;
 }
-
 
 // ============================================================
 // 그림자 그리기
 // ============================================================
 
-function drawGhost(
-    ghost
-) {
+function drawGhost(ghost) {
+  const x = Math.round(ghost.x);
+  const y = Math.round(ghost.y);
+  rect(x + 2, y + 2, 16, 13, ghost.color);
+  rect(x + 4, y + 14, 4, 6, ghost.color);
+  rect(x + 9, y + 14, 4, 6, ghost.color);
+  rect(x + 14, y + 14, 4, 6, ghost.color);
 
-    const x =
-        Math.round(
-            ghost.x
-        );
-
-
-    const y =
-        Math.round(
-            ghost.y
-        );
-
-
-    rect(
-        x + 2,
-        y + 2,
-        16,
-        13,
-        ghost.color
-    );
-
-
-    rect(
-        x + 4,
-        y + 14,
-        4,
-        6,
-        ghost.color
-    );
-
-
-    rect(
-        x + 9,
-        y + 14,
-        4,
-        6,
-        ghost.color
-    );
-
-
-    rect(
-        x + 14,
-        y + 14,
-        4,
-        6,
-        ghost.color
-    );
-
-
-    // 눈
-    rect(
-        x + 5,
-        y + 6,
-        2,
-        2,
-        "#ffffff"
-    );
-
-
-    rect(
-        x + 12,
-        y + 6,
-        2,
-        2,
-        "#ffffff"
-    );
-
+  // 눈
+  rect(x + 5, y + 6, 2, 2, "#ffffff");
+  rect(x + 12, y + 6, 2, 2, "#ffffff");
 }
-
 
 // ============================================================
 // 어둠 및 경고 효과
 // ============================================================
 
 function drawDarkness() {
+  let alpha = currentLevelIndex === 0 ? (state.powerOn ? 0.05 : 0.23) : 0.12;
 
-    let alpha =
+  // 추가 정전
+  if (state.event.blackout > 0) {
+    alpha = 0.55;
+  }
+  ctx.fillStyle = "rgba(5,18,28," + alpha + ")";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        currentLevelIndex
-        ===
-        0
-
-        ?
-
-        (
-            state.powerOn
-
-            ?
-
-            0.05
-
-            :
-
-            0.23
-        )
-
-        :
-
-        0.12;
-
-
-    // 추가 정전
-    if (
-        state.event.blackout > 0
-    ) {
-
-        alpha =
-            0.55;
-
-    }
-
-
-    ctx.fillStyle =
-
-        "rgba(5,18,28,"
-        +
-        alpha
-        +
-        ")";
-
-
-    ctx.fillRect(
-
-        0,
-
-        0,
-
-        canvas.width,
-
-        canvas.height
-
-    );
-
-
-    // 경고등
-    if (
-        state.event.alarm > 0
-        &&
-        Math.floor(
-            state.event.alarm * 6
-        )
-        %
-        2
-        ===
-        0
-    ) {
-
-        ctx.fillStyle =
-            "rgba(210,40,55,0.14)";
-
-
-        ctx.fillRect(
-
-            0,
-
-            0,
-
-            canvas.width,
-
-            canvas.height
-
-        );
-
-    }
-
+  // 경고등
+  if (state.event.alarm > 0 && Math.floor(state.event.alarm * 6) % 2 === 0) {
+    ctx.fillStyle = "rgba(210,40,55,0.14)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
 }
-
 
 // ============================================================
 // 미니게임 화면
 // ============================================================
 
 function drawMiniGame() {
+  if (!state.miniGame) {
+    return;
+  }
+  const game = state.miniGame;
+  rect(245, 220, 566, 190, "rgba(17,31,38,0.96)");
+  ctx.fillStyle = "#ffffff";
+  ctx.textAlign = "center";
+  ctx.font = 'bold 18px "Malgun Gothic"';
 
-    if (
-        !state.miniGame
-    ) {
+  // 발전기
+  if (game.type === "generator") {
+    ctx.fillText("발전기 수리", 528, 255);
+    ctx.font = '13px "Malgun Gothic"';
+    ctx.fillText("노란 표시가 초록 구간에 들어왔을 때 Space", 528, 285);
+    drawTimingBar(game.pos, 330);
+  }
 
-        return;
-
-    }
-
-
-    const game =
-        state.miniGame;
-
-
-    rect(
-        245,
-        220,
-        566,
-        190,
-        "rgba(17,31,38,0.96)"
+  // 환자 1
+  if (game.type === "patientTiming") {
+    ctx.fillText("환자 1 상태 안정화", 528, 250);
+    ctx.font = '13px "Malgun Gothic"';
+    ctx.fillText(
+      "초록 구간에 맞춰 Space · 성공 " + game.success + "/2",
+      528,
+      280,
     );
+    drawTimingBar(game.pos, 330);
+  }
 
-
-    ctx.fillStyle =
-        "#ffffff";
-
-
-    ctx.textAlign =
-        "center";
-
-
-    ctx.font =
-        'bold 18px "Malgun Gothic"';
-
-
-    // 발전기
-    if (
-        game.type
-        ===
-        "generator"
-    ) {
-
-        ctx.fillText(
-            "발전기 수리",
-            528,
-            255
-        );
-
-
-        ctx.font =
-            '13px "Malgun Gothic"';
-
-
-        ctx.fillText(
-            "노란 표시가 초록 구간에 들어왔을 때 Space",
-            528,
-            285
-        );
-
-
-        drawTimingBar(
-            game.pos,
-            330
-        );
-
+  // 환자 2
+  if (game.type === "patientDirection") {
+    ctx.fillText("환자 2 · 방향 기억", 528, 250);
+    ctx.font = '30px "Malgun Gothic"';
+    if (game.reveal > 0) {
+      ctx.fillText(game.sequence.map(directionSymbol).join("   "), 528, 325);
+    } else {
+      ctx.fillText("입력 " + game.inputIndex + "/5", 528, 325);
     }
+  }
 
-
-    // 환자 1
-    if (
-        game.type
-        ===
-        "patientTiming"
-    ) {
-
-        ctx.fillText(
-            "환자 1 상태 안정화",
-            528,
-            250
-        );
-
-
-        ctx.font =
-            '13px "Malgun Gothic"';
-
-
-        ctx.fillText(
-
-            "초록 구간에 맞춰 Space · 성공 "
-            +
-            game.success
-            +
-            "/2",
-
-            528,
-
-            280
-
-        );
-
-
-        drawTimingBar(
-            game.pos,
-            330
-        );
-
+  // 환자 3
+  if (game.type === "patientMemory") {
+    ctx.fillText("환자 3 · 숫자 기억", 528, 250);
+    ctx.font = "32px monospace";
+    if (game.reveal > 0) {
+      ctx.fillText(game.sequence.join("   "), 528, 325);
+    } else {
+      ctx.fillText("입력 " + game.inputIndex + "/5", 528, 325);
+      ctx.font = '13px "Malgun Gothic"';
+      ctx.fillText("키보드 숫자 1~4 사용", 528, 360);
     }
-
-
-    // 환자 2
-    if (
-        game.type
-        ===
-        "patientDirection"
-    ) {
-
-        ctx.fillText(
-            "환자 2 · 방향 기억",
-            528,
-            250
-        );
-
-
-        ctx.font =
-            '30px "Malgun Gothic"';
-
-
-        if (
-            game.reveal > 0
-        ) {
-
-            ctx.fillText(
-
-                game.sequence
-                .map(
-                    directionSymbol
-                )
-                .join(
-                    "   "
-                ),
-
-                528,
-
-                325
-
-            );
-
-        }
-
-        else {
-
-            ctx.fillText(
-
-                "입력 "
-                +
-                game.inputIndex
-                +
-                "/5",
-
-                528,
-
-                325
-
-            );
-
-        }
-
-    }
-
-
-    // 환자 3
-    if (
-        game.type
-        ===
-        "patientMemory"
-    ) {
-
-        ctx.fillText(
-            "환자 3 · 숫자 기억",
-            528,
-            250
-        );
-
-
-        ctx.font =
-            '32px monospace';
-
-
-        if (
-            game.reveal > 0
-        ) {
-
-            ctx.fillText(
-
-                game.sequence.join(
-                    "   "
-                ),
-
-                528,
-
-                325
-
-            );
-
-        }
-
-        else {
-
-            ctx.fillText(
-
-                "입력 "
-                +
-                game.inputIndex
-                +
-                "/5",
-
-                528,
-
-                325
-
-            );
-
-
-            ctx.font =
-                '13px "Malgun Gothic"';
-
-
-            ctx.fillText(
-                "키보드 숫자 1~4 사용",
-                528,
-                360
-            );
-
-        }
-
-    }
-
-
-    ctx.textAlign =
-        "left";
-
+  }
+  ctx.textAlign = "left";
 }
-
 
 // ============================================================
 // 타이밍 바
 // ============================================================
 
-function drawTimingBar(
-    position,
-    y
-) {
+function drawTimingBar(position, y) {
+  // 전체 바
+  rect(330, y, 396, 20, "#233740");
 
-    // 전체 바
-    rect(
-        330,
-        y,
-        396,
-        20,
-        "#233740"
-    );
+  // 성공 영역
+  rect(330 + 396 * 0.4, y, 396 * 0.2, 20, "#52d981");
 
-
-    // 성공 영역
-    rect(
-
-        330
-        +
-        396
-        *
-        0.40,
-
-        y,
-
-        396
-        *
-        0.20,
-
-        20,
-
-        "#52d981"
-
-    );
-
-
-    // 노란 포인터
-    const pointer =
-
-        330
-
-        +
-
-        396
-        *
-        position;
-
-
-    rect(
-        pointer - 4,
-        y - 6,
-        8,
-        32,
-        "#ffe067"
-    );
-
+  // 노란 포인터
+  const pointer = 330 + 396 * position;
+  rect(pointer - 4, y - 6, 8, 32, "#ffe067");
 }
-
 
 // ============================================================
 // 방향키 이름 → 화살표
 // ============================================================
 
-function directionSymbol(
-    key
-) {
-
-    const map = {
-
-        ArrowUp:
-            "↑",
-
-        ArrowDown:
-            "↓",
-
-        ArrowLeft:
-            "←",
-
-        ArrowRight:
-            "→"
-
-    };
-
-
-    return map[key];
-
+function directionSymbol(key) {
+  const map = {
+    ArrowUp: "↑",
+    ArrowDown: "↓",
+    ArrowLeft: "←",
+    ArrowRight: "→",
+  };
+  return map[key];
 }
-
 
 // ============================================================
 // HUD
 // ============================================================
 
 function drawHud() {
+  rect(0, 0, canvas.width, 26, "rgba(18,42,52,0.90)");
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "12px monospace";
+  const minutes = Math.floor(state.time / 60);
+  const seconds = Math.floor(state.time % 60)
+    .toString()
+    .padStart(2, "0");
+  ctx.fillText("STAGE " + (currentLevelIndex + 1) + "/3", 10, 17);
+  ctx.fillText("TIME " + minutes + ":" + seconds, 125, 17);
+  ctx.fillText("HP " + "♥".repeat(Math.max(0, state.hearts)), 250, 17);
+  ctx.fillText("STA " + Math.round(state.stamina), 370, 17);
 
-    rect(
-        0,
-        0,
-        canvas.width,
-        26,
-        "rgba(18,42,52,0.90)"
-    );
+  // 추격 상태
+  if (state.chaseTimer > 0) {
+    ctx.fillText("CHASE " + Math.ceil(state.chaseTimer) + "s", 470, 17);
+  }
 
-
-    ctx.fillStyle =
-        "#ffffff";
-
-
-    ctx.font =
-        "12px monospace";
-
-
-    const minutes =
-        Math.floor(
-            state.time
-            /
-            60
-        );
-
-
-    const seconds =
-        Math.floor(
-            state.time
-            %
-            60
-        )
-        .toString()
-        .padStart(
-            2,
-            "0"
-        );
-
-
-    ctx.fillText(
-
-        "STAGE "
-        +
-        (
-            currentLevelIndex
-            +
-            1
-        )
-        +
-        "/3",
-
-        10,
-
-        17
-
-    );
-
-
-    ctx.fillText(
-
-        "TIME "
-        +
-        minutes
-        +
-        ":"
-        +
-        seconds,
-
-        125,
-
-        17
-
-    );
-
-
-    ctx.fillText(
-
-        "HP "
-        +
-        "♥".repeat(
-            Math.max(
-                0,
-                state.hearts
-            )
-        ),
-
-        250,
-
-        17
-
-    );
-
-
-    ctx.fillText(
-
-        "STA "
-        +
-        Math.round(
-            state.stamina
-        ),
-
-        370,
-
-        17
-
-    );
-
-
-    // 추격 상태
-    if (
-        state.chaseTimer > 0
-    ) {
-
-        ctx.fillText(
-
-            "CHASE "
-            +
-            Math.ceil(
-                state.chaseTimer
-            )
-            +
-            "s",
-
-            470,
-
-            17
-
-        );
-
-    }
-
-
-    // 숨는 상태
-    if (
-        state.hidden
-    ) {
-
-        ctx.fillText(
-            "HIDDEN",
-            600,
-            17
-        );
-
-    }
-
+  // 숨는 상태
+  if (state.hidden) {
+    ctx.fillText("HIDDEN", 600, 17);
+  }
 }
-
 
 // ============================================================
 // 전체 렌더링
 // ============================================================
 
 function render() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawFloor();
+  drawWalls();
+  drawFurniture();
+  drawStageObjects();
+  drawRecords();
+  drawPatients();
 
-    ctx.clearRect(
-
-        0,
-
-        0,
-
-        canvas.width,
-
-        canvas.height
-
-    );
-
-
-    drawFloor();
-
-    drawWalls();
-
-    drawFurniture();
-
-    drawStageObjects();
-
-    drawRecords();
-
-    drawPatients();
-
-
-    // 어둠을 캐릭터보다 먼저 그려 캐릭터 가시성 유지
-    drawDarkness();
-
-
-    ghosts.forEach(
-        drawGhost
-    );
-
-
-    drawEscortPatient();
-
-    drawPlayer();
-
-    drawMiniGame();
-
-    drawHud();
-
+  // 어둠을 캐릭터보다 먼저 그려 캐릭터 가시성 유지
+  drawDarkness();
+  ghosts.forEach(drawGhost);
+  drawEscortPatient();
+  drawPlayer();
+  drawMiniGame();
+  drawHud();
 }
-
 
 // ============================================================
 // 게임 루프
 // ============================================================
 
-function gameLoop(
-    now
-) {
+function gameLoop(now) {
+  const dt = Math.min((now - lastTime) / 1000, 0.05);
+  lastTime = now;
 
-    const dt =
-
-        Math.min(
-
-            (
-                now
-                -
-                lastTime
-            )
-            /
-            1000,
-
-            0.05
-
-        );
-
-
-    lastTime =
-        now;
-
-
-    // 프롤로그가 끝난 뒤에만 실제 게임 실행
-    if (
-        state
-        &&
-        tutorialFinished
-    ) {
-
-        update(
-            dt
-        );
-
-
-        render();
-
-    }
-
-
-    requestAnimationFrame(
-        gameLoop
-    );
-
+  // 프롤로그가 끝난 뒤에만 실제 게임 실행
+  if (state && tutorialFinished) {
+    update(dt);
+    render();
+  }
+  requestAnimationFrame(gameLoop);
 }
-
 
 // ============================================================
 // 키보드 입력
 // ============================================================
 
-function handleKeyDown(
-    event
-) {
+function handleKeyDown(event) {
+  // 프롤로그 중에는 게임 키 입력을 막는다.
+  if (!tutorialFinished) {
+    return;
+  }
+  const key = event.key;
 
-    // 프롤로그 중에는 게임 키 입력을 막는다.
+  // ========================================================
+  // 환자 2 방향키 미니게임
+  // ========================================================
+
+  if (state && state.miniGame) {
+    const game = state.miniGame;
     if (
-        !tutorialFinished
+      game.type === "patientDirection" &&
+      game.reveal <= 0 &&
+      ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(key)
     ) {
-
-        return;
-
+      event.preventDefault();
+      handleDirectionInput(key);
+      return;
     }
 
-
-    const key =
-        event.key;
-
-
-    // ========================================================
-    // 환자 2 방향키 미니게임
-    // ========================================================
+    // ====================================================
+    // 환자 3 숫자 기억
+    // ====================================================
 
     if (
-        state
-        &&
-        state.miniGame
+      game.type === "patientMemory" &&
+      game.reveal <= 0 &&
+      ["1", "2", "3", "4"].includes(key)
     ) {
-
-        const game =
-            state.miniGame;
-
-
-        if (
-            game.type
-            ===
-            "patientDirection"
-            &&
-            game.reveal <= 0
-            &&
-            [
-                "ArrowUp",
-                "ArrowDown",
-                "ArrowLeft",
-                "ArrowRight"
-            ].includes(
-                key
-            )
-        ) {
-
-            event.preventDefault();
-
-
-            handleDirectionInput(
-                key
-            );
-
-
-            return;
-
-        }
-
-
-        // ====================================================
-        // 환자 3 숫자 기억
-        // ====================================================
-
-        if (
-            game.type
-            ===
-            "patientMemory"
-            &&
-            game.reveal <= 0
-            &&
-            [
-                "1",
-                "2",
-                "3",
-                "4"
-            ].includes(
-                key
-            )
-        ) {
-
-            event.preventDefault();
-
-
-            handleMemoryInput(
-                key
-            );
-
-
-            return;
-
-        }
-
+      event.preventDefault();
+      handleMemoryInput(key);
+      return;
     }
+  }
+  const gameKeys = [
+    "ArrowLeft",
+    "ArrowRight",
+    "ArrowUp",
+    "ArrowDown",
+    "w",
+    "W",
+    "a",
+    "A",
+    "s",
+    "S",
+    "d",
+    "D",
+    " ",
+    "Enter",
+    "Shift",
+  ];
+  if (gameKeys.includes(key)) {
+    event.preventDefault();
+  }
+  keys[key] = true;
 
+  // Space / Enter
+  if (key === " " || key === "Enter") {
+    interact();
+  }
 
-    const gameKeys = [
-
-        "ArrowLeft",
-
-        "ArrowRight",
-
-        "ArrowUp",
-
-        "ArrowDown",
-
-        "w",
-
-        "W",
-
-        "a",
-
-        "A",
-
-        "s",
-
-        "S",
-
-        "d",
-
-        "D",
-
-        " ",
-
-        "Enter",
-
-        "Shift"
-
-    ];
-
-
-    if (
-        gameKeys.includes(
-            key
-        )
-    ) {
-
-        event.preventDefault();
-
-    }
-
-
-    keys[key] =
-        true;
-
-
-    // Space / Enter
-    if (
-        key === " "
-        ||
-        key === "Enter"
-    ) {
-
-        interact();
-
-    }
-
-
-    // R
-    if (
-        key === "r"
-        ||
-        key === "R"
-    ) {
-
-        restartStage();
-
-    }
-
+  // R
+  if (key === "r" || key === "R") {
+    restartStage();
+  }
 }
-
 
 // ============================================================
 // 키 해제
 // ============================================================
 
-function handleKeyUp(
-    event
-) {
-
-    keys[
-        event.key
-    ] =
-        false;
-
+function handleKeyUp(event) {
+  keys[event.key] = false;
 }
 
+document.addEventListener("keydown", handleKeyDown, true);
 
-document.addEventListener(
-    "keydown",
-    handleKeyDown,
-    true
-);
-
-
-document.addEventListener(
-    "keyup",
-    handleKeyUp,
-    true
-);
-
+document.addEventListener("keyup", handleKeyUp, true);
 
 // ============================================================
 // Canvas 클릭
 // ============================================================
 
-canvas.addEventListener(
-    "mousedown",
-    () => {
-
-        if (
-            tutorialFinished
-        ) {
-
-            canvas.focus();
-
-
-            setMessage(
-                "✅ 게임 입력 활성화."
-            );
-
-        }
-
-    }
-);
-
+canvas.addEventListener("mousedown", () => {
+  if (tutorialFinished) {
+    canvas.focus();
+    setMessage("✅ 게임 입력 활성화.");
+  }
+});
 
 // ============================================================
 // 브라우저 포커스를 잃으면 키 초기화
 // ============================================================
 
-window.addEventListener(
-    "blur",
-    () => {
-
-        keys =
-            {};
-
-    }
-);
-
+window.addEventListener("blur", () => {
+  keys = {};
+});
 
 // ============================================================
 // 화면 방향키
 // ============================================================
 
-function pressDirection(
-    direction
-) {
-
-    if (
-        !tutorialFinished
-    ) {
-
-        return;
-
-    }
-
-
-    keys[
-        direction
-    ] =
-        true;
-
-
-    canvas.focus();
-
+function pressDirection(direction) {
+  if (!tutorialFinished) {
+    return;
+  }
+  keys[direction] = true;
+  canvas.focus();
 }
 
-
-function releaseDirection(
-    direction
-) {
-
-    keys[
-        direction
-    ] =
-        false;
-
+function releaseDirection(direction) {
+  keys[direction] = false;
 }
-
 
 // ============================================================
 // 페이지 로드
 // ============================================================
 
-window.addEventListener(
-    "load",
-    () => {
-
-        // 게임을 바로 시작하지 않고 프롤로그부터 보여준다.
-        showPrologue();
-
-
-        requestAnimationFrame(
-            gameLoop
-        );
-
-    }
-);
+window.addEventListener("load", () => {
+  // 게임을 바로 시작하지 않고 프롤로그부터 보여준다.
+  showPrologue();
+  requestAnimationFrame(gameLoop);
+});
