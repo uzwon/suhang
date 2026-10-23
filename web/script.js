@@ -1149,2900 +1149,975 @@ function rescueCount() {
   return state.patients.filter((patient) => patient.rescued).length;
 }
 
-
 // ============================================================
 // 현재 스테이지 기록 수
 // ============================================================
 
 function stageRecordCount() {
-
-    return state.records.filter(
-
-        record =>
-            record.collected
-
-    ).length;
-
+  return state.records.filter((record) => record.collected).length;
 }
-
 
 // ============================================================
 // 오른쪽 UI 업데이트
 // ============================================================
 
 function updatePanels() {
-
-    stageBox.innerHTML = `
-
+  stageBox.innerHTML = `
         <b>
             ${level().title}
         </b>
-
         <br><br>
-
         ${level().story}
-
     `;
-
-
-    const minutes =
-        Math.floor(
-            state.time / 60
-        );
-
-
-    const seconds =
-        Math.floor(
-            state.time % 60
-        )
-        .toString()
-        .padStart(
-            2,
-            "0"
-        );
-
-
-    statusBox.innerHTML = `
-
+  const minutes = Math.floor(state.time / 60);
+  const seconds = Math.floor(state.time % 60)
+    .toString()
+    .padStart(2, "0");
+  statusBox.innerHTML = `
         <div class="stat">
-
             <b>진행</b>
-
             ${currentLevelIndex + 1}/3
-
         </div>
-
-
         <div class="stat">
-
             <b>남은 시간</b>
-
             ${minutes}:${seconds}
-
         </div>
-
-
         <div class="stat">
-
             <b>체력</b>
-
-            ${"❤️".repeat(
-                Math.max(
-                    0,
-                    state.hearts
-                )
-            )}
-
+            ${"❤️".repeat(Math.max(0, state.hearts))}
         </div>
-
-
         <div class="stat">
-
             <b>스태미나</b>
-
-            ${Math.round(
-                state.stamina
-            )}/100
-
+            ${Math.round(state.stamina)}/100
         </div>
-
-
         <div class="stat">
-
             <b>상태</b>
-
             ${
-                state.hidden
-
-                ?
-
-                "🫥 숨는 중"
-
-                :
-
-                state.chaseTimer > 0
-
-                ?
-
-                "🚨 추격 중"
-
-                :
-
-                "탐색 중"
+              state.hidden
+                ? "🫥 숨는 중"
+                : state.chaseTimer > 0
+                  ? "🚨 추격 중"
+                  : "탐색 중"
             }
-
         </div>
-
-
         <div class="stat">
-
             <b>야간 기록</b>
-
             ${stageRecordCount()}
             /
             ${state.records.length}
-
         </div>
-
     `;
 
+  // ========================================================
+  // STAGE 1
+  // ========================================================
 
-    // ========================================================
-    // STAGE 1
-    // ========================================================
-
-    if (
-        level().type
-        ===
-        "collect"
-    ) {
-
-        progressTitle.innerHTML =
-            "🎒 인벤토리";
-
-
-        let objective =
-            "";
-
-
-        if (
-            !state.hasKeycard
-        ) {
-
-            objective =
-                "① <b>출입카드</b>를 찾아.";
-
-        }
-
-        else if (
-            !state.hasFuse
-        ) {
-
-            objective =
-                "② <b>퓨즈</b>를 찾아.";
-
-        }
-
-        else if (
-            !state.hasBattery
-        ) {
-
-            objective =
-                "③ <b>비상 배터리</b>를 찾아.";
-
-        }
-
-        else if (
-            !state.powerOn
-        ) {
-
-            objective =
-                "④ <b>발전기 미니게임</b>을 성공시켜.";
-
-        }
-
-        else if (
-            !state.hasMasterKey
-        ) {
-
-            objective =
-                "⑤ 추격을 피하면서 <b>마스터 키</b>를 찾아.";
-
-        }
-
-        else {
-
-            objective =
-                "⑥ <b>엘리베이터</b>로 탈출해.";
-
-        }
-
-
-        objectiveBox.innerHTML =
-            objective;
-
-
-        progressBox.innerHTML = `
-
+  if (level().type === "collect") {
+    progressTitle.innerHTML = "🎒 인벤토리";
+    let objective = "";
+    if (!state.hasKeycard) {
+      objective = "① <b>출입카드</b>를 찾아.";
+    } else if (!state.hasFuse) {
+      objective = "② <b>퓨즈</b>를 찾아.";
+    } else if (!state.hasBattery) {
+      objective = "③ <b>비상 배터리</b>를 찾아.";
+    } else if (!state.powerOn) {
+      objective = "④ <b>발전기 미니게임</b>을 성공시켜.";
+    } else if (!state.hasMasterKey) {
+      objective = "⑤ 추격을 피하면서 <b>마스터 키</b>를 찾아.";
+    } else {
+      objective = "⑥ <b>엘리베이터</b>로 탈출해.";
+    }
+    objectiveBox.innerHTML = objective;
+    progressBox.innerHTML = `
             <div class="item">
-                ${
-                    state.hasKeycard
-                    ?
-                    "✅"
-                    :
-                    "⬜"
-                }
+                ${state.hasKeycard ? "✅" : "⬜"}
                 출입카드
             </div>
-
-
             <div class="item">
-                ${
-                    state.hasFuse
-                    ?
-                    "✅"
-                    :
-                    "⬜"
-                }
+                ${state.hasFuse ? "✅" : "⬜"}
                 퓨즈
             </div>
-
-
             <div class="item">
-                ${
-                    state.hasBattery
-                    ?
-                    "✅"
-                    :
-                    "⬜"
-                }
+                ${state.hasBattery ? "✅" : "⬜"}
                 비상 배터리
             </div>
-
-
             <div class="item">
-                ${
-                    state.powerOn
-                    ?
-                    "✅"
-                    :
-                    "⬜"
-                }
+                ${state.powerOn ? "✅" : "⬜"}
                 전원 복구
             </div>
-
-
             <div class="item">
-                ${
-                    state.hasMasterKey
-                    ?
-                    "✅"
-                    :
-                    "⬜"
-                }
+                ${state.hasMasterKey ? "✅" : "⬜"}
                 마스터 키
             </div>
-
         `;
+  }
 
-    }
+  // ========================================================
+  // STAGE 2
+  // ========================================================
 
-
-    // ========================================================
-    // STAGE 2
-    // ========================================================
-
-    else if (
-        level().type
-        ===
-        "switch"
-    ) {
-
-        progressTitle.innerHTML =
-            "🖥️ 격리 시스템";
-
-
-        const sequenceText =
-
-            state.sequenceKnown
-
-            ?
-
-            state.sequence.join(
-                " → "
-            )
-
-            :
-
-            "??? → ??? → ???";
-
-
-        objectiveBox.innerHTML = `
-
+  else if (level().type === "switch") {
+    progressTitle.innerHTML = "🖥️ 격리 시스템";
+    const sequenceText = state.sequenceKnown
+      ? state.sequence.join(" → ")
+      : "??? → ??? → ???";
+    objectiveBox.innerHTML = `
             연구 메모 또는 CCTV에서
-
             <b>
                 단말기 순서
             </b>
-
             를 확인해.
-
             <br><br>
-
             현재 확인된 순서:
-
             <b>
                 ${sequenceText}
             </b>
-
         `;
-
-
-        progressBox.innerHTML = `
-
+    progressBox.innerHTML = `
             <div class="item">
-
                 단말기 진행:
-
                 <b>
                     ${state.switchProgress}/3
                 </b>
-
             </div>
-
-
             <div class="item">
-
                 잘못 누르면
-
                 <b>
                     초기화 + 시간 -20초
                 </b>
-
             </div>
-
         `;
+  }
 
-    }
+  // ========================================================
+  // STAGE 3
+  // ========================================================
 
-
-    // ========================================================
-    // STAGE 3
-    // ========================================================
-
-    else {
-
-        progressTitle.innerHTML =
-            "🩺 구조 현황";
-
-
-        let objective =
-            "";
-
-
-        if (
-            state.escortPatientId
-            !==
-            null
-        ) {
-
-            objective = `
-
+  else {
+    progressTitle.innerHTML = "🩺 구조 현황";
+    let objective = "";
+    if (state.escortPatientId !== null) {
+      objective = `
                 환자가 따라오고 있어.
-
                 <br><br>
-
                 시작 지점 옆의
-
                 <b>
                     대피 구역
                 </b>
-
                 으로 데려가서 Space를 눌러.
-
             `;
-
-        }
-
-        else if (
-            rescueCount()
-            <
-            3
-        ) {
-
-            objective = `
-
+    } else if (rescueCount() < 3) {
+      objective = `
                 병원을 탐색해 환자를 찾고
-
                 각각의
-
                 <b>
                     안정화 미니게임
                 </b>
-
                 을 완료해.
-
                 <br><br>
-
                 안정화 후 환자를 대피구역까지
                 호송해야 해.
-
             `;
-
-        }
-
-        else {
-
-            objective = `
-
+    } else {
+      objective = `
                 환자 3명 모두 구조 완료!
-
                 <br><br>
-
                 <b>
                     최종 추격을 피해서
                     옥상 출구로 탈출해.
                 </b>
-
             `;
-
-        }
-
-
-        objectiveBox.innerHTML =
-            objective;
-
-
-        progressBox.innerHTML = `
-
+    }
+    objectiveBox.innerHTML = objective;
+    progressBox.innerHTML = `
             <div class="item">
-
                 <b>
                     구조 완료
                 </b>
-
                 ${rescueCount()}/3
-
             </div>
-
-
-            ${state.patients.map(
-
-                patient => `
-
+            ${state.patients
+              .map(
+                (patient) => `
                     <div class="item">
-
                         ${
-                            patient.rescued
-
-                            ?
-
-                            "✅ 구조 완료"
-
-                            :
-
-                            patient.following
-
-                            ?
-
-                            "🚶 호송 중"
-
-                            :
-
-                            patient.stabilized
-
-                            ?
-
-                            "🩺 안정화 완료"
-
-                            :
-
-                            "⬜ 미발견/미처치"
+                          patient.rescued
+                            ? "✅ 구조 완료"
+                            : patient.following
+                              ? "🚶 호송 중"
+                              : patient.stabilized
+                                ? "🩺 안정화 완료"
+                                : "⬜ 미발견/미처치"
                         }
-
                         · 환자 ${patient.id}
-
                     </div>
-
-                `
-
-            ).join("")}
-
+                `,
+              )
+              .join("")}
         `;
-
-    }
-
-
-    logBox.innerHTML =
-
-        state.logs.map(
-
-            log =>
-                `<div class="log">${log}</div>`
-
-        ).join("");
-
+  }
+  logBox.innerHTML = state.logs
+    .map((log) => `<div class="log">${log}</div>`)
+    .join("");
 }
-
 
 // ============================================================
 // 장애물 처리
 // ============================================================
 
-function tileBlocked(
-    tx,
-    ty
-) {
+function tileBlocked(tx, ty) {
+  if (tx < 0 || ty < 0 || tx >= COLS || ty >= ROWS) {
+    return true;
+  }
+  const symbol = level().map[ty][tx];
+  if (symbol === "#") {
+    return true;
+  }
 
-    if (
-        tx < 0
-        ||
-        ty < 0
-        ||
-        tx >= COLS
-        ||
-        ty >= ROWS
-    ) {
+  // STAGE 1 카드 보안문
+  if (level().type === "collect" && symbol === "C" && !state.hasKeycard) {
+    return true;
+  }
 
-        return true;
+  // STAGE 1 전원문
+  if (level().type === "collect" && symbol === "D" && !state.powerOn) {
+    return true;
+  }
 
-    }
+  // STAGE 2 출구
+  if (level().type === "switch" && symbol === "X" && state.switchProgress < 3) {
+    return true;
+  }
 
-
-    const symbol =
-        level().map[ty][tx];
-
-
-    if (
-        symbol
-        ===
-        "#"
-    ) {
-
-        return true;
-
-    }
-
-
-    // STAGE 1 카드 보안문
-    if (
-        level().type
-        ===
-        "collect"
-        &&
-        symbol
-        ===
-        "C"
-        &&
-        !state.hasKeycard
-    ) {
-
-        return true;
-
-    }
-
-
-    // STAGE 1 전원문
-    if (
-        level().type
-        ===
-        "collect"
-        &&
-        symbol
-        ===
-        "D"
-        &&
-        !state.powerOn
-    ) {
-
-        return true;
-
-    }
-
-
-    // STAGE 2 출구
-    if (
-        level().type
-        ===
-        "switch"
-        &&
-        symbol
-        ===
-        "X"
-        &&
-        state.switchProgress < 3
-    ) {
-
-        return true;
-
-    }
-
-
-    // STAGE 3 출구
-    if (
-        level().type
-        ===
-        "rescue"
-        &&
-        symbol
-        ===
-        "R"
-        &&
-        rescueCount() < 3
-    ) {
-
-        return true;
-
-    }
-
-
-    return false;
-
+  // STAGE 3 출구
+  if (level().type === "rescue" && symbol === "R" && rescueCount() < 3) {
+    return true;
+  }
+  return false;
 }
-
 
 // ============================================================
 // 충돌 판정
 // ============================================================
 
-function collisionAt(
-    newX,
-    newY
-) {
-
-    const left =
-        newX
-        +
-        player.hitOffsetX;
-
-
-    const right =
-        left
-        +
-        player.hitW
-        -
-        1;
-
-
-    const top =
-        newY
-        +
-        player.hitOffsetY;
-
-
-    const bottom =
-        top
-        +
-        player.hitH
-        -
-        1;
-
-
-    const points = [
-
-        {
-            x:
-                left,
-
-            y:
-                top
-        },
-
-        {
-            x:
-                right,
-
-            y:
-                top
-        },
-
-        {
-            x:
-                left,
-
-            y:
-                bottom
-        },
-
-        {
-            x:
-                right,
-
-            y:
-                bottom
-        }
-
-    ];
-
-
-    for (
-        const point
-        of
-        points
-    ) {
-
-        const tx =
-            Math.floor(
-                point.x / TILE
-            );
-
-
-        const ty =
-            Math.floor(
-                point.y / TILE
-            );
-
-
-        if (
-            tileBlocked(
-                tx,
-                ty
-            )
-        ) {
-
-            return true;
-
-        }
-
+function collisionAt(newX, newY) {
+  const left = newX + player.hitOffsetX;
+  const right = left + player.hitW - 1;
+  const top = newY + player.hitOffsetY;
+  const bottom = top + player.hitH - 1;
+  const points = [
+    {
+      x: left,
+      y: top,
+    },
+    {
+      x: right,
+      y: top,
+    },
+    {
+      x: left,
+      y: bottom,
+    },
+    {
+      x: right,
+      y: bottom,
+    },
+  ];
+  for (const point of points) {
+    const tx = Math.floor(point.x / TILE);
+    const ty = Math.floor(point.y / TILE);
+    if (tileBlocked(tx, ty)) {
+      return true;
     }
-
-
-    return false;
-
+  }
+  return false;
 }
-
 
 // ============================================================
 // 플레이어 이동
 // ============================================================
 
 function updatePlayer(dt) {
+  if (state.hidden || state.miniGame) {
+    return;
+  }
+  let dx = 0;
+  let dy = 0;
+  if (keys["ArrowLeft"] || keys["a"] || keys["A"]) {
+    dx -= 1;
+    player.facing = "left";
+  }
+  if (keys["ArrowRight"] || keys["d"] || keys["D"]) {
+    dx += 1;
+    player.facing = "right";
+  }
+  if (keys["ArrowUp"] || keys["w"] || keys["W"]) {
+    dy -= 1;
+    player.facing = "up";
+  }
+  if (keys["ArrowDown"] || keys["s"] || keys["S"]) {
+    dy += 1;
+    player.facing = "down";
+  }
+  player.walking = dx !== 0 || dy !== 0;
 
-    if (
-        state.hidden
-        ||
-        state.miniGame
-    ) {
+  // 대각선 이동 속도 보정
+  if (dx !== 0 && dy !== 0) {
+    dx *= 0.707106;
+    dy *= 0.707106;
+  }
 
-        return;
+  // Shift + 이동 시 달리기
+  const running = keys["Shift"] && player.walking && state.stamina > 0;
+  let speed = player.speed;
+  if (running) {
+    speed = 245;
+    state.stamina = Math.max(0, state.stamina - 32 * dt);
+  } else {
+    state.stamina = Math.min(100, state.stamina + 18 * dt);
+  }
+  const moveX = dx * speed * dt;
+  const moveY = dy * speed * dt;
 
+  // X와 Y 충돌을 따로 검사
+  if (!collisionAt(player.x + moveX, player.y)) {
+    player.x += moveX;
+  }
+  if (!collisionAt(player.x, player.y + moveY)) {
+    player.y += moveY;
+  }
+  if (player.walking) {
+    player.walkTimer += dt;
+    if (player.walkTimer > 0.14) {
+      player.walkFrame = 1 - player.walkFrame;
+      player.walkTimer = 0;
     }
-
-
-    let dx =
-        0;
-
-
-    let dy =
-        0;
-
-
-    if (
-        keys["ArrowLeft"]
-        ||
-        keys["a"]
-        ||
-        keys["A"]
-    ) {
-
-        dx -=
-            1;
-
-
-        player.facing =
-            "left";
-
-    }
-
-
-    if (
-        keys["ArrowRight"]
-        ||
-        keys["d"]
-        ||
-        keys["D"]
-    ) {
-
-        dx +=
-            1;
-
-
-        player.facing =
-            "right";
-
-    }
-
-
-    if (
-        keys["ArrowUp"]
-        ||
-        keys["w"]
-        ||
-        keys["W"]
-    ) {
-
-        dy -=
-            1;
-
-
-        player.facing =
-            "up";
-
-    }
-
-
-    if (
-        keys["ArrowDown"]
-        ||
-        keys["s"]
-        ||
-        keys["S"]
-    ) {
-
-        dy +=
-            1;
-
-
-        player.facing =
-            "down";
-
-    }
-
-
-    player.walking =
-
-        dx !== 0
-
-        ||
-
-        dy !== 0;
-
-
-    // 대각선 이동 속도 보정
-    if (
-        dx !== 0
-        &&
-        dy !== 0
-    ) {
-
-        dx *=
-            0.707106;
-
-
-        dy *=
-            0.707106;
-
-    }
-
-
-    // Shift + 이동 시 달리기
-    const running =
-
-        keys["Shift"]
-
-        &&
-
-        player.walking
-
-        &&
-
-        state.stamina > 0;
-
-
-    let speed =
-        player.speed;
-
-
-    if (
-        running
-    ) {
-
-        speed =
-            245;
-
-
-        state.stamina =
-
-            Math.max(
-
-                0,
-
-                state.stamina
-                -
-                32
-                *
-                dt
-
-            );
-
-    }
-
-    else {
-
-        state.stamina =
-
-            Math.min(
-
-                100,
-
-                state.stamina
-                +
-                18
-                *
-                dt
-
-            );
-
-    }
-
-
-    const moveX =
-
-        dx
-        *
-        speed
-        *
-        dt;
-
-
-    const moveY =
-
-        dy
-        *
-        speed
-        *
-        dt;
-
-
-    // X와 Y 충돌을 따로 검사
-    if (
-        !collisionAt(
-
-            player.x
-            +
-            moveX,
-
-            player.y
-
-        )
-    ) {
-
-        player.x +=
-            moveX;
-
-    }
-
-
-    if (
-        !collisionAt(
-
-            player.x,
-
-            player.y
-            +
-            moveY
-
-        )
-    ) {
-
-        player.y +=
-            moveY;
-
-    }
-
-
-    if (
-        player.walking
-    ) {
-
-        player.walkTimer +=
-            dt;
-
-
-        if (
-            player.walkTimer
-            >
-            0.14
-        ) {
-
-            player.walkFrame =
-
-                1
-                -
-                player.walkFrame;
-
-
-            player.walkTimer =
-                0;
-
-        }
-
-    }
-
-    else {
-
-        player.walkFrame =
-            0;
-
-    }
-
+  } else {
+    player.walkFrame = 0;
+  }
 }
-
 
 // ============================================================
 // 숨는 곳 확인
 // ============================================================
 
 function nearHideSpot() {
-
-    for (
-        let y = 0;
-        y < ROWS;
-        y++
-    ) {
-
-        for (
-            let x = 0;
-            x < COLS;
-            x++
-        ) {
-
-            if (
-                level().map[y][x]
-                ===
-                "h"
-                &&
-                nearPos(
-                    x,
-                    y,
-                    42
-                )
-            ) {
-
-                return true;
-
-            }
-
-        }
-
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      if (level().map[y][x] === "h" && nearPos(x, y, 42)) {
+        return true;
+      }
     }
-
-
-    return false;
-
+  }
+  return false;
 }
-
 
 // ============================================================
 // Space / Enter 상호작용
 // ============================================================
 
 function interact() {
+  if (!state || state.won || state.lost || !tutorialFinished) {
+    return;
+  }
+  canvas.focus();
 
-    if (
-        !state
-        ||
-        state.won
-        ||
-        state.lost
-        ||
-        !tutorialFinished
-    ) {
+  // ========================================================
+  // 미니게임 중 Space
+  // ========================================================
 
-        return;
-
+  if (state.miniGame) {
+    if (state.miniGame.type === "generator") {
+      finishGeneratorMiniGame();
+    } else if (state.miniGame.type === "patientTiming") {
+      handlePatientTiming();
     }
+    return;
+  }
 
+  // ========================================================
+  // 숨는 곳에서 나오기
+  // ========================================================
 
-    canvas.focus();
+  if (state.hidden) {
+    state.hidden = false;
+    state.hideSeconds = 0;
+    setMessage("숨는 곳에서 나왔어.");
+    return;
+  }
 
+  // ========================================================
+  // 숨기
+  // ========================================================
 
-    // ========================================================
-    // 미니게임 중 Space
-    // ========================================================
+  if (nearHideSpot()) {
+    state.hidden = true;
+    state.hideSeconds = 0;
+    setMessage("🫥 숨는 곳에 들어왔어. Space를 다시 누르면 나올 수 있어.");
+    return;
+  }
 
-    if (
-        state.miniGame
-    ) {
+  // ========================================================
+  // 야간 기록 수집
+  // ========================================================
 
-        if (
-            state.miniGame.type
-            ===
-            "generator"
-        ) {
+  const record = state.records.find(
+    (item) => !item.collected && nearPos(item.x, item.y, 42),
+  );
+  if (record) {
+    record.collected = true;
+    meta.totalRecords += 1;
+    setMessage("📄 " + record.text);
+    addLog("야간 기록 확보.");
+    return;
+  }
 
-            finishGeneratorMiniGame();
+  // ========================================================
+  // CCTV
+  // ========================================================
 
-        }
-
-        else if (
-            state.miniGame.type
-            ===
-            "patientTiming"
-        ) {
-
-            handlePatientTiming();
-
-        }
-
-
-        return;
-
+  const cctv = findTile("Z");
+  if (cctv && nearPos(cctv.x, cctv.y, 42)) {
+    state.cctvTimer = 12;
+    if (level().type === "switch") {
+      state.sequenceKnown = true;
+      setMessage(
+        "📹 CCTV 확인: 단말기 순서는 " + state.sequence.join(" → ") + " 이야.",
+      );
+    } else {
+      setMessage("📹 CCTV를 확인했어.");
     }
-
-
-    // ========================================================
-    // 숨는 곳에서 나오기
-    // ========================================================
-
-    if (
-        state.hidden
-    ) {
-
-        state.hidden =
-            false;
-
-
-        state.hideSeconds =
-            0;
-
-
-        setMessage(
-            "숨는 곳에서 나왔어."
-        );
-
-
-        return;
-
-    }
-
-
-    // ========================================================
-    // 숨기
-    // ========================================================
-
-    if (
-        nearHideSpot()
-    ) {
-
-        state.hidden =
-            true;
-
-
-        state.hideSeconds =
-            0;
-
-
-        setMessage(
-            "🫥 숨는 곳에 들어왔어. Space를 다시 누르면 나올 수 있어."
-        );
-
-
-        return;
-
-    }
-
-
-    // ========================================================
-    // 야간 기록 수집
-    // ========================================================
-
-    const record =
-
-        state.records.find(
-
-            item =>
-
-                !item.collected
-
-                &&
-
-                nearPos(
-
-                    item.x,
-
-                    item.y,
-
-                    42
-
-                )
-
-        );
-
-
-    if (
-        record
-    ) {
-
-        record.collected =
-            true;
-
-
-        meta.totalRecords +=
-            1;
-
-
-        setMessage(
-
-            "📄 "
-            +
-            record.text
-
-        );
-
-
-        addLog(
-            "야간 기록 확보."
-        );
-
-
-        return;
-
-    }
-
-
-    // ========================================================
-    // CCTV
-    // ========================================================
-
-    const cctv =
-        findTile(
-            "Z"
-        );
-
-
-    if (
-        cctv
-        &&
-        nearPos(
-
-            cctv.x,
-
-            cctv.y,
-
-            42
-
-        )
-    ) {
-
-        state.cctvTimer =
-            12;
-
-
-        if (
-            level().type
-            ===
-            "switch"
-        ) {
-
-            state.sequenceKnown =
-                true;
-
-
-            setMessage(
-
-                "📹 CCTV 확인: 단말기 순서는 "
-                +
-                state.sequence.join(
-                    " → "
-                )
-                +
-                " 이야."
-
-            );
-
-        }
-
-        else {
-
-            setMessage(
-                "📹 CCTV를 확인했어."
-            );
-
-        }
-
-
-        return;
-
-    }
-
-
-    // 스테이지별 상호작용
-    if (
-        level().type
-        ===
-        "collect"
-    ) {
-
-        interactStage1();
-
-    }
-
-    else if (
-        level().type
-        ===
-        "switch"
-    ) {
-
-        interactStage2();
-
-    }
-
-    else {
-
-        interactStage3();
-
-    }
-
+    return;
+  }
+
+  // 스테이지별 상호작용
+  if (level().type === "collect") {
+    interactStage1();
+  } else if (level().type === "switch") {
+    interactStage2();
+  } else {
+    interactStage3();
+  }
 }
-
 
 // ============================================================
 // STAGE 1
 // ============================================================
 
 function interactStage1() {
+  if (nearTile("K") && !state.hasKeycard) {
+    state.hasKeycard = true;
+    setMessage("🪪 출입카드를 획득했어.");
+    return;
+  }
+  if (nearTile("F") && !state.hasFuse) {
+    state.hasFuse = true;
+    setMessage("🧰 퓨즈를 획득했어.");
+    return;
+  }
+  if (nearTile("B") && !state.hasBattery) {
+    state.hasBattery = true;
+    setMessage("🔋 비상 배터리를 획득했어.");
+    return;
+  }
 
-    if (
-        nearTile("K")
-        &&
-        !state.hasKeycard
-    ) {
-
-        state.hasKeycard =
-            true;
-
-
-        setMessage(
-            "🪪 출입카드를 획득했어."
-        );
-
-
-        return;
-
+  // 발전기
+  if (nearTile("P")) {
+    if (state.hasFuse && state.hasBattery && !state.powerOn) {
+      startGeneratorMiniGame();
+      return;
     }
-
-
-    if (
-        nearTile("F")
-        &&
-        !state.hasFuse
-    ) {
-
-        state.hasFuse =
-            true;
-
-
-        setMessage(
-            "🧰 퓨즈를 획득했어."
-        );
-
-
-        return;
-
+    if (state.powerOn) {
+      setMessage("발전기는 이미 작동 중이야.");
+      return;
     }
+    setMessage("⚠️ 발전기를 켜려면 퓨즈와 비상 배터리가 모두 필요해.");
+    return;
+  }
 
-
-    if (
-        nearTile("B")
-        &&
-        !state.hasBattery
-    ) {
-
-        state.hasBattery =
-            true;
-
-
-        setMessage(
-            "🔋 비상 배터리를 획득했어."
-        );
-
-
-        return;
-
+  // 마스터 키
+  if (nearTile("M") && !state.hasMasterKey) {
+    if (!state.powerOn) {
+      setMessage("🔒 전원을 먼저 복구해야 해.");
+      return;
     }
+    state.hasMasterKey = true;
+    setMessage("🗝️ 마스터 키를 획득했어.");
+    return;
+  }
 
-
-    // 발전기
-    if (
-        nearTile("P")
-    ) {
-
-        if (
-            state.hasFuse
-            &&
-            state.hasBattery
-            &&
-            !state.powerOn
-        ) {
-
-            startGeneratorMiniGame();
-
-
-            return;
-
-        }
-
-
-        if (
-            state.powerOn
-        ) {
-
-            setMessage(
-                "발전기는 이미 작동 중이야."
-            );
-
-
-            return;
-
-        }
-
-
-        setMessage(
-            "⚠️ 발전기를 켜려면 퓨즈와 비상 배터리가 모두 필요해."
-        );
-
-
-        return;
-
+  // 엘리베이터
+  if (nearTile("E")) {
+    if (state.powerOn && state.hasMasterKey) {
+      clearStage();
+    } else {
+      setMessage("🚪 엘리베이터가 아직 잠겨 있어.");
     }
-
-
-    // 마스터 키
-    if (
-        nearTile("M")
-        &&
-        !state.hasMasterKey
-    ) {
-
-        if (
-            !state.powerOn
-        ) {
-
-            setMessage(
-                "🔒 전원을 먼저 복구해야 해."
-            );
-
-
-            return;
-
-        }
-
-
-        state.hasMasterKey =
-            true;
-
-
-        setMessage(
-            "🗝️ 마스터 키를 획득했어."
-        );
-
-
-        return;
-
-    }
-
-
-    // 엘리베이터
-    if (
-        nearTile("E")
-    ) {
-
-        if (
-            state.powerOn
-            &&
-            state.hasMasterKey
-        ) {
-
-            clearStage();
-
-        }
-
-        else {
-
-            setMessage(
-                "🚪 엘리베이터가 아직 잠겨 있어."
-            );
-
-        }
-
-
-        return;
-
-    }
-
-
-    setMessage(
-        "주변에 지금 사용할 수 있는 물체가 없어."
-    );
-
+    return;
+  }
+  setMessage("주변에 지금 사용할 수 있는 물체가 없어.");
 }
-
 
 // ============================================================
 // 발전기 미니게임
 // ============================================================
 
 function startGeneratorMiniGame() {
+  state.miniGame = {
+    type: "generator",
 
-    state.miniGame = {
+    // 포인터 위치 0~1
+    pos: 0,
 
-        type:
-            "generator",
-
-        // 포인터 위치 0~1
-        pos:
-            0,
-
-        // 이동 방향
-        dir:
-            1
-
-    };
-
-
-    setMessage(
-        "🛠️ 노란 표시가 초록 영역 안에 들어왔을 때 Space를 눌러!"
-    );
-
+    // 이동 방향
+    dir: 1,
+  };
+  setMessage("🛠️ 노란 표시가 초록 영역 안에 들어왔을 때 Space를 눌러!");
 }
-
 
 // ============================================================
 // 발전기 판정
 // ============================================================
 
 function finishGeneratorMiniGame() {
+  const game = state.miniGame;
+  if (game.pos >= 0.42 && game.pos <= 0.58) {
+    state.miniGame = null;
+    state.powerOn = true;
 
-    const game =
-        state.miniGame;
+    // 발전기 복구 순간 추격 시작
+    state.chaseTimer = 20;
 
-
-    if (
-        game.pos >= 0.42
-        &&
-        game.pos <= 0.58
-    ) {
-
-        state.miniGame =
-            null;
-
-
-        state.powerOn =
-            true;
-
-
-        // 발전기 복구 순간 추격 시작
-        state.chaseTimer =
-            20;
-
-
-        // 빨간 경고등
-        state.event.alarm =
-            20;
-
-
-        setMessage(
-            "⚡ 발전기 복구 성공! 경보가 울리며 그림자가 20초 동안 추격한다! 달리거나 숨는 곳을 이용해!"
-        );
-
-
-        addLog(
-            "발전기 복구 → 그림자 추격 시작."
-        );
-
-    }
-
-    else {
-
-        state.miniGame =
-            null;
-
-
-        state.time =
-
-            Math.max(
-
-                0,
-
-                state.time
-                -
-                10
-
-            );
-
-
-        setMessage(
-            "❌ 수리 타이밍 실패! 시간 -10초."
-        );
-
-    }
-
+    // 빨간 경고등
+    state.event.alarm = 20;
+    setMessage(
+      "⚡ 발전기 복구 성공! 경보가 울리며 그림자가 20초 동안 추격한다! 달리거나 숨는 곳을 이용해!",
+    );
+    addLog("발전기 복구 → 그림자 추격 시작.");
+  } else {
+    state.miniGame = null;
+    state.time = Math.max(0, state.time - 10);
+    setMessage("❌ 수리 타이밍 실패! 시간 -10초.");
+  }
 }
-
 
 // ============================================================
 // STAGE 2
 // ============================================================
 
 function interactStage2() {
+  const note = findTile("L");
 
-    const note =
-        findTile(
-            "L"
-        );
+  // 연구 메모 확인
+  if (note && nearPos(note.x, note.y, 42)) {
+    state.sequenceKnown = true;
+    setMessage("📝 연구 메모: 단말기 순서는 " + state.sequence.join(" → "));
+    return;
+  }
 
-
-    // 연구 메모 확인
-    if (
-        note
-        &&
-        nearPos(
-
-            note.x,
-
-            note.y,
-
-            42
-
-        )
-    ) {
-
-        state.sequenceKnown =
-            true;
-
-
-        setMessage(
-
-            "📝 연구 메모: 단말기 순서는 "
-            +
-            state.sequence.join(
-                " → "
-            )
-
-        );
-
-
-        return;
-
+  // A/B/C 단말기
+  for (const symbol of ["A", "B", "C"]) {
+    if (nearTile(symbol)) {
+      activateTerminal(symbol);
+      return;
     }
+  }
 
-
-    // A/B/C 단말기
-    for (
-        const symbol
-        of
-        [
-            "A",
-            "B",
-            "C"
-        ]
-    ) {
-
-        if (
-            nearTile(
-                symbol
-            )
-        ) {
-
-            activateTerminal(
-                symbol
-            );
-
-
-            return;
-
-        }
-
+  // 제독실 출구
+  if (nearTile("X")) {
+    if (state.switchProgress === 3) {
+      clearStage();
+    } else {
+      setMessage("☣️ 격리 시스템을 먼저 해제해야 해.");
     }
-
-
-    // 제독실 출구
-    if (
-        nearTile("X")
-    ) {
-
-        if (
-            state.switchProgress
-            ===
-            3
-        ) {
-
-            clearStage();
-
-        }
-
-        else {
-
-            setMessage(
-                "☣️ 격리 시스템을 먼저 해제해야 해."
-            );
-
-        }
-
-
-        return;
-
-    }
-
-
-    setMessage(
-        "주변에 지금 사용할 수 있는 물체가 없어."
-    );
-
+    return;
+  }
+  setMessage("주변에 지금 사용할 수 있는 물체가 없어.");
 }
-
 
 // ============================================================
 // 단말기 입력
 // ============================================================
 
-function activateTerminal(
-    symbol
-) {
-
-    const expected =
-
-        state.sequence[
-            state.switchProgress
-        ];
-
-
-    if (
-        symbol
-        ===
-        expected
-    ) {
-
-        state.switchProgress +=
-            1;
-
-
-        setMessage(
-
-            "✅ 단말기 "
-            +
-            symbol
-            +
-            " 활성화 성공."
-
-        );
-
-
-        if (
-            state.switchProgress
-            ===
-            3
-        ) {
-
-            state.chaseTimer =
-                15;
-
-
-            state.event.alarm =
-                15;
-
-
-            setMessage(
-                "✅ 격리 시스템 해제! 경보 때문에 그림자가 15초간 추격한다!"
-            );
-
-        }
-
+function activateTerminal(symbol) {
+  const expected = state.sequence[state.switchProgress];
+  if (symbol === expected) {
+    state.switchProgress += 1;
+    setMessage("✅ 단말기 " + symbol + " 활성화 성공.");
+    if (state.switchProgress === 3) {
+      state.chaseTimer = 15;
+      state.event.alarm = 15;
+      setMessage("✅ 격리 시스템 해제! 경보 때문에 그림자가 15초간 추격한다!");
     }
-
-    else {
-
-        state.switchProgress =
-            0;
-
-
-        state.time =
-
-            Math.max(
-
-                0,
-
-                state.time
-                -
-                20
-
-            );
-
-
-        setMessage(
-            "⚠️ 잘못된 순서! 시스템 초기화 + 시간 -20초."
-        );
-
-    }
-
+  } else {
+    state.switchProgress = 0;
+    state.time = Math.max(0, state.time - 20);
+    setMessage("⚠️ 잘못된 순서! 시스템 초기화 + 시간 -20초.");
+  }
 }
-
 
 // ============================================================
 // STAGE 3
 // ============================================================
 
 function interactStage3() {
+  // ========================================================
+  // 환자 호송 중
+  // ========================================================
 
-    // ========================================================
-    // 환자 호송 중
-    // ========================================================
+  if (state.escortPatientId !== null) {
+    // 대피구역 도착
+    if (nearTile("Y", 50)) {
+      const patient = state.patients.find(
+        (item) => item.id === state.escortPatientId,
+      );
+      patient.following = false;
+      patient.rescued = true;
+      state.escortPatientId = null;
+      setMessage("✅ 환자 " + patient.id + "을 대피구역까지 이동시켰어.");
+      addLog("환자 " + patient.id + " 구조 완료.");
 
-    if (
-        state.escortPatientId
-        !==
-        null
-    ) {
+      // 3명 모두 구조
+      if (rescueCount() === 3) {
+        meta.allPatientsRescued = true;
+        state.finalEscapeStarted = true;
 
-        // 대피구역 도착
-        if (
-            nearTile(
-                "Y",
-                50
-            )
-        ) {
-
-            const patient =
-
-                state.patients.find(
-
-                    item =>
-                        item.id
-                        ===
-                        state.escortPatientId
-
-                );
-
-
-            patient.following =
-                false;
-
-
-            patient.rescued =
-                true;
-
-
-            state.escortPatientId =
-                null;
-
-
-            setMessage(
-
-                "✅ 환자 "
-                +
-                patient.id
-                +
-                "을 대피구역까지 이동시켰어."
-
-            );
-
-
-            addLog(
-
-                "환자 "
-                +
-                patient.id
-                +
-                " 구조 완료."
-
-            );
-
-
-            // 3명 모두 구조
-            if (
-                rescueCount()
-                ===
-                3
-            ) {
-
-                meta.allPatientsRescued =
-                    true;
-
-
-                state.finalEscapeStarted =
-                    true;
-
-
-                // 마지막 25초 추격
-                state.chaseTimer =
-                    25;
-
-
-                state.event.alarm =
-                    25;
-
-
-                setMessage(
-                    "🚨 환자 3명 모두 구조 완료! 옥상 출구가 열렸다. 마지막 추격을 피해서 탈출해!"
-                );
-
-            }
-
-
-            return;
-
-        }
-
-
+        // 마지막 25초 추격
+        state.chaseTimer = 25;
+        state.event.alarm = 25;
         setMessage(
-            "🚶 환자를 시작 지점 옆의 대피 구역으로 데려가야 해."
+          "🚨 환자 3명 모두 구조 완료! 옥상 출구가 열렸다. 마지막 추격을 피해서 탈출해!",
         );
-
-
-        return;
-
+      }
+      return;
     }
+    setMessage("🚶 환자를 시작 지점 옆의 대피 구역으로 데려가야 해.");
+    return;
+  }
 
+  // ========================================================
+  // 근처 환자
+  // ========================================================
 
-    // ========================================================
-    // 근처 환자
-    // ========================================================
-
-    const patient =
-
-        state.patients.find(
-
-            item =>
-
-                !item.rescued
-
-                &&
-
-                !item.following
-
-                &&
-
-                nearPos(
-
-                    item.x,
-
-                    item.y,
-
-                    43
-
-                )
-
-        );
-
-
-    if (
-        patient
-    ) {
-
-        // 이미 안정화됐다면 바로 호송
-        if (
-            patient.stabilized
-        ) {
-
-            startEscort(
-                patient
-            );
-
-
-            return;
-
-        }
-
-
-        startPatientMission(
-            patient
-        );
-
-
-        return;
-
+  const patient = state.patients.find(
+    (item) => !item.rescued && !item.following && nearPos(item.x, item.y, 43),
+  );
+  if (patient) {
+    // 이미 안정화됐다면 바로 호송
+    if (patient.stabilized) {
+      startEscort(patient);
+      return;
     }
+    startPatientMission(patient);
+    return;
+  }
 
-
-    // 옥상 출구
-    if (
-        nearTile("R")
-    ) {
-
-        if (
-            rescueCount()
-            ===
-            3
-        ) {
-
-            clearStage();
-
-        }
-
-        else {
-
-            setMessage(
-                "🚪 아직 구조하지 못한 환자가 있어."
-            );
-
-        }
-
-
-        return;
-
+  // 옥상 출구
+  if (nearTile("R")) {
+    if (rescueCount() === 3) {
+      clearStage();
+    } else {
+      setMessage("🚪 아직 구조하지 못한 환자가 있어.");
     }
-
-
-    setMessage(
-        "주변에 상호작용할 대상이 없어."
-    );
-
+    return;
+  }
+  setMessage("주변에 상호작용할 대상이 없어.");
 }
-
 
 // ============================================================
 // 환자별 미니게임
 // ============================================================
 
-function startPatientMission(
-    patient
-) {
+function startPatientMission(patient) {
+  // ========================================================
+  // 환자 1 : 타이밍 게임
+  // ========================================================
 
-    // ========================================================
-    // 환자 1 : 타이밍 게임
-    // ========================================================
-
-    if (
-        patient.mission
-        ===
-        "timing"
-    ) {
-
-        state.miniGame = {
-
-            type:
-                "patientTiming",
-
-            patientId:
-                patient.id,
-
-            pos:
-                0,
-
-            dir:
-                1,
-
-            // 성공 횟수
-            success:
-                0
-
-        };
-
-
-        setMessage(
-            "🩺 환자 1 안정화: 초록 구간에 맞춰 Space를 2번 성공시켜."
-        );
-
-
-        return;
-
-    }
-
-
-    // ========================================================
-    // 환자 2 : 방향키 기억
-    // ========================================================
-
-    if (
-        patient.mission
-        ===
-        "direction"
-    ) {
-
-        const choices = [
-
-            "ArrowUp",
-
-            "ArrowDown",
-
-            "ArrowLeft",
-
-            "ArrowRight"
-
-        ];
-
-
-        const sequence =
-            [];
-
-
-        for (
-            let i = 0;
-            i < 5;
-            i++
-        ) {
-
-            sequence.push(
-
-                choices[
-                    Math.floor(
-                        Math.random()
-                        *
-                        choices.length
-                    )
-                ]
-
-            );
-
-        }
-
-
-        state.miniGame = {
-
-            type:
-                "patientDirection",
-
-            patientId:
-                patient.id,
-
-            // 기억해야 하는 방향키 배열
-            sequence:
-                sequence,
-
-            // 3초간 보여주기
-            reveal:
-                3,
-
-            // 현재 입력한 위치
-            inputIndex:
-                0
-
-        };
-
-
-        setMessage(
-            "🧠 환자 2 안정화: 3초 동안 표시되는 방향키 5개를 기억해."
-        );
-
-
-        return;
-
-    }
-
-
-    // ========================================================
-    // 환자 3 : 숫자 기억
-    // ========================================================
-
-    const numbers =
-        [];
-
-
-    for (
-        let i = 0;
-        i < 5;
-        i++
-    ) {
-
-        numbers.push(
-
-            String(
-
-                1
-                +
-                Math.floor(
-                    Math.random()
-                    *
-                    4
-                )
-
-            )
-
-        );
-
-    }
-
-
+  if (patient.mission === "timing") {
     state.miniGame = {
+      type: "patientTiming",
+      patientId: patient.id,
+      pos: 0,
+      dir: 1,
 
-        type:
-            "patientMemory",
-
-        patientId:
-            patient.id,
-
-        // 기억해야 할 숫자 배열
-        sequence:
-            numbers,
-
-        reveal:
-            3,
-
-        inputIndex:
-            0
-
+      // 성공 횟수
+      success: 0,
     };
+    setMessage("🩺 환자 1 안정화: 초록 구간에 맞춰 Space를 2번 성공시켜.");
+    return;
+  }
 
+  // ========================================================
+  // 환자 2 : 방향키 기억
+  // ========================================================
 
-    setMessage(
-        "🧠 환자 3 안정화: 숫자 코드 5개를 기억해."
-    );
+  if (patient.mission === "direction") {
+    const choices = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
+    const sequence = [];
+    for (let i = 0; i < 5; i++) {
+      sequence.push(choices[Math.floor(Math.random() * choices.length)]);
+    }
+    state.miniGame = {
+      type: "patientDirection",
+      patientId: patient.id,
 
+      // 기억해야 하는 방향키 배열
+      sequence: sequence,
+
+      // 3초간 보여주기
+      reveal: 3,
+
+      // 현재 입력한 위치
+      inputIndex: 0,
+    };
+    setMessage("🧠 환자 2 안정화: 3초 동안 표시되는 방향키 5개를 기억해.");
+    return;
+  }
+
+  // ========================================================
+  // 환자 3 : 숫자 기억
+  // ========================================================
+
+  const numbers = [];
+  for (let i = 0; i < 5; i++) {
+    numbers.push(String(1 + Math.floor(Math.random() * 4)));
+  }
+  state.miniGame = {
+    type: "patientMemory",
+    patientId: patient.id,
+
+    // 기억해야 할 숫자 배열
+    sequence: numbers,
+    reveal: 3,
+    inputIndex: 0,
+  };
+  setMessage("🧠 환자 3 안정화: 숫자 코드 5개를 기억해.");
 }
-
 
 // ============================================================
 // 환자 1 타이밍
 // ============================================================
 
 function handlePatientTiming() {
-
-    const game =
-        state.miniGame;
-
-
-    if (
-        game.pos >= 0.40
-        &&
-        game.pos <= 0.60
-    ) {
-
-        game.success +=
-            1;
-
-
-        if (
-            game.success >= 2
-        ) {
-
-            finishPatientMission(
-                game.patientId
-            );
-
-        }
-
-        else {
-
-            setMessage(
-                "✅ 1회 성공! 한 번 더 맞춰."
-            );
-
-        }
-
+  const game = state.miniGame;
+  if (game.pos >= 0.4 && game.pos <= 0.6) {
+    game.success += 1;
+    if (game.success >= 2) {
+      finishPatientMission(game.patientId);
+    } else {
+      setMessage("✅ 1회 성공! 한 번 더 맞춰.");
     }
-
-    else {
-
-        // 실패하면 성공 횟수 초기화
-        game.success =
-            0;
-
-
-        state.time =
-
-            Math.max(
-
-                0,
-
-                state.time
-                -
-                6
-
-            );
-
-
-        setMessage(
-            "❌ 타이밍 실패. 시간 -6초. 다시 2번 성공해야 해."
-        );
-
-    }
-
+  } else {
+    // 실패하면 성공 횟수 초기화
+    game.success = 0;
+    state.time = Math.max(0, state.time - 6);
+    setMessage("❌ 타이밍 실패. 시간 -6초. 다시 2번 성공해야 해.");
+  }
 }
-
 
 // ============================================================
 // 환자 2 방향키 입력
 // ============================================================
 
-function handleDirectionInput(
-    key
-) {
-
-    const game =
-        state.miniGame;
-
-
-    if (
-        !game
-        ||
-        game.type
-        !==
-        "patientDirection"
-        ||
-        game.reveal > 0
-    ) {
-
-        return false;
-
+function handleDirectionInput(key) {
+  const game = state.miniGame;
+  if (!game || game.type !== "patientDirection" || game.reveal > 0) {
+    return false;
+  }
+  const expected = game.sequence[game.inputIndex];
+  if (key === expected) {
+    game.inputIndex += 1;
+    if (game.inputIndex >= game.sequence.length) {
+      finishPatientMission(game.patientId);
+    } else {
+      setMessage("✅ " + game.inputIndex + "/5 입력 성공");
     }
-
-
-    const expected =
-
-        game.sequence[
-            game.inputIndex
-        ];
-
-
-    if (
-        key
-        ===
-        expected
-    ) {
-
-        game.inputIndex +=
-            1;
-
-
-        if (
-            game.inputIndex
-            >=
-            game.sequence.length
-        ) {
-
-            finishPatientMission(
-                game.patientId
-            );
-
-        }
-
-        else {
-
-            setMessage(
-
-                "✅ "
-                +
-                game.inputIndex
-                +
-                "/5 입력 성공"
-
-            );
-
-        }
-
-    }
-
-    else {
-
-        game.inputIndex =
-            0;
-
-
-        state.time =
-
-            Math.max(
-
-                0,
-
-                state.time
-                -
-                8
-
-            );
-
-
-        setMessage(
-            "❌ 순서가 틀렸어. 처음부터 다시! 시간 -8초."
-        );
-
-    }
-
-
-    return true;
-
+  } else {
+    // 지금 게임이 끝났습니다
+    state.miniGame = null;
+    setMessage("❌ 방향키가 틀렸어. 미니게임이 종료됐어.");
+  }
+  return true;
 }
-
 
 // ============================================================
 // 환자 3 숫자 입력
 // ============================================================
 
-function handleMemoryInput(
-    key
-) {
-
-    const game =
-        state.miniGame;
-
-
-    if (
-        !game
-        ||
-        game.type
-        !==
-        "patientMemory"
-        ||
-        game.reveal > 0
-    ) {
-
-        return false;
-
+function handleMemoryInput(key) {
+  const game = state.miniGame;
+  if (!game || game.type !== "patientMemory" || game.reveal > 0) {
+    return false;
+  }
+  const expected = game.sequence[game.inputIndex];
+  if (key === expected) {
+    game.inputIndex += 1;
+    if (game.inputIndex >= game.sequence.length) {
+      finishPatientMission(game.patientId);
+    } else {
+      setMessage("✅ " + game.inputIndex + "/5 입력 성공");
     }
-
-
-    const expected =
-
-        game.sequence[
-            game.inputIndex
-        ];
-
-
-    if (
-        key
-        ===
-        expected
-    ) {
-
-        game.inputIndex +=
-            1;
-
-
-        if (
-            game.inputIndex
-            >=
-            game.sequence.length
-        ) {
-
-            finishPatientMission(
-                game.patientId
-            );
-
-        }
-
-        else {
-
-            setMessage(
-
-                "✅ "
-                +
-                game.inputIndex
-                +
-                "/5 입력 성공"
-
-            );
-
-        }
-
-    }
-
-    else {
-
-        game.inputIndex =
-            0;
-
-
-        state.time =
-
-            Math.max(
-
-                0,
-
-                state.time
-                -
-                8
-
-            );
-
-
-        setMessage(
-            "❌ 코드가 틀렸어. 처음부터 다시! 시간 -8초."
-        );
-
-    }
-
-
-    return true;
-
+  } else {
+    state.miniGame = null;
+    setMessage("❌ 숫자가 틀렸어. 미니게임이 종료됐어.");
+  }
+  return true;
 }
-
 
 // ============================================================
 // 환자 안정화 완료
 // ============================================================
 
-function finishPatientMission(
-    patientId
-) {
-
-    const patient =
-
-        state.patients.find(
-
-            item =>
-                item.id
-                ===
-                patientId
-
-        );
-
-
-    patient.stabilized =
-        true;
-
-
-    state.miniGame =
-        null;
-
-
-    setMessage(
-
-        "✅ 환자 "
-        +
-        patient.id
-        +
-        " 상태 안정화 완료! 이제 대피 구역까지 데려가."
-
-    );
-
-
-    startEscort(
-        patient
-    );
-
+function finishPatientMission(patientId) {
+  const patient = state.patients.find((item) => item.id === patientId);
+  patient.stabilized = true;
+  state.miniGame = null;
+  setMessage(
+    "✅ 환자 " + patient.id + " 상태 안정화 완료! 이제 대피 구역까지 데려가.",
+  );
+  startEscort(patient);
 }
-
 
 // ============================================================
 // 환자 호송
 // ============================================================
 
-function startEscort(
-    patient
-) {
-
-    if (
-        state.escortPatientId
-        !==
-        null
-    ) {
-
-        setMessage(
-            "이미 다른 환자를 호송 중이야."
-        );
-
-
-        return;
-
-    }
-
-
-    patient.following =
-        true;
-
-
-    state.escortPatientId =
-        patient.id;
-
-
-    setMessage(
-
-        "🚶 환자 "
-        +
-        patient.id
-        +
-        "이 따라오고 있어. 시작 지점 옆 대피 구역으로 이동해."
-
-    );
-
+function startEscort(patient) {
+  if (state.escortPatientId !== null) {
+    setMessage("이미 다른 환자를 호송 중이야.");
+    return;
+  }
+  patient.following = true;
+  state.escortPatientId = patient.id;
+  setMessage(
+    "🚶 환자 " +
+      patient.id +
+      "이 따라오고 있어. 시작 지점 옆 대피 구역으로 이동해.",
+  );
 }
-
 
 // ============================================================
 // 그림자 이동
 // ============================================================
 
-function updateGhosts(dt) {
-
-    if (
-        invulnerable > 0
-    ) {
-
-        invulnerable -=
-            dt;
-
+// 상하좌우를 BFS로 탐색하여 최단 경로의 다음 타일을 반환한다.
+function findGhostStep(startX, startY, targetX, targetY) {
+  if (tileBlocked(targetX, targetY)) return null;
+  const start = startY * COLS + startX;
+  const target = targetY * COLS + targetX;
+  if (start === target) return null;
+  const parents = new Int32Array(COLS * ROWS).fill(-1);
+  const queue = [start];
+  parents[start] = start;
+  for (let head = 0; head < queue.length; head++) {
+    const current = queue[head];
+    const x = current % COLS;
+    const y = Math.floor(current / COLS);
+    for (const [nx, ny] of [[x, y - 1], [x + 1, y], [x, y + 1], [x - 1, y]]) {
+      if (tileBlocked(nx, ny)) continue;
+      const next = ny * COLS + nx;
+      if (parents[next] !== -1) continue;
+      parents[next] = current;
+      if (next === target) {
+        let step = next;
+        while (parents[step] !== start) step = parents[step];
+        return tileCenter(step % COLS, Math.floor(step / COLS));
+      }
+      queue.push(next);
     }
-
-
-    // 적 속도 증가 이벤트가 활성화된 경우
-    const boosted =
-
-        state.event.enemyBoost > 0
-
-        ?
-
-        1.5
-
-        :
-
-        1;
-
-
-    ghosts.forEach(
-
-        ghost => {
-
-            let targetX;
-
-            let targetY;
-
-
-            // 추격 상태라면 플레이어 위치가 목표
-            if (
-                state.chaseTimer > 0
-                &&
-                !state.hidden
-            ) {
-
-                const pc =
-                    playerCenter();
-
-
-                targetX =
-                    pc.x;
-
-
-                targetY =
-                    pc.y;
-
-            }
-
-            // 평소에는 순찰 지점
-            else {
-
-                const target =
-
-                    ghost.path[
-                        ghost.pathIndex
-                    ];
-
-
-                targetX =
-                    target.x;
-
-
-                targetY =
-                    target.y;
-
-            }
-
-
-            const cx =
-
-                ghost.x
-                +
-                ghost.w / 2;
-
-
-            const cy =
-
-                ghost.y
-                +
-                ghost.h / 2;
-
-
-            const dx =
-
-                targetX
-                -
-                cx;
-
-
-            const dy =
-
-                targetY
-                -
-                cy;
-
-
-            const distance =
-
-                Math.hypot(
-                    dx,
-                    dy
-                );
-
-
-            // 순찰 목적지 도착
-            if (
-                distance < 3
-                &&
-                state.chaseTimer <= 0
-            ) {
-
-                ghost.pathIndex =
-
-                    (
-                        ghost.pathIndex
-                        +
-                        1
-                    )
-
-                    %
-
-                    ghost.path.length;
-
-            }
-
-            else if (
-                distance > 0
-            ) {
-
-                const chaseMultiplier =
-
-                    state.chaseTimer > 0
-
-                    ?
-
-                    1.65
-
-                    :
-
-                    1;
-
-
-                ghost.x +=
-
-                    (
-                        dx
-                        /
-                        distance
-                    )
-
-                    *
-
-                    ghost.speed
-
-                    *
-
-                    boosted
-
-                    *
-
-                    chaseMultiplier
-
-                    *
-
-                    dt;
-
-
-                ghost.y +=
-
-                    (
-                        dy
-                        /
-                        distance
-                    )
-
-                    *
-
-                    ghost.speed
-
-                    *
-
-                    boosted
-
-                    *
-
-                    chaseMultiplier
-
-                    *
-
-                    dt;
-
-            }
-
-
-            // =================================================
-            // 플레이어와 충돌
-            // =================================================
-
-            if (
-                !state.hidden
-                &&
-                invulnerable <= 0
-            ) {
-
-                const pc =
-                    playerCenter();
-
-
-                const gc = {
-
-                    x:
-                        ghost.x
-                        +
-                        10,
-
-                    y:
-                        ghost.y
-                        +
-                        10
-
-                };
-
-
-                if (
-                    Math.hypot(
-
-                        pc.x
-                        -
-                        gc.x,
-
-                        pc.y
-                        -
-                        gc.y
-
-                    )
-
-                    <
-                    21
-                ) {
-
-                    // 체력 감소
-                    state.hearts -=
-                        1;
-
-
-                    // 연속 충돌 방지
-                    invulnerable =
-                        1.4;
-
-
-                    const start =
-                        findTile(
-                            "S"
-                        );
-
-
-                    // 시작 위치로 복귀
-                    player.x =
-
-                        start.x
-                        *
-                        TILE
-                        +
-                        1;
-
-
-                    player.y =
-
-                        start.y
-                        *
-                        TILE
-                        -
-                        4;
-
-
-                    setMessage(
-                        "👻 그림자와 부딪혔어! 체력 -1"
-                    );
-
-
-                    if (
-                        state.hearts <= 0
-                    ) {
-
-                        state.lost =
-                            true;
-
-
-                        showGameOver(
-                            "체력이 모두 소진됐어."
-                        );
-
-                    }
-
-                }
-
-            }
-
-        }
-
-    );
-
+  }
+  return null;
 }
 
+function ghostCollisionAt(ghost, x, y) {
+  return [[x, y], [x + ghost.w - 1, y],
+    [x, y + ghost.h - 1], [x + ghost.w - 1, y + ghost.h - 1]]
+    .some(([px, py]) => tileBlocked(Math.floor(px / TILE), Math.floor(py / TILE)));
+}
+
+function updateGhosts(dt) {
+  if (invulnerable > 0) {
+    invulnerable -= dt;
+  }
+
+  // 적 속도 증가 이벤트가 활성화된 경우
+  const boosted = state.event.enemyBoost > 0 ? 1.5 : 1;
+  ghosts.forEach((ghost) => {
+    const chasing = state.chaseTimer > 0 && !state.hidden;
+    const target = chasing ? playerCenter() : ghost.path[ghost.pathIndex];
+    const cx = ghost.x + ghost.w / 2;
+    const cy = ghost.y + ghost.h / 2;
+    const tx = Math.floor(cx / TILE);
+    const ty = Math.floor(cy / TILE);
+    const targetX = Math.floor(target.x / TILE);
+    const targetY = Math.floor(target.y / TILE);
+    const center = tileCenter(tx, ty);
+
+    // 타일 중심까지 이동을 마친 뒤 최신 플레이어 위치로 다시 탐색한다.
+    if (ghost.nextStep && tileBlocked(
+      Math.floor(ghost.nextStep.x / TILE), Math.floor(ghost.nextStep.y / TILE),
+    )) ghost.nextStep = null;
+    if (!ghost.nextStep) {
+      if (Math.hypot(center.x - cx, center.y - cy) > 0.01) {
+        ghost.nextStep = center;
+      } else if (tx === targetX && ty === targetY) {
+        if (chasing) ghost.nextStep = { x: target.x, y: target.y };
+      } else {
+        ghost.nextStep = findGhostStep(tx, ty, targetX, targetY);
+      }
+    }
+    if (!chasing && Math.hypot(target.x - cx, target.y - cy) < 3) {
+      ghost.pathIndex = (ghost.pathIndex + 1) % ghost.path.length;
+    }
+    if (ghost.nextStep) {
+      const dx = ghost.nextStep.x - cx;
+      const dy = ghost.nextStep.y - cy;
+      const distance = Math.hypot(dx, dy);
+      const step = Math.min(distance, ghost.speed * boosted * (chasing ? 1.65 : 1) * dt);
+      if (distance > 0) {
+        const x = ghost.x + dx / distance * step;
+        const y = ghost.y + dy / distance * step;
+        if (!ghostCollisionAt(ghost, x, y)) {
+          ghost.x = x;
+          ghost.y = y;
+        } else {
+          ghost.nextStep = null;
+        }
+      }
+      if (step >= distance) ghost.nextStep = null;
+    }
+
+    // =================================================
+    // 플레이어와 충돌
+    // =================================================
+
+    if (!state.hidden && invulnerable <= 0) {
+      const pc = playerCenter();
+      const gc = {
+        x: ghost.x + 10,
+        y: ghost.y + 10,
+      };
+      if (Math.hypot(pc.x - gc.x, pc.y - gc.y) < 21) {
+        // 체력 감소
+        state.hearts -= 1;
+
+        // 연속 충돌 방지
+        invulnerable = 1.4;
+        const start = findTile("S");
+
+        // 시작 위치로 복귀
+        player.x = start.x * TILE + 1;
+        player.y = start.y * TILE - 4;
+        setMessage("👻 그림자와 부딪혔어! 체력 -1");
+        if (state.hearts <= 0) {
+          state.lost = true;
+          showGameOver("체력이 모두 소진됐어.");
+        }
+      }
+    }
+  });
+}
 
 // ============================================================
 // 시간 시스템
