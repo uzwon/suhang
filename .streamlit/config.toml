@@ -1,0 +1,7 @@
+# Streamlit 페이지도 게임과 같은 어두운 색으로 맞춘다
+[theme]
+base = "dark"
+backgroundColor = "#0c0e1c"
+secondaryBackgroundColor = "#181c33"
+textColor = "#e8ecf6"
+primaryColor = "#feae34"

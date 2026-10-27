@@ -59,6 +59,26 @@ const TILE = 32;
 const COLS = 33;
 const ROWS = 20;
 
+// 거리: 타일, 각도: 라디안, 회전 속도: 라디안/초.
+const VISION_RADIUS = 2.5;
+const FLASHLIGHT_DISTANCE = 7;
+const FLASHLIGHT_ANGLE = 75 * Math.PI / 180;
+const VISION_TURN_SPEED = 10;
+const VISION_REVERSE_SPEED = 32;
+const VISION_DIAGONAL_HOLD = 0.1;
+const EXPLORED_DARKNESS = 0.78;
+const UNEXPLORED_DARKNESS = 0.995;
+const PRESENCE_DISTANCE = 6;
+const GHOST_SIGHT_DISTANCE = 5;
+const GHOST_SIGHT_ANGLE = Math.PI / 2;
+const GHOST_NEAR_DISTANCE = 1.5;
+const GHOST_REACTION_TIME = 0.4;
+const GHOST_SEARCH_TIME = 2;
+const GHOST_CORNER_GRACE = 2.5;
+const GHOST_CHASE_MULTIPLIER = 3.6;
+const fogCanvas = document.createElement("canvas");
+const fogContext = fogCanvas.getContext("2d");
+
 // ============================================================
 // 스테이지 데이터
 // ============================================================
@@ -498,197 +518,94 @@ function previousTutorialPage() {
 }
 
 // ============================================================
-// 프롤로그용 사각형
+// 프롤로그 그림
 // ============================================================
+// 게임과 같은 스프라이트를 4배로 확대해서 보여 준다.
 
-function tutorialRect(x, y, w, h, color) {
-  tutorialCtx.fillStyle = color;
-  tutorialCtx.fillRect(Math.round(x), Math.round(y), w, h);
+const TUTORIAL_SCALE = 4;
+
+function tutorialSprite(name, x, y, options = {}) {
+  Sprites.draw(tutorialCtx, name, x, y, { scale: TUTORIAL_SCALE, ...options });
 }
-
-// ============================================================
-// 프롤로그용 라벨
-// ============================================================
 
 function tutorialLabel(text, x, y) {
-  tutorialCtx.font = 'bold 13px "Malgun Gothic"';
-  tutorialCtx.textAlign = "center";
-  const width = tutorialCtx.measureText(text).width + 16;
-  tutorialRect(x - width / 2, y - 11, width, 22, "rgba(25,43,51,0.88)");
-  tutorialCtx.fillStyle = "#ffffff";
-  tutorialCtx.fillText(text, x, y + 5);
+  drawTag(tutorialCtx, text, x, y, "light");
 }
 
-// ============================================================
-// 프롤로그용 플레이어 캐릭터
-// ============================================================
-
-function drawTutorialPlayer(x, y, scale = 3) {
-  const r = (px, py, w, h, color) => {
-    tutorialRect(x + px * scale, y + py * scale, w * scale, h * scale, color);
-  };
-
-  // 외곽
-  r(6, 0, 18, 5, "#253038");
-  r(4, 4, 22, 12, "#253038");
-  r(6, 16, 18, 17, "#253038");
-
-  // 머리
-  r(7, 1, 16, 5, "#684334");
-  r(5, 5, 20, 5, "#79513e");
-
-  // 얼굴
-  r(9, 8, 12, 9, "#f3c4a3");
-
-  // 눈
-  r(11, 11, 2, 2, "#20272b");
-  r(17, 11, 2, 2, "#20272b");
-
-  // 의료복
-  r(11, 19, 9, 11, "#4ca8bb");
-
-  // 가운
-  r(6, 19, 6, 14, "#ffffff");
-  r(19, 19, 6, 14, "#ffffff");
-
-  // 바지
-  r(9, 31, 6, 5, "#344f76");
-  r(17, 31, 6, 5, "#344f76");
-
-  // 신발
-  r(8, 35, 7, 3, "#202b32");
-  r(17, 35, 7, 3, "#202b32");
-}
-
-// ============================================================
-// 프롤로그용 그림자
-// ============================================================
-
-function drawTutorialGhost(x, y, color, scale = 4) {
-  const r = (px, py, w, h, c) => {
-    tutorialRect(x + px * scale, y + py * scale, w * scale, h * scale, c);
-  };
-  r(2, 2, 16, 13, color);
-  r(4, 14, 4, 6, color);
-  r(9, 14, 4, 6, color);
-  r(14, 14, 4, 6, color);
-
-  // 눈
-  r(5, 6, 2, 2, "#ffffff");
-  r(12, 6, 2, 2, "#ffffff");
-}
-
-// ============================================================
-// 프롤로그용 카드
-// ============================================================
-
-function drawTutorialCard(x, y) {
-  tutorialRect(x, y, 68, 38, "#438bed");
-  tutorialRect(x + 10, y + 10, 16, 13, "#edf7ff");
-  tutorialRect(x + 35, y + 10, 22, 5, "#245788");
-}
-
-// ============================================================
-// 프롤로그용 퓨즈
-// ============================================================
-
-function drawTutorialFuse(x, y) {
-  tutorialRect(x + 15, y, 38, 55, "#e5c44e");
-  tutorialRect(x + 20, y + 8, 28, 12, "#fff3aa");
-}
-
-// ============================================================
-// 프롤로그용 배터리
-// ============================================================
-
-function drawTutorialBattery(x, y) {
-  tutorialRect(x + 12, y + 8, 42, 54, "#46a760");
-  tutorialRect(x + 25, y, 16, 9, "#d6e4e8");
-  tutorialRect(x + 25, y + 27, 15, 6, "#d7f9de");
-}
-
-// ============================================================
-// 프롤로그용 발전기
-// ============================================================
-
-function drawTutorialGenerator(x, y) {
-  tutorialRect(x, y, 100, 65, "#485d66");
-  tutorialRect(x + 17, y + 15, 64, 30, "#273940");
-  tutorialRect(x + 25, y + 23, 14, 14, "#e86666");
-  tutorialRect(x + 56, y + 23, 14, 14, "#e8c854");
-}
-
-// ============================================================
-// 프롤로그용 숨는 곳
-// ============================================================
-
-function drawTutorialHideSpot(x, y) {
-  tutorialRect(x, y, 80, 82, "#657a86");
-  tutorialRect(x + 12, y + 8, 56, 66, "#d2e0e5");
-  tutorialRect(x + 38, y + 8, 5, 66, "#8aa0aa");
-}
-
-// ============================================================
-// 프롤로그용 CCTV
-// ============================================================
-
-function drawTutorialCCTV(x, y) {
-  tutorialRect(x, y, 85, 60, "#344b53");
-  tutorialRect(x + 10, y + 10, 65, 34, "#6bb2d2");
-  tutorialRect(x + 31, y + 61, 24, 8, "#65777e");
-}
-
-// ============================================================
-// 프롤로그용 환자
-// ============================================================
-
-function drawTutorialPatient(x, y, color) {
-  tutorialRect(x + 22, y, 30, 16, "#544038");
-  tutorialRect(x + 25, y + 14, 24, 23, "#efc3a5");
-  tutorialRect(x + 15, y + 36, 45, 32, color);
-}
-
-// ============================================================
-// 프롤로그 장면 그리기
-// ============================================================
-
-function drawTutorialScene(scene) {
-  // 화면 초기화
-  tutorialCtx.clearRect(0, 0, tutorialCanvas.width, tutorialCanvas.height);
-
-  // 바닥
-  tutorialCtx.fillStyle = "#bacacf";
-  tutorialCtx.fillRect(0, 0, tutorialCanvas.width, tutorialCanvas.height);
-
-  // 바닥 타일 느낌
-  for (let x = 0; x < 780; x += 48) {
-    tutorialCtx.fillStyle = "rgba(255,255,255,0.13)";
-    tutorialCtx.fillRect(x, 0, 2, 245);
+// 벽 한 줄과 바닥 타일
+function drawTutorialBackground() {
+  const size = ART_TILE * TUTORIAL_SCALE;
+  for (let x = 0; x < tutorialCanvas.width; x += size) {
+    tutorialSprite("s1_wall_front", x, -16);
+    for (let y = 48; y < tutorialCanvas.height; y += size) {
+      const even = (x / size + (y - 48) / size) % 2 === 0;
+      tutorialSprite(even ? "s1_floor_a" : "s1_floor_b", x, y);
+    }
   }
-  for (let y = 0; y < 245; y += 48) {
-    tutorialCtx.fillStyle = "rgba(255,255,255,0.13)";
-    tutorialCtx.fillRect(0, y, 780, 2);
+  tutorialCtx.fillStyle = "rgba(12, 10, 28, 0.32)";
+  tutorialCtx.fillRect(0, 48, tutorialCanvas.width, 8);
+}
+
+// 발밑 그림자 + 캐릭터
+function tutorialCharacter(name, x, y) {
+  tutorialSprite("shadow", x, y);
+  tutorialSprite(name, x, y);
+}
+
+// 4px 도트로 만든 > 모양 화살표
+function drawTutorialChevron(x, y, alpha) {
+  tutorialCtx.globalAlpha = alpha;
+  tutorialCtx.fillStyle = "#e43b44";
+  for (let i = 0; i < 5; i++) {
+    tutorialCtx.fillRect(x + i * 4, y + i * 4, 8, 4);
+    tutorialCtx.fillRect(x + i * 4, y + 32 - i * 4, 8, 4);
   }
+  tutorialCtx.globalAlpha = 1;
+}
+
+// SPACE 키 모양
+function drawTutorialSpaceKey(x, y, pressed) {
+  const g = tutorialCtx;
+  const w = 152;
+  const h = 60;
+  const press = pressed ? 4 : 0;
+  g.fillStyle = "#181425";
+  g.fillRect(x + 4, y, w - 8, h);
+  g.fillRect(x, y + 4, w, h - 8);
+  g.fillStyle = "#5a6988";
+  g.fillRect(x + 4, y + 4, w - 8, h - 8);
+  g.fillStyle = "#c0cbdc";
+  g.fillRect(x + 4, y + 4 + press, w - 8, h - 16);
+  g.fillStyle = "#ffffff";
+  g.fillRect(x + 8, y + 8 + press, w - 16, h - 24);
+  g.fillStyle = "#262b44";
+  g.font = "bold 24px " + FONT;
+  g.textAlign = "center";
+  g.textBaseline = "middle";
+  g.fillText("SPACE", x + w / 2, y + 26 + press);
+}
+
+function drawTutorialScene(scene, time = 0) {
+  const g = tutorialCtx;
+  g.clearRect(0, 0, tutorialCanvas.width, tutorialCanvas.height);
+  drawTutorialBackground();
+  const bob = Math.round(Math.sin(time * 3)) * 4;
 
   // --------------------------------------------------------
   // PAGE 1
   // --------------------------------------------------------
 
   if (scene === "intro") {
-    // 왼쪽 병원 문
-    tutorialRect(35, 30, 170, 165, "#536c76");
-    tutorialRect(50, 45, 63, 135, "#a8bdc4");
-    tutorialRect(125, 45, 63, 135, "#a8bdc4");
-    tutorialRect(82, 58, 77, 10, "#d95f69");
-    tutorialLabel("잠긴 병원 출구", 120, 215);
+    tutorialSprite("elevator_closed", 120, 208);
+    tutorialLabel("잠긴 병원 출구", 120, 226);
 
-    // 가운데 플레이어
-    drawTutorialPlayer(330, 65, 3);
-    tutorialLabel("플레이어", 375, 205);
+    tutorialCharacter(Sprites.anim("doctor_walk_down", time, 6), 390, 204);
+    tutorialLabel("플레이어", 390, 226);
 
-    // 오른쪽 그림자
-    drawTutorialGhost(600, 75, "#957cff", 4);
-    tutorialLabel("정체불명의 그림자", 640, 205);
+    tutorialSprite("shadow", 650, 178, { alpha: 0.6 });
+    tutorialSprite(Sprites.anim("ghost_float", time, 4), 650, 140 + bob, { tint: "#957cff", alpha: 0.92 });
+    tutorialSprite("ghost_eyes_left_angry", 650, 140 + bob);
+    tutorialLabel("정체불명의 그림자", 650, 226);
   }
 
   // --------------------------------------------------------
@@ -696,29 +613,24 @@ function drawTutorialScene(scene) {
   // --------------------------------------------------------
 
   else if (scene === "player") {
-    drawTutorialPlayer(90, 42, 4);
-    tutorialLabel("흰 가운 = 나", 150, 215);
+    const directions = ["down", "left", "up", "right"];
+    const facing = directions[Math.floor(time / 1.2) % 4];
+    tutorialCharacter(Sprites.anim("doctor_walk_" + facing, time, 7), 150, 204);
+    tutorialLabel("흰 가운 = 나", 150, 226);
 
-    // 방향키
-    tutorialRect(370, 58, 52, 52, "#426675");
-    tutorialRect(310, 118, 52, 52, "#426675");
-    tutorialRect(370, 118, 52, 52, "#426675");
-    tutorialRect(430, 118, 52, 52, "#426675");
-    tutorialCtx.fillStyle = "#ffffff";
-    tutorialCtx.font = "bold 28px Arial";
-    tutorialCtx.textAlign = "center";
-    tutorialCtx.fillText("↑", 396, 94);
-    tutorialCtx.fillText("←", 336, 154);
-    tutorialCtx.fillText("↓", 396, 154);
-    tutorialCtx.fillText("→", 456, 154);
-    tutorialLabel("방향키 / WASD", 396, 210);
+    // 지금 걷는 방향의 키를 노랗게 표시
+    const keys = { up: [366, 70], left: [302, 128], down: [366, 128], right: [430, 128] };
+    for (const [direction, [x, y]] of Object.entries(keys)) {
+      if (direction === facing) {
+        g.fillStyle = "#feae34";
+        g.fillRect(x - 4, y - 4, 68, 60);
+      }
+      tutorialSprite("key_" + direction, x, y);
+    }
+    tutorialLabel("방향키 / WASD", 396, 226);
 
-    // Space 키
-    tutorialRect(570, 90, 150, 58, "#416675");
-    tutorialCtx.fillStyle = "#ffffff";
-    tutorialCtx.font = "bold 20px Arial";
-    tutorialCtx.fillText("SPACE", 645, 126);
-    tutorialLabel("상호작용", 645, 190);
+    drawTutorialSpaceKey(570, 104, time % 1.2 < 0.25);
+    tutorialLabel("상호작용", 645, 226);
   }
 
   // --------------------------------------------------------
@@ -726,20 +638,24 @@ function drawTutorialScene(scene) {
   // --------------------------------------------------------
 
   else if (scene === "items") {
-    drawTutorialCard(45, 60);
-    tutorialLabel("출입카드", 79, 130);
-    drawTutorialFuse(205, 50);
-    tutorialLabel("퓨즈", 238, 130);
-    drawTutorialBattery(350, 43);
-    tutorialLabel("비상 배터리", 383, 130);
-    drawTutorialGenerator(530, 45);
-    tutorialLabel("발전기", 580, 130);
+    const items = [
+      ["keycard", 90, "출입카드"],
+      ["fuse", 230, "퓨즈"],
+      ["battery", 370, "비상 배터리"],
+    ];
+    items.forEach(([name, x, label], index) => {
+      const itemBob = Math.round(Math.sin(time * 3 + index)) * 4;
+      tutorialSprite("shadow", x, 136, { alpha: 0.7 });
+      tutorialSprite(name, x, 134 + itemBob);
+      tutorialLabel(label, x, 160);
+    });
+    tutorialSprite(Sprites.anim("generator_on", time, 6), 560, 150);
+    tutorialLabel("발전기", 560, 160);
 
-    // 타이밍 게이지
-    tutorialRect(150, 180, 480, 18, "#263a43");
-    tutorialRect(352, 180, 76, 18, "#52d981");
-    tutorialRect(387, 171, 7, 36, "#ffe067");
-    tutorialLabel("노란 포인터를 초록 구간에서 멈추기", 390, 225);
+    // 타이밍 게이지 (게임과 같은 구간)
+    const pointer = 0.5 + 0.5 * Math.sin(time * 2.2);
+    drawTimingBar(g, pointer, 150, 186, 480, 0.42, 0.58);
+    tutorialLabel("노란 포인터를 초록 구간에서 멈추기", 390, 230);
   }
 
   // --------------------------------------------------------
@@ -747,23 +663,22 @@ function drawTutorialScene(scene) {
   // --------------------------------------------------------
 
   else if (scene === "enemy") {
-    // 그림자
-    drawTutorialGhost(90, 70, "#ff74a9", 4);
-    tutorialLabel("그림자 · 피해야 함", 130, 200);
+    const ghostX = 120 + Math.round(Math.sin(time * 2) * 16 / 4) * 4;
+    tutorialSprite("shadow", ghostX, 178, { alpha: 0.6 });
+    tutorialSprite(Sprites.anim("ghost_float", time, 4), ghostX, 140 + bob, { tint: "#ff74a9", alpha: 0.92 });
+    tutorialSprite("ghost_eyes_right_angry", ghostX, 140 + bob);
+    tutorialLabel("그림자 · 피해야 함", 130, 226);
 
-    // 추격 화살표
-    tutorialCtx.fillStyle = "#a24f5f";
-    tutorialCtx.font = "bold 42px Arial";
-    tutorialCtx.textAlign = "center";
-    tutorialCtx.fillText("→ → →", 330, 120);
+    for (let i = 0; i < 3; i++) {
+      const offset = (time * 48 + i * 44) % 132;
+      drawTutorialChevron(Math.round((236 + offset) / 4) * 4, 124, 1 - offset / 132);
+    }
 
-    // 플레이어
-    drawTutorialPlayer(420, 60, 3);
-    tutorialLabel("Shift로 달리기", 465, 200);
+    tutorialCharacter(Sprites.anim("doctor_walk_right", time, 12), 465, 204);
+    tutorialLabel("Shift로 달리기", 465, 226);
 
-    // 숨는 곳
-    drawTutorialHideSpot(625, 52);
-    tutorialLabel("숨는 곳", 665, 200);
+    tutorialSprite(time % 3 < 1.5 ? "locker" : "locker_hidden", 665, 208);
+    tutorialLabel("숨는 곳", 665, 226);
   }
 
   // --------------------------------------------------------
@@ -771,37 +686,25 @@ function drawTutorialScene(scene) {
   // --------------------------------------------------------
 
   else if (scene === "final") {
-    // CCTV
-    drawTutorialCCTV(55, 60);
-    tutorialLabel("CCTV", 98, 160);
+    tutorialSprite(Sprites.anim("cctv_on", time, 5), 98, 168);
+    tutorialLabel("CCTV", 98, 190);
 
-    // 기록
-    tutorialRect(225, 55, 60, 78, "#f4e7b8");
-    tutorialRect(238, 73, 34, 5, "#8e805f");
-    tutorialRect(238, 89, 34, 5, "#8e805f");
-    tutorialLabel("야간 기록", 255, 160);
+    tutorialSprite("record", 245, 160 + bob);
+    tutorialLabel("야간 기록", 245, 190);
 
-    // 환자
-    drawTutorialPatient(360, 55, "#77b8e8");
-    tutorialLabel("구조할 환자", 397, 160);
+    tutorialCharacter("patient1_down_0", 392, 172);
+    Sprites.draw(tutorialCtx, "bubble_alert", 420, 96 + bob, { scale: 3 });
+    tutorialLabel("구조할 환자", 392, 190);
 
-    // 대피 구역
-    tutorialRect(525, 62, 85, 65, "#5ba878");
-    tutorialRect(539, 75, 57, 39, "#9fe2b8");
-    tutorialLabel("대피 구역", 567, 160);
+    tutorialSprite("evac_zone", 516, 104);
+    tutorialLabel("대피 구역", 548, 190);
 
-    // 출구
-    tutorialRect(670, 50, 75, 90, "#6e858e");
-    tutorialRect(682, 60, 23, 72, "#a4b9c0");
-    tutorialRect(711, 60, 23, 72, "#a4b9c0");
-    tutorialRect(694, 67, 28, 8, "#6fe484");
-    tutorialLabel("최종 출구", 708, 160);
-    tutorialCtx.fillStyle = "#395761";
-    tutorialCtx.font = 'bold 18px "Malgun Gothic"';
-    tutorialCtx.textAlign = "center";
-    tutorialCtx.fillText("탐색 → 퍼즐 → 구조 → 탈출", 390, 220);
+    tutorialSprite("roof_open", 692, 172);
+    tutorialLabel("최종 출구", 692, 190);
+
+    drawTag(g, "탐색 → 퍼즐 → 구조 → 탈출", 390, 226, "focus");
   }
-  tutorialCtx.textAlign = "left";
+  g.textAlign = "left";
 }
 
 // ============================================================
@@ -918,6 +821,8 @@ function startStage() {
     // 추격
     // ----------------------------------------------------
 
+    explored: new Uint8Array(COLS * ROWS),
+    vision: { angle: Math.PI / 2, target: Math.PI / 2, diagonal: null, pending: null, elapsed: 0 },
     chaseTimer: 0,
 
     // CCTV 활성시간
@@ -972,7 +877,13 @@ function startStage() {
     }));
   }
   ghosts = createGhosts();
+  ghosts.forEach(initializeGhostAI);
   invulnerable = 0;
+
+  // 이 스테이지의 바닥과 벽을 미리 그려 둔다
+  staticLayer = buildStaticLayer();
+  followTrail = [];
+  followPatientId = null;
   state.logs.push("현재 구역 진입 : " + level().title);
   setMessage(level().story);
   subtitleText.innerHTML = level().title + " · Shift 달리기 · Space 상호작용";
@@ -1161,51 +1072,65 @@ function stageRecordCount() {
 // 오른쪽 UI 업데이트
 // ============================================================
 
+// 인벤토리 한 줄 (아이콘 + 이름 + 체크)
+function panelItem(done, icon, label, scale = 1) {
+  return `
+        <div class="item ${done ? "done" : ""}">
+            <span class="item-icon">${Sprites.icon(icon, scale)}</span>
+            <span class="item-name">${label}</span>
+            <span class="check"></span>
+        </div>
+    `;
+}
+
 function updatePanels() {
   stageBox.innerHTML = `
         <b>
             ${level().title}
         </b>
-        <br><br>
-        ${level().story}
+        <p>
+            ${level().story}
+        </p>
     `;
   const minutes = Math.floor(state.time / 60);
   const seconds = Math.floor(state.time % 60)
     .toString()
     .padStart(2, "0");
+  const hearts = [0, 1, 2, 3]
+    .map((index) => Sprites.icon(index < state.hearts ? "heart" : "heart_empty", 2))
+    .join("");
+  const mode = state.hidden
+    ? ["숨는 중", "hidden"]
+    : state.chaseTimer > 0
+      ? ["추격 중", "danger"]
+      : ["탐색 중", ""];
   statusBox.innerHTML = `
+      <div class="stat-grid">
         <div class="stat">
-            <b>진행</b>
-            ${currentLevelIndex + 1}/3
+            <span>진행</span>
+            <b>${currentLevelIndex + 1} / 3</b>
         </div>
         <div class="stat">
-            <b>남은 시간</b>
-            ${minutes}:${seconds}
+            <span>남은 시간</span>
+            <b class="${state.time < 60 ? "warn" : ""}">${minutes}:${seconds}</b>
         </div>
         <div class="stat">
-            <b>체력</b>
-            ${"❤️".repeat(Math.max(0, state.hearts))}
+            <span>체력</span>
+            <b class="hearts">${hearts}</b>
         </div>
         <div class="stat">
-            <b>스태미나</b>
-            ${Math.round(state.stamina)}/100
+            <span>스태미나</span>
+            <b class="meter ${state.stamina < 30 ? "low" : ""}"><i style="width:${Math.round(state.stamina)}%"></i></b>
         </div>
         <div class="stat">
-            <b>상태</b>
-            ${
-              state.hidden
-                ? "🫥 숨는 중"
-                : state.chaseTimer > 0
-                  ? "🚨 추격 중"
-                  : "탐색 중"
-            }
+            <span>상태</span>
+            <b class="badge ${mode[1]}">${mode[0]}</b>
         </div>
         <div class="stat">
-            <b>야간 기록</b>
-            ${stageRecordCount()}
-            /
-            ${state.records.length}
+            <span>야간 기록</span>
+            <b>${stageRecordCount()} / ${state.records.length}</b>
         </div>
+      </div>
     `;
 
   // ========================================================
@@ -1213,7 +1138,7 @@ function updatePanels() {
   // ========================================================
 
   if (level().type === "collect") {
-    progressTitle.innerHTML = "🎒 인벤토리";
+    progressTitle.innerHTML = Sprites.icon("icon_bag", 2, "icon") + "인벤토리";
     let objective = "";
     if (!state.hasKeycard) {
       objective = "① <b>출입카드</b>를 찾아.";
@@ -1229,28 +1154,12 @@ function updatePanels() {
       objective = "⑥ <b>엘리베이터</b>로 탈출해.";
     }
     objectiveBox.innerHTML = objective;
-    progressBox.innerHTML = `
-            <div class="item">
-                ${state.hasKeycard ? "✅" : "⬜"}
-                출입카드
-            </div>
-            <div class="item">
-                ${state.hasFuse ? "✅" : "⬜"}
-                퓨즈
-            </div>
-            <div class="item">
-                ${state.hasBattery ? "✅" : "⬜"}
-                비상 배터리
-            </div>
-            <div class="item">
-                ${state.powerOn ? "✅" : "⬜"}
-                전원 복구
-            </div>
-            <div class="item">
-                ${state.hasMasterKey ? "✅" : "⬜"}
-                마스터 키
-            </div>
-        `;
+    progressBox.innerHTML =
+      panelItem(state.hasKeycard, "keycard", "출입카드") +
+      panelItem(state.hasFuse, "fuse", "퓨즈") +
+      panelItem(state.hasBattery, "battery", "비상 배터리") +
+      panelItem(state.powerOn, "icon_bolt", "전원 복구") +
+      panelItem(state.hasMasterKey, "master_key", "마스터 키");
   }
 
   // ========================================================
@@ -1258,7 +1167,7 @@ function updatePanels() {
   // ========================================================
 
   else if (level().type === "switch") {
-    progressTitle.innerHTML = "🖥️ 격리 시스템";
+    progressTitle.innerHTML = Sprites.icon("icon_terminal", 2, "icon") + "격리 시스템";
     const sequenceText = state.sequenceKnown
       ? state.sequence.join(" → ")
       : "??? → ??? → ???";
@@ -1274,18 +1183,21 @@ function updatePanels() {
                 ${sequenceText}
             </b>
         `;
+    const chips = state.sequence
+      .map((symbol, index) => {
+        const label = state.sequenceKnown ? symbol : "?";
+        const done = index < state.switchProgress ? "done" : "";
+        return `<span class="chip ${done}">${label}</span>`;
+      })
+      .join("");
     progressBox.innerHTML = `
             <div class="item">
-                단말기 진행:
-                <b>
-                    ${state.switchProgress}/3
-                </b>
+                <span class="item-name">단말기 진행</span>
+                <b>${state.switchProgress}/3</b>
             </div>
-            <div class="item">
-                잘못 누르면
-                <b>
-                    초기화 + 시간 -20초
-                </b>
+            <div class="chips">${chips}</div>
+            <div class="item note">
+                잘못 누르면 <b>초기화 + 시간 -20초</b>
             </div>
         `;
   }
@@ -1295,7 +1207,7 @@ function updatePanels() {
   // ========================================================
 
   else {
-    progressTitle.innerHTML = "🩺 구조 현황";
+    progressTitle.innerHTML = Sprites.icon("bubble_heart", 2, "icon") + "구조 현황";
     let objective = "";
     if (state.escortPatientId !== null) {
       objective = `
@@ -1332,27 +1244,25 @@ function updatePanels() {
     objectiveBox.innerHTML = objective;
     progressBox.innerHTML = `
             <div class="item">
-                <b>
-                    구조 완료
-                </b>
-                ${rescueCount()}/3
+                <span class="item-name">구조 완료</span>
+                <b>${rescueCount()}/3</b>
             </div>
             ${state.patients
-              .map(
-                (patient) => `
-                    <div class="item">
-                        ${
-                          patient.rescued
-                            ? "✅ 구조 완료"
-                            : patient.following
-                              ? "🚶 호송 중"
-                              : patient.stabilized
-                                ? "🩺 안정화 완료"
-                                : "⬜ 미발견/미처치"
-                        }
-                        · 환자 ${patient.id}
-                    </div>
-                `,
+              .map((patient) =>
+                panelItem(
+                  patient.rescued,
+                  "patient" + patient.id + "_down_0",
+                  "환자 " +
+                    patient.id +
+                    " · " +
+                    (patient.rescued
+                      ? "구조 완료"
+                      : patient.following
+                        ? "호송 중"
+                        : patient.stabilized
+                          ? "안정화 완료"
+                          : "미발견/미처치"),
+                ),
               )
               .join("")}
         `;
@@ -1460,6 +1370,7 @@ function updatePlayer(dt) {
     dy += 1;
     player.facing = "down";
   }
+  updateVisionDirection(dx, dy, dt);
   player.walking = dx !== 0 || dy !== 0;
 
   // 대각선 이동 속도 보정
@@ -1487,10 +1398,11 @@ function updatePlayer(dt) {
   if (!collisionAt(player.x, player.y + moveY)) {
     player.y += moveY;
   }
+  // 걷기 애니메이션 4프레임 (달릴 때는 더 빠르게)
   if (player.walking) {
     player.walkTimer += dt;
-    if (player.walkTimer > 0.14) {
-      player.walkFrame = 1 - player.walkFrame;
+    if (player.walkTimer > (running ? 0.09 : 0.13)) {
+      player.walkFrame = (player.walkFrame + 1) % 4;
       player.walkTimer = 0;
     }
   } else {
@@ -1687,12 +1599,12 @@ function finishGeneratorMiniGame() {
     state.powerOn = true;
 
     // 발전기 복구 순간 추격 시작
-    state.chaseTimer = 20;
+    state.chaseTimer = Infinity;
 
     // 빨간 경고등
-    state.event.alarm = 20;
+    state.event.alarm = Infinity;
     setMessage(
-      "⚡ 발전기 복구 성공! 경보가 울리며 그림자가 20초 동안 추격한다! 달리거나 숨는 곳을 이용해!",
+      "⚡ 발전기 복구 성공! 스테이지를 클리어할 때까지 경보가 울리고 그림자가 추격한다! 달리거나 숨는 곳을 이용해!",
     );
     addLog("발전기 복구 → 그림자 추격 시작.");
   } else {
@@ -1746,9 +1658,9 @@ function activateTerminal(symbol) {
     state.switchProgress += 1;
     setMessage("✅ 단말기 " + symbol + " 활성화 성공.");
     if (state.switchProgress === 3) {
-      state.chaseTimer = 15;
-      state.event.alarm = 15;
-      setMessage("✅ 격리 시스템 해제! 경보 때문에 그림자가 15초간 추격한다!");
+      state.chaseTimer = Infinity;
+      state.event.alarm = Infinity;
+      setMessage("✅ 격리 시스템 해제! 스테이지를 클리어할 때까지 경보가 울리고 그림자가 추격한다!");
     }
   } else {
     state.switchProgress = 0;
@@ -1783,9 +1695,9 @@ function interactStage3() {
         meta.allPatientsRescued = true;
         state.finalEscapeStarted = true;
 
-        // 마지막 25초 추격
-        state.chaseTimer = 25;
-        state.event.alarm = 25;
+        // 스테이지 클리어까지 마지막 추격
+        state.chaseTimer = Infinity;
+        state.event.alarm = Infinity;
         setMessage(
           "🚨 환자 3명 모두 구조 완료! 옥상 출구가 열렸다. 마지막 추격을 피해서 탈출해!",
         );
@@ -2036,6 +1948,117 @@ function ghostCollisionAt(ghost, x, y) {
     .some(([px, py]) => tileBlocked(Math.floor(px / TILE), Math.floor(py / TILE)));
 }
 
+function initializeGhostAI(ghost) {
+  ghost.mode = "patrol";
+  ghost.modeTime = 0;
+  ghost.unseenTime = 0;
+  ghost.lastSeen = null;
+  ghost.alarmActive = false;
+  const target = ghost.path[ghost.pathIndex];
+  ghost.faceX = target.x - (ghost.x + ghost.w / 2);
+  ghost.faceY = target.y - (ghost.y + ghost.h / 2);
+}
+
+function ghostSeesPlayer(ghost) {
+  if (state.hidden) return false;
+  const origin = { x: ghost.x + ghost.w / 2, y: ghost.y + ghost.h / 2 };
+  const playerPos = playerCenter();
+  const dx = playerPos.x - origin.x, dy = playerPos.y - origin.y;
+  const distance = Math.hypot(dx, dy), angle = Math.atan2(dy, dx);
+  if (distance > GHOST_SIGHT_DISTANCE * TILE) return false;
+  const facing = Math.atan2(ghost.faceY, ghost.faceX);
+  const offset = Math.abs(Math.atan2(Math.sin(angle - facing), Math.cos(angle - facing)));
+  if (distance > GHOST_NEAR_DISTANCE * TILE && offset > GHOST_SIGHT_ANGLE / 2) return false;
+  return castVisionRay(angle, distance, false, origin) >= distance - 0.01;
+}
+
+function setGhostMode(ghost, mode) {
+  if (ghost.mode === mode) return;
+  ghost.mode = mode;
+  ghost.modeTime = 0;
+  ghost.unseenTime = 0;
+  // 이동 중에는 다음 타일 중심까지 진행해 기존 충돌/BFS 정렬을 유지한다.
+}
+
+function beginGhostReturn(ghost) {
+  const x = Math.floor((ghost.x + ghost.w / 2) / TILE);
+  const y = Math.floor((ghost.y + ghost.h / 2) / TILE);
+  const candidates = ghost.path.map((point, index) => ({ point, index }))
+    .sort((a, b) => Math.hypot(a.point.x - ghost.x, a.point.y - ghost.y)
+      - Math.hypot(b.point.x - ghost.x, b.point.y - ghost.y));
+  const nearest = candidates.find(({ point }) => {
+    const tx = Math.floor(point.x / TILE), ty = Math.floor(point.y / TILE);
+    return (tx === x && ty === y) || findGhostStep(x, y, tx, ty);
+  });
+  ghost.pathIndex = (nearest || candidates[0]).index;
+  setGhostMode(ghost, "return");
+}
+
+function updateGhostAI(ghost, dt) {
+  const visible = ghostSeesPlayer(ghost);
+  const alarm = state.chaseTimer > 0;
+  const alarmEnded = ghost.alarmActive && !alarm;
+  ghost.alarmActive = alarm;
+  ghost.modeTime += dt;
+  if (alarm && !state.hidden) {
+    ghost.lastSeen = { ...playerCenter() };
+    setGhostMode(ghost, "chase");
+  } else if (alarmEnded && ghost.mode === "chase") {
+    if (visible) ghost.lastSeen = { ...playerCenter() };
+    else setGhostMode(ghost, "lost");
+  }
+  if (ghost.mode === "patrol" || ghost.mode === "return") {
+    if (visible) {
+      ghost.lastSeen = { ...playerCenter() };
+      setGhostMode(ghost, "alert");
+      setMessage("👁️ 그림자에게 발견됐다!");
+    }
+  } else if (ghost.mode === "alert") {
+    if (visible) ghost.lastSeen = { ...playerCenter() };
+    if (ghost.modeTime >= GHOST_REACTION_TIME) setGhostMode(ghost, state.hidden ? "lost" : "chase");
+  } else if (ghost.mode === "chase") {
+    if (visible || (alarm && !state.hidden)) {
+      ghost.lastSeen = { ...playerCenter() }; ghost.unseenTime = 0;
+    } else {
+      ghost.unseenTime += dt;
+      if (state.hidden || ghost.unseenTime >= GHOST_CORNER_GRACE) setGhostMode(ghost, "lost");
+    }
+  } else if (ghost.mode === "lost" || ghost.mode === "search") {
+    if (visible) {
+      ghost.lastSeen = { ...playerCenter() }; setGhostMode(ghost, "chase");
+    } else if (ghost.mode === "search") {
+      const angle = Math.atan2(ghost.faceY, ghost.faceX) + dt * Math.PI;
+      ghost.faceX = Math.cos(angle); ghost.faceY = Math.sin(angle);
+      if (ghost.modeTime >= GHOST_SEARCH_TIME) beginGhostReturn(ghost);
+    }
+  }
+  if (ghost.mode === "alert" || ghost.mode === "search") return null;
+  if (ghost.mode === "chase" || ghost.mode === "lost") return ghost.lastSeen;
+  return ghost.path[ghost.pathIndex];
+}
+
+// 피격 시 원격으로 문제를 끝내거나 환자를 스폰으로 옮길 수 없도록 정리한다.
+function interruptPatientInteraction() {
+  state.miniGame = null;
+  if (state.escortPatientId !== null) {
+    const patient = state.patients.find((item) => item.id === state.escortPatientId);
+    const position = followTrail[0] || playerCenter();
+    let x = Math.floor(position.x / TILE), y = Math.floor(position.y / TILE);
+    if (tileBlocked(x, y)) {
+      const center = playerCenter();
+      x = Math.floor(center.x / TILE); y = Math.floor(center.y / TILE);
+    }
+    if (patient) {
+      patient.following = false;
+      patient.x = x;
+      patient.y = y;
+    }
+    state.escortPatientId = null;
+  }
+  followTrail = [];
+  followPatientId = null;
+}
+
 function updateGhosts(dt) {
   if (invulnerable > 0) {
     invulnerable -= dt;
@@ -2044,12 +2067,13 @@ function updateGhosts(dt) {
   // 적 속도 증가 이벤트가 활성화된 경우
   const boosted = state.event.enemyBoost > 0 ? 1.5 : 1;
   ghosts.forEach((ghost) => {
-    const chasing = state.chaseTimer > 0 && !state.hidden;
-    const target = chasing ? playerCenter() : ghost.path[ghost.pathIndex];
+    const target = updateGhostAI(ghost, dt);
+    const chasing = ghost.mode === "chase";
     const cx = ghost.x + ghost.w / 2;
     const cy = ghost.y + ghost.h / 2;
     const tx = Math.floor(cx / TILE);
     const ty = Math.floor(cy / TILE);
+    if (target) {
     const targetX = Math.floor(target.x / TILE);
     const targetY = Math.floor(target.y / TILE);
     const center = tileCenter(tx, ty);
@@ -2062,20 +2086,28 @@ function updateGhosts(dt) {
       if (Math.hypot(center.x - cx, center.y - cy) > 0.01) {
         ghost.nextStep = center;
       } else if (tx === targetX && ty === targetY) {
-        if (chasing) ghost.nextStep = { x: target.x, y: target.y };
+        ghost.nextStep = { x: target.x, y: target.y };
       } else {
         ghost.nextStep = findGhostStep(tx, ty, targetX, targetY);
       }
     }
-    if (!chasing && Math.hypot(target.x - cx, target.y - cy) < 3) {
-      ghost.pathIndex = (ghost.pathIndex + 1) % ghost.path.length;
+    if (Math.hypot(target.x - cx, target.y - cy) < 3) {
+      if (ghost.mode === "patrol") ghost.pathIndex = (ghost.pathIndex + 1) % ghost.path.length;
+      else if (ghost.mode === "return") setGhostMode(ghost, "patrol");
+      else if (ghost.mode === "lost") {
+        ghost.nextStep = null;
+        setGhostMode(ghost, "search");
+      }
     }
-    if (ghost.nextStep) {
+    if (ghost.nextStep && ghost.mode !== "search") {
       const dx = ghost.nextStep.x - cx;
       const dy = ghost.nextStep.y - cy;
       const distance = Math.hypot(dx, dy);
-      const step = Math.min(distance, ghost.speed * boosted * (chasing ? 1.65 : 1) * dt);
+      const step = Math.min(distance, ghost.speed * boosted * (chasing ? GHOST_CHASE_MULTIPLIER : 1) * dt);
       if (distance > 0) {
+        // 눈이 바라볼 방향
+        ghost.faceX = dx;
+        ghost.faceY = dy;
         const x = ghost.x + dx / distance * step;
         const y = ghost.y + dy / distance * step;
         if (!ghostCollisionAt(ghost, x, y)) {
@@ -2086,6 +2118,7 @@ function updateGhosts(dt) {
         }
       }
       if (step >= distance) ghost.nextStep = null;
+    }
     }
 
     // =================================================
@@ -2099,6 +2132,8 @@ function updateGhosts(dt) {
         y: ghost.y + 10,
       };
       if (Math.hypot(pc.x - gc.x, pc.y - gc.y) < 21) {
+        ghost.lastSeen = { ...pc };
+        setGhostMode(ghost, "lost");
         // 체력 감소
         state.hearts -= 1;
 
@@ -2107,6 +2142,7 @@ function updateGhosts(dt) {
         const start = findTile("S");
 
         // 시작 위치로 복귀
+        interruptPatientInteraction();
         player.x = start.x * TILE + 1;
         player.y = start.y * TILE - 4;
         setMessage("👻 그림자와 부딪혔어! 체력 -1");
@@ -2134,7 +2170,7 @@ function updateTimedSystems(dt) {
     state.chaseTimer -= dt;
     if (state.chaseTimer <= 0) {
       state.chaseTimer = 0;
-      setMessage("✅ 그림자의 추격이 끝났어. 다시 순찰 상태로 돌아갔어.");
+      setMessage("✅ 경보가 멈췄어. 그림자의 시야를 피해 따돌려!");
     }
   }
 
@@ -2218,6 +2254,7 @@ function update(dt) {
   }
   updateTimedSystems(dt);
   updatePlayer(dt);
+  updateFollower();
   updateGhosts(dt);
   updatePanels();
 }
@@ -2256,6 +2293,8 @@ function clearStage() {
   }
   // 우승로직
   state.won = true;
+  state.event.alarm = 0;
+  state.chaseTimer = 0;
   const rank = calculateRank();
   meta.stageResults.push({
     stage: currentLevelIndex + 1,
@@ -2379,553 +2418,930 @@ function showFatalError(reason) {
 }
 
 // ============================================================
-// Canvas 사각형
+// 화면 그리기 준비
 // ============================================================
+// 맵과 캐릭터는 도트 해상도(타일 16px)의 worldCanvas 에 그린 뒤
+// 게임 Canvas 에 2배로 확대해서 옮긴다. 그래서 모든 도트 크기가 같다.
+// 이름표 · HUD · 미니게임은 확대한 다음 게임 Canvas 에 바로 그린다.
 
-function rect(x, y, w, h, color) {
-  ctx.fillStyle = color;
-  ctx.fillRect(Math.round(x), Math.round(y), w, h);
+// 도트 1픽셀 = 화면 2픽셀
+const PIXEL = 2;
+const ART_TILE = TILE / PIXEL;
+
+const FONT = '"Galmuri11", "Malgun Gothic", sans-serif';
+
+const worldCanvas = document.createElement("canvas");
+worldCanvas.width = COLS * ART_TILE;
+worldCanvas.height = ROWS * ART_TILE;
+const wctx = worldCanvas.getContext("2d");
+wctx.imageSmoothingEnabled = false;
+
+// 어둠과 조명을 그리는 레이어
+const lightCanvas = document.createElement("canvas");
+lightCanvas.width = worldCanvas.width;
+lightCanvas.height = worldCanvas.height;
+const lctx = lightCanvas.getContext("2d");
+
+// 스테이지 시작 때 한 번만 그려 두는 바닥 + 벽
+let staticLayer = null;
+
+// 화면 가장자리를 어둡게 하는 비네트
+let vignetteLayer = null;
+
+// 애니메이션 시간 (초)
+let animTime = 0;
+
+// 호송 중인 환자가 따라오는 플레이어 발자국
+let followTrail = [];
+let followPatientId = null;
+let followFacing = "down";
+
+// 화면 좌표(px) → 도트 좌표
+function art(value) {
+  return Math.round(value / PIXEL);
 }
 
-// ============================================================
-// 오브젝트 이름표
-// ============================================================
-
-function drawLabel(text, centerX, y) {
-  ctx.save();
-  ctx.font = '9px "Malgun Gothic", sans-serif';
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  const width = Math.min(ctx.measureText(text).width + 8, 82);
-  rect(centerX - width / 2, y - 7, width, 13, "rgba(18,34,42,0.82)");
-  ctx.fillStyle = "#ffffff";
-  ctx.fillText(text, centerX, y);
-  ctx.restore();
+function playerFeet() {
+  return {
+    x: player.x + 15,
+    y: player.y + 28,
+  };
 }
 
-// ============================================================
-// 바닥
-// ============================================================
-
-function drawFloor() {
-  for (let y = 0; y < ROWS; y++) {
-    for (let x = 0; x < COLS; x++) {
-      if (level().map[y][x] !== "#") {
-        const floorColor =
-          (x + y) % 2 === 0 ? level().palette.floor1 : level().palette.floor2;
-        rect(x * TILE, y * TILE, TILE, TILE, floorColor);
-      }
-    }
+function isWall(x, y) {
+  if (x < 0 || y < 0 || x >= COLS || y >= ROWS) {
+    return true;
   }
+  return level().map[y][x] === "#";
+}
+
+// 타일마다 고정된 0~1 값 (바닥 얼룩 위치에 사용)
+function tileNoise(x, y) {
+  const n = Math.sin(x * 127.1 + y * 311.7 + currentLevelIndex * 74.7) * 43758.5453;
+  return n - Math.floor(n);
+}
+
+function hexToRgba(hex, alpha) {
+  const value = parseInt(hex.slice(1), 16);
+  return `rgba(${value >> 16}, ${(value >> 8) & 255}, ${value & 255}, ${alpha})`;
 }
 
 // ============================================================
-// 벽
+// 호송 중인 환자 따라오기
 // ============================================================
 
-function drawWalls() {
-  for (let y = 0; y < ROWS; y++) {
-    for (let x = 0; x < COLS; x++) {
-      if (level().map[y][x] === "#") {
-        rect(x * TILE, y * TILE, TILE, TILE, level().palette.wall1);
-        rect(
-          x * TILE + 3,
-          y * TILE + 3,
-          TILE - 6,
-          TILE - 6,
-          level().palette.wall2,
-        );
-        rect(
-          x * TILE + 6,
-          y * TILE + 6,
-          TILE - 12,
-          TILE - 12,
-          level().palette.wall3,
-        );
-      }
-    }
-  }
-}
+// 환자가 플레이어 발자국 몇 개 뒤를 따라올지
+const FOLLOW_GAP = 10;
 
-// ============================================================
-// 병원 공통 오브젝트
-// ============================================================
-
-function drawFurniture() {
-  for (let y = 0; y < ROWS; y++) {
-    for (let x = 0; x < COLS; x++) {
-      const symbol = level().map[y][x];
-      const px = x * TILE;
-      const py = y * TILE;
-
-      // 창문
-      if (symbol === "W") {
-        rect(px + 3, py + 2, 26, 19, "#9fb7c1");
-        rect(px + 5, py + 4, 22, 15, "#153954");
-        drawLabel("창문", px + 16, py + 28);
-      }
-
-      // 안내 데스크
-      if (symbol === "T") {
-        rect(px + 4, py + 5, 24, 13, "#8d674a");
-        rect(px + 4, py + 3, 24, 4, "#bb916b");
-        drawLabel("안내 데스크", px + 16, py + 28);
-      }
-
-      // 침대
-      if (symbol === "H") {
-        rect(px + 2, py + 5, 28, 15, "#d8e6eb");
-        rect(px + 4, py + 7, 9, 6, "#b9d5df");
-        drawLabel("병원 침대", px + 16, py + 28);
-      }
-
-      // 간호 스테이션
-      if (symbol === "N") {
-        rect(px + 3, py + 6, 26, 13, "#e7f0f3");
-        rect(px + 5, py + 3, 22, 5, "#73a8ba");
-        drawLabel("간호 스테이션", px + 16, py + 28);
-      }
-
-      // 휠체어
-      if (symbol === "Q") {
-        rect(px + 7, py + 4, 10, 6, "#66859b");
-        rect(px + 4, py + 12, 8, 8, "#33474f");
-        rect(px + 17, py + 12, 8, 8, "#33474f");
-        drawLabel("휠체어", px + 16, py + 28);
-      }
-
-      // 자판기
-      if (symbol === "V") {
-        rect(px + 7, py + 2, 18, 22, "#bd4755");
-        rect(px + 9, py + 5, 14, 8, "#cfebf4");
-        drawLabel("자판기", px + 16, py + 29);
-      }
-
-      // 숨는 곳
-      if (symbol === "h") {
-        rect(px + 5, py + 3, 22, 20, "#657a86");
-        rect(px + 8, py + 5, 16, 17, "#d2e0e5");
-        rect(px + 15, py + 5, 2, 17, "#8aa0aa");
-        drawLabel("숨는 곳", px + 16, py + 29);
-      }
-
-      // CCTV
-      if (symbol === "Z") {
-        rect(px + 4, py + 3, 24, 18, "#344b53");
-        rect(px + 7, py + 6, 18, 10, "#6bb2d2");
-        drawLabel("CCTV", px + 16, py + 29);
-      }
-
-      // STAGE 3 대피구역
-      if (symbol === "Y") {
-        rect(px + 2, py + 3, 28, 18, "#5ba878");
-        rect(px + 6, py + 7, 20, 10, "#9fe2b8");
-        drawLabel("대피 구역", px + 16, py + 29);
-      }
-    }
-  }
-}
-
-// ============================================================
-// 출구
-// ============================================================
-
-function drawExitDoor(px, py, label, open) {
-  rect(px + 2, py + 1, 28, 23, "#6e858e");
-  rect(px + 5, py + 3, 10, 20, "#a4b9c0");
-  rect(px + 17, py + 3, 10, 20, "#a4b9c0");
-
-  // 초록 = 사용 가능 / 빨강 = 잠김
-  rect(px + 10, py + 5, 12, 3, open ? "#6fe484" : "#d45f68");
-  drawLabel(label, px + 16, py + 29);
-}
-
-// ============================================================
-// 스테이지 특수 오브젝트
-// ============================================================
-
-function drawStageObjects() {
-  for (let y = 0; y < ROWS; y++) {
-    for (let x = 0; x < COLS; x++) {
-      const symbol = level().map[y][x];
-      const px = x * TILE;
-      const py = y * TILE;
-
-      // =================================================
-      // STAGE 1
-      // =================================================
-
-      if (level().type === "collect") {
-        // 카드
-        if (symbol === "K" && !state.hasKeycard) {
-          rect(px + 6, py + 5, 20, 11, "#438bed");
-          rect(px + 9, py + 8, 5, 4, "#e4f4ff");
-          drawLabel("출입카드", px + 16, py + 25);
-        }
-
-        // 퓨즈
-        if (symbol === "F" && !state.hasFuse) {
-          rect(px + 9, py + 3, 14, 17, "#e5c44e");
-          drawLabel("퓨즈", px + 16, py + 27);
-        }
-
-        // 배터리
-        if (symbol === "B" && !state.hasBattery) {
-          rect(px + 9, py + 3, 14, 18, "#46a760");
-          drawLabel("비상 배터리", px + 16, py + 28);
-        }
-
-        // 발전기
-        if (symbol === "P") {
-          rect(px + 3, py + 4, 26, 18, "#485d66");
-          rect(px + 8, py + 8, 16, 8, "#273940");
-          drawLabel("발전기", px + 16, py + 29);
-        }
-
-        // 마스터 키
-        if (symbol === "M" && !state.hasMasterKey) {
-          rect(px + 7, py + 7, 18, 6, "#f0c13b");
-          drawLabel("마스터 키", px + 16, py + 25);
-        }
-
-        // 카드 보안문
-        if (symbol === "C") {
-          rect(
-            px + 5,
-            py + 1,
-            22,
-            23,
-            state.hasKeycard ? "#74aa89" : "#517fb5",
-          );
-          drawLabel("보안문", px + 16, py + 29);
-        }
-
-        // 전원문
-        if (symbol === "D") {
-          rect(px + 5, py + 1, 22, 23, state.powerOn ? "#74aa89" : "#806044");
-          drawLabel("전원문", px + 16, py + 29);
-        }
-
-        // 엘리베이터
-        if (symbol === "E") {
-          drawExitDoor(
-            px,
-            py,
-            "엘리베이터",
-            state.hasMasterKey && state.powerOn,
-          );
-        }
-      }
-
-      // =================================================
-      // STAGE 2
-      // =================================================
-
-      if (level().type === "switch") {
-        // 단말기
-        if (["A", "B", "C"].includes(symbol)) {
-          rect(px + 6, py + 3, 20, 20, "#344b53");
-          rect(px + 9, py + 6, 14, 9, "#6bb2d2");
-          drawLabel("단말기 " + symbol, px + 16, py + 29);
-        }
-
-        // 연구 메모
-        if (symbol === "L") {
-          rect(px + 8, py + 4, 16, 19, "#efe2b6");
-          drawLabel("연구 메모", px + 16, py + 29);
-        }
-
-        // 제독실 출구
-        if (symbol === "X") {
-          drawExitDoor(px, py, "제독실 출구", state.switchProgress === 3);
-        }
-      }
-
-      // =================================================
-      // STAGE 3
-      // =================================================
-
-      if (level().type === "rescue" && symbol === "R") {
-        drawExitDoor(px, py, "옥상 출구", rescueCount() === 3);
-      }
-    }
-  }
-}
-
-// ============================================================
-// 환자
-// ============================================================
-
-function drawPatients() {
-  if (level().type !== "rescue") {
-    return;
-  }
-  for (const patient of state.patients) {
-    // 이미 구조되거나 따라오면 원래 자리에서는 숨김
-    if (patient.rescued || patient.following) {
-      continue;
-    }
-    const px = patient.x * TILE;
-    const py = patient.y * TILE;
-    const colors = ["#77b8e8", "#83c985", "#e5a26c"];
-
-    // 머리
-    rect(px + 11, py + 3, 10, 5, "#544038");
-
-    // 얼굴
-    rect(px + 12, py + 7, 8, 7, "#efc3a5");
-
-    // 환자복
-    rect(px + 9, py + 14, 14, 9, colors[patient.id - 1]);
-    drawLabel("환자 " + patient.id, px + 16, py + 29);
-  }
-}
-
-// ============================================================
-// 호송 중인 환자
-// ============================================================
-
-function drawEscortPatient() {
+function updateFollower() {
   if (state.escortPatientId === null) {
+    followPatientId = null;
     return;
   }
-  const patient = state.patients.find(
-    (item) => item.id === state.escortPatientId,
-  );
+  const feet = playerFeet();
 
-  // 플레이어 뒤쪽에 표시
-  const x = player.x - 22;
-  const y = player.y + 9;
-  rect(x + 7, y, 10, 5, "#544038");
-  rect(x + 8, y + 5, 8, 7, "#efc3a5");
-  rect(x + 5, y + 12, 14, 9, "#88b9d5");
-  ctx.fillStyle = "#ffffff";
-  ctx.font = '9px "Malgun Gothic"';
-  ctx.fillText("환자 " + patient.id, x, y + 30);
+  // 호송 시작: 환자가 서 있던 자리에서 플레이어 쪽으로 걸어온다
+  if (followPatientId !== state.escortPatientId) {
+    const patient = state.patients.find((item) => item.id === state.escortPatientId);
+    const start = tileCenter(patient.x, patient.y);
+    start.y += 12;
+    followTrail = [];
+    for (let i = 0; i <= FOLLOW_GAP; i++) {
+      const t = i / FOLLOW_GAP;
+      followTrail.push({
+        x: start.x + (feet.x - start.x) * t,
+        y: start.y + (feet.y - start.y) * t,
+      });
+    }
+    followPatientId = state.escortPatientId;
+    return;
+  }
+
+  const last = followTrail[followTrail.length - 1];
+  const distance = Math.hypot(feet.x - last.x, feet.y - last.y);
+
+  // 불연속 이동이 발생해도 환자를 순간이동시키지 않고 현장에 남긴다.
+  if (distance > 64) {
+    interruptPatientInteraction();
+  } else if (distance >= 3) {
+    followTrail.push({ x: feet.x, y: feet.y });
+    if (followTrail.length > FOLLOW_GAP + 1) {
+      followTrail.shift();
+    }
+  }
 }
 
 // ============================================================
-// 야간 기록
+// 바닥 + 벽 (스테이지 시작 때 한 번만 그린다)
 // ============================================================
 
-function drawRecords() {
+function buildStaticLayer() {
+  const layer = document.createElement("canvas");
+  layer.width = worldCanvas.width;
+  layer.height = worldCanvas.height;
+  const g = layer.getContext("2d");
+  const prefix = "s" + (currentLevelIndex + 1);
+
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      const px = x * ART_TILE;
+      const py = y * ART_TILE;
+      if (isWall(x, y)) {
+        drawWallTile(g, prefix, x, y, px, py);
+        continue;
+      }
+      Sprites.draw(g, prefix + ((x + y) % 2 === 0 ? "_floor_a" : "_floor_b"), px, py);
+      const noise = tileNoise(x, y);
+      if (noise < 0.05) {
+        Sprites.draw(g, "floor_crack", px, py);
+      } else if (noise < 0.08) {
+        Sprites.draw(g, "floor_stain", px, py);
+      }
+
+      // 벽이 바닥에 드리우는 그림자
+      if (isWall(x, y - 1)) {
+        g.fillStyle = "rgba(12, 10, 28, 0.34)";
+        g.fillRect(px, py, ART_TILE, 2);
+        g.fillStyle = "rgba(12, 10, 28, 0.16)";
+        g.fillRect(px, py + 2, ART_TILE, 2);
+      }
+      if (isWall(x - 1, y)) {
+        g.fillStyle = "rgba(12, 10, 28, 0.22)";
+        g.fillRect(px, py, 2, ART_TILE);
+      }
+    }
+  }
+
+  // 벽에 붙은 창문, 바닥에 칠한 대피 구역
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      const symbol = level().map[y][x];
+      if (symbol === "W") {
+        const wy = isWall(x, y - 1) ? y - 1 : y;
+        Sprites.draw(g, "window", x * ART_TILE, wy * ART_TILE);
+      }
+      if (symbol === "Y") {
+        Sprites.draw(g, "evac_zone", x * ART_TILE, y * ART_TILE);
+      }
+    }
+  }
+  return layer;
+}
+
+// 주변 벽 모양에 맞춰 윗면/앞면과 테두리 조각을 고른다
+function drawWallTile(g, prefix, x, y, px, py) {
+  const n = isWall(x, y - 1);
+  const e = isWall(x + 1, y);
+  const s = isWall(x, y + 1);
+  const w = isWall(x - 1, y);
+  const piece = (name) => Sprites.draw(g, prefix + "_" + name, px, py);
+
+  if (s) {
+    // 아래도 벽이면 윗면만 보인다
+    piece("wall_cap");
+    if (!e) {
+      piece("rim_e");
+    } else if (!isWall(x + 1, y + 1)) {
+      piece("rim_e_low");
+    }
+    if (!w) {
+      piece("rim_w");
+    } else if (!isWall(x - 1, y + 1)) {
+      piece("rim_w_low");
+    }
+  } else {
+    // 아래가 바닥이면 벽 앞면이 보인다
+    piece("wall_front");
+    if (!e) {
+      piece("front_e");
+    }
+    if (!w) {
+      piece("front_w");
+    }
+  }
+  if (!n) {
+    piece("rim_n");
+  }
+  if (n && e && !isWall(x + 1, y - 1)) {
+    piece("corner_ne");
+  }
+  if (n && w && !isWall(x - 1, y - 1)) {
+    piece("corner_nw");
+  }
+}
+
+// ============================================================
+// 맵 기호 → 오브젝트 스프라이트
+// ============================================================
+
+function nearestHideSpot() {
+  const pc = playerCenter();
+  let best = null;
+  let bestDistance = Infinity;
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      if (level().map[y][x] !== "h") {
+        continue;
+      }
+      const center = tileCenter(x, y);
+      const distance = Math.hypot(pc.x - center.x, pc.y - center.y);
+      if (distance < bestDistance) {
+        best = { x, y };
+        bestDistance = distance;
+      }
+    }
+  }
+  return best;
+}
+
+function terminalActive(symbol) {
+  return state.sequence.slice(0, state.switchProgress).includes(symbol);
+}
+
+function propSprite(symbol, x, y, hiddenSpot) {
+  const map = level().map;
+  const type = level().type;
+
+  // 모든 스테이지 공통
+  if (symbol === "T") return { name: "desk" };
+  if (symbol === "N") return { name: "nurse_station" };
+  if (symbol === "Q") return { name: "wheelchair" };
+  if (symbol === "V") return { name: "vending" };
+  if (symbol === "G") return { name: "plant" };
+  if (symbol === "H") {
+    const above = y > 0 && map[y - 1][x] === "H";
+    const below = y < ROWS - 1 && map[y + 1][x] === "H";
+    return { name: above ? "bed_foot" : below ? "bed_head" : "bed" };
+  }
+  if (symbol === "h") {
+    const hiddenHere = hiddenSpot && hiddenSpot.x === x && hiddenSpot.y === y;
+    return { name: hiddenHere ? "locker_hidden" : "locker" };
+  }
+  if (symbol === "Z") {
+    return { name: state.cctvTimer > 0 ? Sprites.anim("cctv_on", animTime, 6) : "cctv" };
+  }
+
+  // STAGE 1
+  if (type === "collect") {
+    if (symbol === "K" && !state.hasKeycard) return { name: "keycard", item: true };
+    if (symbol === "F" && !state.hasFuse) return { name: "fuse", item: true };
+    if (symbol === "B" && !state.hasBattery) return { name: "battery", item: true };
+    if (symbol === "M" && !state.hasMasterKey) return { name: "master_key", item: true };
+    if (symbol === "P") {
+      return {
+        name: state.powerOn
+          ? Sprites.anim("generator_on", animTime, 8)
+          : Sprites.anim("generator_off", animTime, 2),
+      };
+    }
+    if (symbol === "C") return { name: state.hasKeycard ? "security_open" : "security_closed" };
+    if (symbol === "D") return { name: state.powerOn ? "shutter_open" : "shutter_closed" };
+    if (symbol === "E") {
+      return { name: state.powerOn && state.hasMasterKey ? "elevator_open" : "elevator_closed" };
+    }
+  }
+
+  // STAGE 2
+  if (type === "switch") {
+    if (["A", "B", "C"].includes(symbol)) {
+      return { name: "terminal_" + symbol + (terminalActive(symbol) ? "_on" : "") };
+    }
+    if (symbol === "L") return { name: "memo", item: true };
+    if (symbol === "X") return { name: state.switchProgress === 3 ? "decon_open" : "decon_closed" };
+  }
+
+  // STAGE 3
+  if (type === "rescue" && symbol === "R") {
+    return { name: rescueCount() === 3 ? "roof_open" : "roof_closed" };
+  }
+  return null;
+}
+
+// ============================================================
+// 오브젝트 · 캐릭터 그리기
+// ============================================================
+
+// 떠 있는 아이템 + 반짝임
+function drawItem(name, cx, bottom, seed) {
+  const bob = Math.round(Math.sin(animTime * 3 + seed));
+  Sprites.draw(wctx, "shadow", cx, bottom - 2, { alpha: 0.8 });
+  Sprites.draw(wctx, name, cx, bottom - 3 + bob);
+  const cycle = (animTime + seed * 0.7) % 2.4;
+  if (cycle < 0.6) {
+    Sprites.draw(wctx, Sprites.animFrames("sparkle")[Math.floor(cycle / 0.1)], cx + 5, bottom - 12 + bob);
+  }
+}
+
+function drawPatient(patient, cx, bottom) {
+  Sprites.draw(wctx, "shadow", cx, bottom);
+  Sprites.draw(wctx, "patient" + patient.id + "_down_0", cx, bottom);
+  const bob = Math.round(Math.sin(animTime * 4 + patient.id));
+  Sprites.draw(wctx, patient.stabilized ? "bubble_heart" : "bubble_alert", cx + 6, bottom - 21 + bob);
+}
+
+function drawFollower() {
+  const position = followTrail[0];
+  const next = followTrail[1];
+  const dx = next.x - position.x;
+  const dy = next.y - position.y;
+  if (dx !== 0 || dy !== 0) {
+    followFacing = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? "left" : "right") : dy < 0 ? "up" : "down";
+  }
+  const prefix = "patient" + state.escortPatientId;
+  const name = player.walking
+    ? Sprites.anim(prefix + "_walk_" + followFacing, animTime, 7)
+    : prefix + "_" + followFacing + "_0";
+  Sprites.draw(wctx, "shadow", art(position.x), art(position.y));
+  Sprites.draw(wctx, name, art(position.x), art(position.y));
+}
+
+function drawPlayer() {
+  const feet = playerFeet();
+  const name = player.walking
+    ? Sprites.animFrames("doctor_walk_" + player.facing)[player.walkFrame]
+    : "doctor_" + player.facing + "_0";
+
+  // 숨는 중이면 흐리게, 맞은 직후 무적 시간에는 깜빡인다
+  let alpha = 1;
+  if (state.hidden) {
+    alpha = 0.3;
+  } else if (invulnerable > 0 && Math.floor(invulnerable * 10) % 2 === 0) {
+    alpha = 0.35;
+  }
+  Sprites.draw(wctx, "shadow", art(feet.x), art(feet.y), { alpha });
+  Sprites.draw(wctx, name, art(feet.x), art(feet.y), { alpha });
+}
+
+function ghostPosition(ghost, index) {
+  return {
+    x: art(ghost.x + ghost.w / 2),
+    y: art(ghost.y + ghost.h / 2) - 2 + Math.round(Math.sin(animTime * 3 + index * 1.7) * 1.5),
+  };
+}
+
+// 움직이는 방향을 쳐다보고, 추격 중에는 눈이 빨개진다
+function ghostEyes(ghost) {
+  const fx = ghost.faceX || 0;
+  const fy = ghost.faceY || 1;
+  const direction = Math.abs(fx) > Math.abs(fy) ? (fx < 0 ? "left" : "right") : fy < 0 ? "up" : "down";
+  const angry = ghost.mode === "chase";
+  return "ghost_eyes_" + direction + (angry ? "_angry" : "");
+}
+
+function drawGhost(ghost, index) {
+  const visibility = ghostVisibility(ghost);
+  if (visibility.alpha <= 0) return;
+  const p = ghostPosition(ghost, index);
+  Sprites.draw(wctx, "shadow", p.x, art(ghost.y + ghost.h / 2) + 9, { alpha: 0.7 * visibility.alpha });
+  Sprites.draw(wctx, Sprites.anim("ghost_float", animTime + index * 0.3, 4), p.x, p.y, {
+    tint: ghost.color,
+    alpha: 0.9 * visibility.alpha,
+  });
+  Sprites.draw(wctx, ghostEyes(ghost), p.x, p.y, { alpha: visibility.alpha });
+}
+
+// 화면 아래쪽에 있는 것일수록 나중에 그려서 앞에 보이게 한다
+function collectDrawables() {
+  const list = [];
+  const map = level().map;
+  const hiddenSpot = state.hidden ? nearestHideSpot() : null;
+
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      const prop = propSprite(map[y][x], x, y, hiddenSpot);
+      if (!prop) {
+        continue;
+      }
+      const cx = x * ART_TILE + ART_TILE / 2;
+      const bottom = (y + 1) * ART_TILE - 1;
+      if (prop.item) {
+        list.push({ sortY: bottom - 6, draw: () => drawItem(prop.name, cx, bottom, x + y) });
+      } else {
+        list.push({ sortY: bottom, draw: () => Sprites.draw(wctx, prop.name, cx, bottom) });
+      }
+
+      // 숨어 있는 사물함 위에 "..." 말풍선
+      if (prop.name === "locker_hidden") {
+        const bob = Math.round(Math.sin(animTime * 3));
+        list.push({ sortY: bottom + 1, draw: () => Sprites.draw(wctx, "bubble_dots", cx + 5, bottom - 25 + bob) });
+      }
+    }
+  }
+
   for (const record of state.records) {
     if (record.collected) {
       continue;
     }
-    const px = record.x * TILE;
-    const py = record.y * TILE;
-    rect(px + 9, py + 4, 14, 17, "#f4e7b8");
-    rect(px + 12, py + 8, 8, 2, "#8e805f");
-    drawLabel("야간 기록", px + 16, py + 29);
+    const cx = record.x * ART_TILE + ART_TILE / 2;
+    const bottom = (record.y + 1) * ART_TILE - 1;
+    list.push({ sortY: bottom - 6, draw: () => drawItem("record", cx, bottom, record.x + record.y) });
   }
+
+  if (level().type === "rescue") {
+    for (const patient of state.patients) {
+      if (patient.rescued || patient.following) {
+        continue;
+      }
+      const cx = patient.x * ART_TILE + ART_TILE / 2;
+      const bottom = (patient.y + 1) * ART_TILE - 2;
+      list.push({ sortY: bottom, draw: () => drawPatient(patient, cx, bottom) });
+    }
+    if (state.escortPatientId !== null && followTrail.length > 1) {
+      list.push({ sortY: art(followTrail[0].y), draw: drawFollower });
+    }
+  }
+
+  list.push({ sortY: art(playerFeet().y), draw: drawPlayer });
+
+  ghosts.forEach((ghost, index) => {
+    list.push({ sortY: art(ghost.y + ghost.h / 2) + 8, draw: () => drawGhost(ghost, index) });
+  });
+
+  return list.sort((a, b) => a.sortY - b.sortY);
 }
 
 // ============================================================
-// 플레이어 그리기
+// 조명
 // ============================================================
+// 어둠을 깔고, 빛이 있는 곳은 계단 모양 원으로 지워서 도트 느낌의 조명을 만든다.
 
-function drawPlayer() {
-  const x = Math.round(player.x);
-  const y = Math.round(player.y);
-
-  // 숨는 중이면 반투명
-  if (state.hidden) {
-    ctx.globalAlpha = 0.35;
+// [반지름 비율, 지우는 정도]
+function darknessLevel() {
+  if (state.event.blackout > 0) {
+    return 0.82;
   }
-
-  // 바닥 그림자
-  rect(x + 5, y + 34, 20, 4, "rgba(0,0,0,0.20)");
-
-  // 검은 외곽선
-  rect(x + 6, y, 18, 5, "#253038");
-  rect(x + 4, y + 4, 22, 12, "#253038");
-  rect(x + 6, y + 16, 18, 17, "#253038");
-
-  // 머리
-  rect(x + 7, y + 1, 16, 5, "#684334");
-  rect(x + 5, y + 5, 20, 5, "#79513e");
-
-  // 얼굴
-  rect(x + 9, y + 8, 12, 9, "#f3c4a3");
-
-  // 눈
-  if (player.facing === "down") {
-    rect(x + 11, y + 11, 2, 2, "#1e2528");
-    rect(x + 17, y + 11, 2, 2, "#1e2528");
+  if (currentLevelIndex === 0) {
+    return state.powerOn ? 0.36 : 0.6;
   }
-
-  // 의료복
-  rect(x + 11, y + 19, 9, 11, "#4ca8bb");
-
-  // 흰 의사가운
-  rect(x + 6, y + 19, 6, 14, "#ffffff");
-  rect(x + 19, y + 19, 6, 14, "#ffffff");
-
-  // 바지
-  rect(x + 9, y + 31, 6, 5, "#344f76");
-  rect(x + 17, y + 31, 6, 5, "#344f76");
-
-  // 신발
-  rect(x + 8, y + 35, 7, 3, "#202b32");
-  rect(x + 17, y + 35, 7, 3, "#202b32");
-  ctx.globalAlpha = 1;
+  return currentLevelIndex === 1 ? 0.46 : 0.52;
 }
 
-// ============================================================
-// 그림자 그리기
-// ============================================================
-
-function drawGhost(ghost) {
-  const x = Math.round(ghost.x);
-  const y = Math.round(ghost.y);
-  rect(x + 2, y + 2, 16, 13, ghost.color);
-  rect(x + 4, y + 14, 4, 6, ghost.color);
-  rect(x + 9, y + 14, 4, 6, ghost.color);
-  rect(x + 14, y + 14, 4, 6, ghost.color);
-
-  // 눈
-  rect(x + 5, y + 6, 2, 2, "#ffffff");
-  rect(x + 12, y + 6, 2, 2, "#ffffff");
+function updateVisionDirection(dx, dy, dt) {
+  const v = state.vision;
+  if (dx && dy) {
+    v.target = v.diagonal = Math.atan2(dy, dx);
+    v.pending = null;
+  } else if (dx || dy) {
+    const next = Math.atan2(dy, dx);
+    if (v.diagonal !== null && next !== v.target) {
+      if (v.pending !== next) { v.pending = next; v.elapsed = 0; }
+      v.elapsed += dt;
+      if (v.elapsed >= VISION_DIAGONAL_HOLD) {
+        v.target = next; v.diagonal = null; v.pending = null;
+      }
+    } else v.target = next;
+  } else {
+    if (v.pending !== null && v.diagonal !== null) v.target = v.diagonal;
+    v.pending = null;
+  }
+  const delta = Math.atan2(Math.sin(v.target - v.angle), Math.cos(v.target - v.angle));
+  const speed = Math.abs(delta) >= Math.PI * 2 / 3 ? VISION_REVERSE_SPEED : VISION_TURN_SPEED;
+  v.angle += Math.sign(delta) * Math.min(Math.abs(delta), speed * dt);
+  v.angle = Math.atan2(Math.sin(v.angle), Math.cos(v.angle));
 }
 
-// ============================================================
-// 어둠 및 경고 효과
-// ============================================================
+// DDA: 다음 타일 경계까지 이동하며 벽과 잠긴 문에서 정지한다.
+function castVisionRay(angle, limit, remember = false, origin = playerCenter()) {
+  const p = origin, dx = Math.cos(angle), dy = Math.sin(angle);
+  let x = Math.floor(p.x / TILE), y = Math.floor(p.y / TILE), distance = 0;
+  const sx = dx >= 0 ? 1 : -1, sy = dy >= 0 ? 1 : -1;
+  const stepX = Math.abs(dx) < 1e-9 ? Infinity : TILE / Math.abs(dx);
+  const stepY = Math.abs(dy) < 1e-9 ? Infinity : TILE / Math.abs(dy);
+  let edgeX = Math.abs(dx) < 1e-9 ? Infinity : ((dx >= 0 ? x + 1 : x) * TILE - p.x) / dx;
+  let edgeY = Math.abs(dy) < 1e-9 ? Infinity : ((dy >= 0 ? y + 1 : y) * TILE - p.y) / dy;
+  while (distance <= limit) {
+    if (x < 0 || y < 0 || x >= COLS || y >= ROWS) return distance;
+    if (remember) state.explored[y * COLS + x] = 1;
+    if (tileBlocked(x, y)) return distance;
+    if (Math.abs(edgeX - edgeY) < 1e-7) {
+      if (tileBlocked(x + sx, y) || tileBlocked(x, y + sy)) return edgeX;
+      distance = edgeX; x += sx; y += sy; edgeX += stepX; edgeY += stepY;
+    } else if (edgeX < edgeY) {
+      distance = edgeX; x += sx; edgeX += stepX;
+    } else { distance = edgeY; y += sy; edgeY += stepY; }
+  }
+  return limit;
+}
+
+function visionStrength(distance, angle) {
+  const circle = Math.max(0, 1 - Math.pow(distance / (VISION_RADIUS * TILE), 3));
+  const offset = Math.abs(Math.atan2(Math.sin(angle - state.vision.angle), Math.cos(angle - state.vision.angle)));
+  const angular = Math.max(0, Math.min(1, (FLASHLIGHT_ANGLE / 2 - offset) / (FLASHLIGHT_ANGLE * 0.18)));
+  return Math.max(circle, angular * Math.max(0, 1 - Math.pow(distance / (FLASHLIGHT_DISTANCE * TILE), 2)));
+}
+
+function ghostVisibility(ghost) {
+  const p = playerCenter();
+  const dx = ghost.x + ghost.w / 2 - p.x, dy = ghost.y + ghost.h / 2 - p.y;
+  const distance = Math.hypot(dx, dy), angle = Math.atan2(dy, dx);
+  const sight = castVisionRay(angle, distance) >= distance - 0.01;
+  return { distance, angle, sight, alpha: sight ? visionStrength(distance, angle) : 0 };
+}
 
 function drawDarkness() {
-  let alpha = currentLevelIndex === 0 ? (state.powerOn ? 0.05 : 0.23) : 0.12;
-
-  // 추가 정전
-  if (state.event.blackout > 0) {
-    alpha = 0.55;
+  const p = playerCenter(), count = 1440, ranges = new Float32Array(count);
+  for (let i = 0; i < count; i++) {
+    const angle = i * Math.PI * 2 / count;
+    const offset = Math.abs(Math.atan2(Math.sin(angle - state.vision.angle), Math.cos(angle - state.vision.angle)));
+    ranges[i] = castVisionRay(angle, (offset < FLASHLIGHT_ANGLE / 2 ? FLASHLIGHT_DISTANCE : VISION_RADIUS) * TILE, true);
   }
-  ctx.fillStyle = "rgba(5,18,28," + alpha + ")";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // 경고등
-  if (state.event.alarm > 0 && Math.floor(state.event.alarm * 6) % 2 === 0) {
-    ctx.fillStyle = "rgba(210,40,55,0.14)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const width = Math.ceil(canvas.width / 4), height = Math.ceil(canvas.height / 4);
+  if (fogCanvas.width !== width || fogCanvas.height !== height) {
+    fogCanvas.width = width; fogCanvas.height = height;
   }
+  const frame = fogContext.createImageData(width, height);
+  const memory = (x, y) => x >= 0 && y >= 0 && x < COLS && y < ROWS ? state.explored[y * COLS + x] : 0;
+  const ambient = darknessLevel();
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const wx = (x + 0.5) * canvas.width / width, wy = (y + 0.5) * canvas.height / height;
+      const dx = wx - p.x, dy = wy - p.y, distance = Math.hypot(dx, dy), angle = Math.atan2(dy, dx);
+      const ray = Math.round((angle + Math.PI * 2) % (Math.PI * 2) / (Math.PI * 2) * count) % count;
+      const lit = distance <= ranges[ray] + 2 ? visionStrength(distance, angle) : 0;
+      // 탐험한 타일 사이를 보간해 기억 영역의 가장자리를 부드럽게 만든다.
+      const tx = wx / TILE - 0.5, ty = wy / TILE - 0.5;
+      const ix = Math.floor(tx), iy = Math.floor(ty), fx = tx - ix, fy = ty - iy;
+      const explored = (memory(ix, iy) * (1 - fx) + memory(ix + 1, iy) * fx) * (1 - fy)
+        + (memory(ix, iy + 1) * (1 - fx) + memory(ix + 1, iy + 1) * fx) * fy;
+      const base = UNEXPLORED_DARKNESS + (EXPLORED_DARKNESS - UNEXPLORED_DARKNESS) * explored;
+      const index = (y * width + x) * 4;
+      frame.data[index] = 5; frame.data[index + 1] = 6; frame.data[index + 2] = 20;
+      frame.data[index + 3] = Math.round((base + (ambient * 0.35 - base) * lit) * 255);
+    }
+  }
+  fogContext.putImageData(frame, 0, 0);
+  ctx.save(); ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(fogCanvas, 0, 0, canvas.width, canvas.height);
+  ctx.restore();
+}
+
+function drawGhostSignals() {
+  ghosts.forEach((ghost, index) => {
+    const v = ghostVisibility(ghost);
+    if (v.sight) {
+      const p = ghostPosition(ghost, index);
+      Sprites.draw(ctx, ghostEyes(ghost), p.x * PIXEL, p.y * PIXEL, { scale: PIXEL, alpha: 0.12 + 0.88 * v.alpha });
+      if (v.alpha > 0 && (ghost.mode === "alert" || ghost.mode === "return")) {
+        ctx.save();
+        ctx.globalAlpha = v.alpha;
+        ctx.font = "bold 22px " + FONT;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "bottom";
+        ctx.fillStyle = ghost.mode === "alert" ? "#fee761" : "#e8ecf6";
+        ctx.strokeStyle = "#0b0c18";
+        ctx.lineWidth = 3;
+        const marker = ghost.mode === "alert" ? "!" : "?";
+        ctx.strokeText(marker, p.x * PIXEL, p.y * PIXEL - 24);
+        ctx.fillText(marker, p.x * PIXEL, p.y * PIXEL - 24);
+        ctx.restore();
+      }
+    }
+    const proximity = Math.max(0, 1 - v.distance / (PRESENCE_DISTANCE * TILE));
+    if (!proximity) return;
+    const dx = Math.cos(v.angle), dy = Math.sin(v.angle);
+    const edge = Math.min(canvas.width / 2 / Math.max(0.001, Math.abs(dx)), canvas.height / 2 / Math.max(0.001, Math.abs(dy)));
+    const x = canvas.width / 2 + dx * edge, y = canvas.height / 2 + dy * edge;
+    const pulse = 0.25 + 0.75 * (0.5 + 0.5 * Math.sin(animTime * (3 + proximity * 10)));
+    const glow = ctx.createRadialGradient(x, y, 0, x, y, 160);
+    glow.addColorStop(0, `rgba(228, 30, 50, ${proximity * pulse * 0.65})`);
+    glow.addColorStop(1, "rgba(228, 30, 50, 0)");
+    ctx.fillStyle = glow; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  });
+}
+
+function getVignette() {
+  if (!vignetteLayer) {
+    vignetteLayer = document.createElement("canvas");
+    vignetteLayer.width = canvas.width;
+    vignetteLayer.height = canvas.height;
+    const g = vignetteLayer.getContext("2d");
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+    const gradient = g.createRadialGradient(cx, cy, canvas.height * 0.4, cx, cy, canvas.width * 0.62);
+    gradient.addColorStop(0, "rgba(4, 4, 14, 0)");
+    gradient.addColorStop(1, "rgba(4, 4, 14, 0.5)");
+    g.fillStyle = gradient;
+    g.fillRect(0, 0, canvas.width, canvas.height);
+  }
+  return vignetteLayer;
+}
+
+// ============================================================
+// 이름표
+// ============================================================
+
+const TAG_STYLES = {
+  normal: { edge: "#0b0c18", fill: "#262b44", text: "#e8ecf6" },
+  focus: { edge: "#0b0c18", fill: "#feae34", text: "#181425" },
+  light: { edge: "#0b0c18", fill: "#2a3050", text: "#ffffff" },
+};
+
+// 모서리를 한 칸씩 깎은 도트 이름표
+function drawTag(g, text, cx, cy, style = "normal", alpha = 1) {
+  const colors = TAG_STYLES[style];
+  g.save();
+  g.globalAlpha = alpha;
+  g.font = (style === "focus" ? "bold " : "") + "12px " + FONT;
+  const w = Math.ceil(g.measureText(text).width / 2) * 2 + 12;
+  const h = 18;
+  const x = Math.round((cx - w / 2) / 2) * 2;
+  const y = Math.round((cy - h / 2) / 2) * 2;
+  g.fillStyle = colors.edge;
+  g.fillRect(x + 2, y, w - 4, h);
+  g.fillRect(x, y + 2, w, h - 4);
+  g.fillStyle = colors.fill;
+  g.fillRect(x + 2, y + 2, w - 4, h - 4);
+  g.fillStyle = colors.text;
+  g.textAlign = "center";
+  g.textBaseline = "middle";
+  g.fillText(text, x + w / 2, y + h / 2 + 1);
+  g.restore();
+}
+
+// 이름표를 붙일 대상 (top: 머리 위 표시를 띄울 높이)
+function labelTargets() {
+  const targets = [];
+  const add = (x, y, label, options = {}) => targets.push({ x, y, label, interact: true, top: -6, ...options });
+  const type = level().type;
+
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      const symbol = level().map[y][x];
+      if (symbol === "h") add(x, y, "숨는 곳", { top: -22 });
+      if (symbol === "Z") add(x, y, "CCTV");
+
+      if (type === "collect") {
+        if (symbol === "K" && !state.hasKeycard) add(x, y, "출입카드");
+        if (symbol === "F" && !state.hasFuse) add(x, y, "퓨즈");
+        if (symbol === "B" && !state.hasBattery) add(x, y, "비상 배터리");
+        if (symbol === "P") add(x, y, "발전기", { top: -14 });
+        if (symbol === "M" && !state.hasMasterKey) add(x, y, "마스터 키");
+        if (symbol === "E") add(x, y, "엘리베이터", { top: -22 });
+        if (symbol === "C") add(x, y, "보안문", { interact: false });
+        if (symbol === "D") add(x, y, "전원문", { interact: false });
+      }
+      if (type === "switch") {
+        if (["A", "B", "C"].includes(symbol)) add(x, y, "단말기 " + symbol, { top: -10 });
+        if (symbol === "L") add(x, y, "연구 메모");
+        if (symbol === "X") add(x, y, "제독실 출구", { top: -22 });
+      }
+      if (type === "rescue") {
+        if (symbol === "Y") add(x, y, "대피 구역", { interact: state.escortPatientId !== null, range: 50 });
+        if (symbol === "R") add(x, y, "옥상 출구", { top: -22 });
+      }
+    }
+  }
+
+  for (const record of state.records) {
+    if (!record.collected) add(record.x, record.y, "야간 기록");
+  }
+  for (const patient of state.patients) {
+    if (!patient.rescued && !patient.following) {
+      add(patient.x, patient.y, "환자 " + patient.id, { top: -34, range: 43 });
+    }
+  }
+  return targets;
+}
+
+function drawLabels() {
+  const pc = playerCenter();
+  const bob = Math.round(Math.sin(animTime * 6)) * 2;
+  for (const target of labelTargets()) {
+    const cx = target.x * TILE + TILE / 2;
+    const cy = target.y * TILE + TILE / 2;
+
+    const angle = Math.atan2(cy - pc.y, cx - pc.x);
+    const range = Math.hypot(cx - pc.x, cy - pc.y);
+    if (castVisionRay(angle, range) < range - 0.01 || visionStrength(range, angle) < 0.1) continue;
+
+    // Space 로 바로 쓸 수 있는 대상은 노랗게 강조
+    const near = target.interact && !state.hidden && nearPos(target.x, target.y, target.range || 42);
+    const distance = Math.hypot(pc.x - cx, pc.y - cy);
+    const alpha = near ? 1 : distance < 170 ? 0.92 : 0.6;
+    drawTag(ctx, target.label, cx, target.y * TILE + TILE + 8, near ? "focus" : "normal", alpha);
+    if (near) {
+      Sprites.draw(ctx, "marker", cx, target.y * TILE + target.top + bob, { scale: 2 });
+    }
+  }
+}
+
+// ============================================================
+// HUD (화면 아래 벽 위에 표시)
+// ============================================================
+
+// 모서리를 깎은 도트 창
+function drawPanel(g, x, y, w, h, fill = "rgba(22, 25, 46, 0.94)", edge = "#3a4466") {
+  g.fillStyle = "#0b0c18";
+  g.fillRect(x + 2, y, w - 4, h);
+  g.fillRect(x, y + 2, w, h - 4);
+  g.fillStyle = edge;
+  g.fillRect(x + 2, y + 2, w - 4, h - 4);
+  g.fillStyle = fill;
+  g.fillRect(x + 4, y + 4, w - 8, h - 8);
+}
+
+function hudText(text, x, y, color = "#e8ecf6", align = "left") {
+  ctx.fillStyle = color;
+  ctx.font = "12px " + FONT;
+  ctx.textAlign = align;
+  ctx.textBaseline = "middle";
+  ctx.fillText(text, x, y);
+}
+
+function drawHud() {
+  const y = canvas.height - 30;
+  const mid = y + 13;
+  const blink = Math.floor(animTime * 4) % 2 === 0;
+
+  // 왼쪽: 체력 + 스태미나
+  drawPanel(ctx, 6, y, 216, 26);
+  for (let i = 0; i < 4; i++) {
+    Sprites.draw(ctx, i < state.hearts ? "heart" : "heart_empty", 14 + i * 22, y + 5, { scale: 2 });
+  }
+  Sprites.draw(ctx, "icon_bolt", 108, y + 4, { scale: 2 });
+  const barWidth = 84;
+  ctx.fillStyle = "#0b0c18";
+  ctx.fillRect(126, y + 7, barWidth + 4, 12);
+  ctx.fillStyle = "#262b44";
+  ctx.fillRect(128, y + 9, barWidth, 8);
+  ctx.fillStyle = state.stamina > 30 ? "#feae34" : "#e43b44";
+  ctx.fillRect(128, y + 9, Math.round((barWidth * state.stamina) / 200) * 2, 8);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.28)";
+  ctx.fillRect(128, y + 9, Math.round((barWidth * state.stamina) / 200) * 2, 2);
+
+  // 상태 배지
+  let badgeX = 230;
+  if (state.chaseTimer > 0) {
+    drawPanel(ctx, badgeX, y, 112, 26, blink ? "#a22633" : "#6b1a26", "#e43b44");
+    Sprites.draw(ctx, "icon_alert", badgeX + 10, y + 3, { scale: 2 });
+    hudText("경보·추격", badgeX + 32, mid);
+    badgeX += 120;
+  }
+  if (state.hidden) {
+    drawPanel(ctx, badgeX, y, 104, 26, "rgba(22, 25, 46, 0.94)", "#5a6988");
+    Sprites.draw(ctx, "icon_eye", badgeX + 8, y + 6, { scale: 2 });
+    hudText("숨는 중", badgeX + 32, mid);
+  }
+
+  // 가운데: 스테이지 이름
+  ctx.font = "12px " + FONT;
+  const titleWidth = Math.ceil(ctx.measureText(level().title).width / 2) * 2 + 28;
+  const titleX = Math.round((canvas.width - titleWidth) / 4) * 2;
+  drawPanel(ctx, titleX, y, titleWidth, 26);
+  hudText(level().title, canvas.width / 2, mid, "#c0cbdc", "center");
+
+  // 오른쪽: 야간 기록 + 남은 시간
+  const minutes = Math.floor(state.time / 60);
+  const seconds = Math.floor(state.time % 60).toString().padStart(2, "0");
+  const lowTime = state.time < 60;
+  drawPanel(ctx, canvas.width - 206, y, 200, 26);
+  Sprites.draw(ctx, "icon_doc", canvas.width - 198, y + 4, { scale: 2 });
+  hudText("기록 " + stageRecordCount() + "/" + state.records.length, canvas.width - 176, mid);
+  Sprites.draw(ctx, "icon_clock", canvas.width - 92, y + 4, { scale: 2 });
+  hudText(minutes + ":" + seconds, canvas.width - 70, mid, lowTime && blink ? "#e43b44" : "#ffffff");
 }
 
 // ============================================================
 // 미니게임 화면
 // ============================================================
 
+function directionSprite(key) {
+  return {
+    ArrowUp: "key_up",
+    ArrowDown: "key_down",
+    ArrowLeft: "key_left",
+    ArrowRight: "key_right",
+  }[key];
+}
+
+function centerText(text, y, font, color = "#ffffff") {
+  ctx.fillStyle = color;
+  ctx.font = font;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(text, canvas.width / 2, y);
+}
+
+// 기억 미니게임의 칸 5개 (확인한 칸은 내용, 남은 칸은 ?)
+function drawMemorySlots(game, drawContent) {
+  const size = 52;
+  const gap = 14;
+  const startX = Math.round((canvas.width - (size * 5 + gap * 4)) / 2);
+  const y = 300;
+  game.sequence.forEach((value, index) => {
+    const x = startX + index * (size + gap);
+    const shown = game.reveal > 0 || index < game.inputIndex;
+    const current = game.reveal <= 0 && index === game.inputIndex;
+    drawPanel(ctx, x, y, size, size, shown ? "#2a3050" : "#181c33", current ? "#feae34" : "#3a4466");
+    if (shown) {
+      drawContent(value, x + size / 2, y + size / 2);
+    } else {
+      centerTextAt("?", x + size / 2, y + size / 2 + 1, "bold 24px " + FONT, "#5a6988");
+    }
+  });
+}
+
+function centerTextAt(text, x, y, font, color) {
+  ctx.fillStyle = color;
+  ctx.font = font;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(text, x, y);
+}
+
+// 기억 미니게임 상단의 남은 시간 막대
+function drawRevealBar(game) {
+  if (game.reveal <= 0) {
+    return;
+  }
+  const width = 330;
+  const x = Math.round((canvas.width - width) / 2);
+  ctx.fillStyle = "#0b0c18";
+  ctx.fillRect(x - 2, 372, width + 4, 10);
+  ctx.fillStyle = "#262b44";
+  ctx.fillRect(x, 374, width, 6);
+  ctx.fillStyle = "#2ce8f5";
+  ctx.fillRect(x, 374, Math.round((width * Math.max(0, game.reveal)) / 6) * 2, 6);
+}
+
 function drawMiniGame() {
   if (!state.miniGame) {
     return;
   }
   const game = state.miniGame;
-  rect(245, 220, 566, 190, "rgba(17,31,38,0.96)");
-  ctx.fillStyle = "#ffffff";
-  ctx.textAlign = "center";
-  ctx.font = 'bold 18px "Malgun Gothic"';
+  ctx.fillStyle = "rgba(6, 7, 16, 0.5)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  drawPanel(ctx, 268, 190, 520, 220, "rgba(20, 23, 43, 0.98)", "#5a6988");
 
   // 발전기
   if (game.type === "generator") {
-    ctx.fillText("발전기 수리", 528, 255);
-    ctx.font = '13px "Malgun Gothic"';
-    ctx.fillText("노란 표시가 초록 구간에 들어왔을 때 Space", 528, 285);
-    drawTimingBar(game.pos, 330);
+    centerText("발전기 수리", 236, "bold 24px " + FONT);
+    centerText("노란 표시가 초록 구간에 들어왔을 때 Space", 268, "12px " + FONT, "#8b9bb4");
+    drawTimingBar(ctx, game.pos, 330, 318, 396, 0.42, 0.58);
   }
 
   // 환자 1
   if (game.type === "patientTiming") {
-    ctx.fillText("환자 1 상태 안정화", 528, 250);
-    ctx.font = '13px "Malgun Gothic"';
-    ctx.fillText(
-      "초록 구간에 맞춰 Space · 성공 " + game.success + "/2",
-      528,
-      280,
-    );
-    drawTimingBar(game.pos, 330);
+    centerText("환자 1 상태 안정화", 236, "bold 24px " + FONT);
+    centerText("초록 구간에 맞춰 Space · 2번 성공하면 안정화", 268, "12px " + FONT, "#8b9bb4");
+    drawTimingBar(ctx, game.pos, 330, 318, 396, 0.4, 0.6);
+    for (let i = 0; i < 2; i++) {
+      Sprites.draw(ctx, i < game.success ? "heart" : "heart_empty", 504 + i * 30, 366, { scale: 2 });
+    }
   }
 
   // 환자 2
   if (game.type === "patientDirection") {
-    ctx.fillText("환자 2 · 방향 기억", 528, 250);
-    ctx.font = '30px "Malgun Gothic"';
-    if (game.reveal > 0) {
-      ctx.fillText(game.sequence.map(directionSymbol).join("   "), 528, 325);
-    } else {
-      ctx.fillText("입력 " + game.inputIndex + "/5", 528, 325);
-    }
+    centerText("환자 2 · 방향 기억", 236, "bold 24px " + FONT);
+    centerText(
+      game.reveal > 0 ? "순서를 기억해!" : "기억한 순서대로 방향키 입력 · " + game.inputIndex + "/5",
+      268,
+      "12px " + FONT,
+      "#8b9bb4",
+    );
+    drawMemorySlots(game, (key, x, y) => Sprites.draw(ctx, directionSprite(key), x - 15, y - 13, { scale: 2 }));
+    drawRevealBar(game);
   }
 
   // 환자 3
   if (game.type === "patientMemory") {
-    ctx.fillText("환자 3 · 숫자 기억", 528, 250);
-    ctx.font = "32px monospace";
-    if (game.reveal > 0) {
-      ctx.fillText(game.sequence.join("   "), 528, 325);
-    } else {
-      ctx.fillText("입력 " + game.inputIndex + "/5", 528, 325);
-      ctx.font = '13px "Malgun Gothic"';
-      ctx.fillText("키보드 숫자 1~4 사용", 528, 360);
-    }
+    centerText("환자 3 · 숫자 기억", 236, "bold 24px " + FONT);
+    centerText(
+      game.reveal > 0 ? "숫자 코드를 기억해!" : "키보드 숫자 1~4 로 입력 · " + game.inputIndex + "/5",
+      268,
+      "12px " + FONT,
+      "#8b9bb4",
+    );
+    drawMemorySlots(game, (value, x, y) => centerTextAt(value, x, y + 1, "bold 24px " + FONT, "#fee761"));
+    drawRevealBar(game);
   }
   ctx.textAlign = "left";
 }
 
-// ============================================================
-// 타이밍 바
-// ============================================================
-
-function drawTimingBar(position, y) {
-  // 전체 바
-  rect(330, y, 396, 20, "#233740");
-
-  // 성공 영역
-  rect(330 + 396 * 0.4, y, 396 * 0.2, 20, "#52d981");
-
-  // 노란 포인터
-  const pointer = 330 + 396 * position;
-  rect(pointer - 4, y - 6, 8, 32, "#ffe067");
-}
-
-// ============================================================
-// 방향키 이름 → 화살표
-// ============================================================
-
-function directionSymbol(key) {
-  const map = {
-    ArrowUp: "↑",
-    ArrowDown: "↓",
-    ArrowLeft: "←",
-    ArrowRight: "→",
-  };
-  return map[key];
-}
-
-// ============================================================
-// HUD
-// ============================================================
-
-function drawHud() {
-  rect(0, 0, canvas.width, 26, "rgba(18,42,52,0.90)");
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "12px monospace";
-  const minutes = Math.floor(state.time / 60);
-  const seconds = Math.floor(state.time % 60)
-    .toString()
-    .padStart(2, "0");
-  ctx.fillText("STAGE " + (currentLevelIndex + 1) + "/3", 10, 17);
-  ctx.fillText("TIME " + minutes + ":" + seconds, 125, 17);
-  ctx.fillText("HP " + "♥".repeat(Math.max(0, state.hearts)), 250, 17);
-  ctx.fillText("STA " + Math.round(state.stamina), 370, 17);
-
-  // 추격 상태
-  if (state.chaseTimer > 0) {
-    ctx.fillText("CHASE " + Math.ceil(state.chaseTimer) + "s", 470, 17);
+// 타이밍 바 (zoneStart ~ zoneEnd 가 성공 구간)
+function drawTimingBar(g, position, x, y, width, zoneStart, zoneEnd) {
+  const height = 20;
+  drawPanel(g, x - 8, y - 8, width + 16, height + 16, "#10121f", "#3a4466");
+  g.fillStyle = "#262b44";
+  g.fillRect(x, y, width, height);
+  g.fillStyle = "#1b1f33";
+  for (let i = 1; i < 12; i++) {
+    g.fillRect(x + Math.round((width * i) / 24) * 2, y, 2, height);
   }
+  const zoneX = x + Math.round((width * zoneStart) / 2) * 2;
+  const zoneWidth = Math.round((width * (zoneEnd - zoneStart)) / 2) * 2;
+  g.fillStyle = "#3e8948";
+  g.fillRect(zoneX, y, zoneWidth, height);
+  g.fillStyle = "#63c74d";
+  g.fillRect(zoneX, y, zoneWidth, height - 6);
 
-  // 숨는 상태
-  if (state.hidden) {
-    ctx.fillText("HIDDEN", 600, 17);
-  }
+  const pointer = Math.round((x + width * position) / 2) * 2;
+  g.fillStyle = "#0b0c18";
+  g.fillRect(pointer - 5, y - 10, 10, height + 20);
+  g.fillStyle = "#fee761";
+  g.fillRect(pointer - 3, y - 8, 6, height + 16);
+  g.fillStyle = "#ffffff";
+  g.fillRect(pointer - 3, y - 8, 2, height + 16);
 }
 
 // ============================================================
@@ -2933,21 +3349,29 @@ function drawHud() {
 // ============================================================
 
 function render() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawFloor();
-  drawWalls();
-  drawFurniture();
-  drawStageObjects();
-  drawRecords();
-  drawPatients();
+  // 1) 도트 해상도로 맵 · 오브젝트 · 캐릭터
+  wctx.drawImage(staticLayer, 0, 0);
+  for (const item of collectDrawables()) {
+    item.draw();
+  }
 
-  // 어둠을 캐릭터보다 먼저 그려 캐릭터 가시성 유지
+  // 2) 어둠과 조명, 어둠 속에서도 빛나는 그림자의 눈
+  ctx.drawImage(worldCanvas, 0, 0, canvas.width, canvas.height);
   drawDarkness();
-  ghosts.forEach(drawGhost);
-  drawEscortPatient();
-  drawPlayer();
-  drawMiniGame();
+  drawGhostSignals();
+
+  // 3) 경보 (빨간 빛이 맥박처럼 깜빡인다)
+  if (state.event.alarm > 0) {
+    const strength = 0.08 + 0.1 * (0.5 + 0.5 * Math.sin(animTime * 9));
+    ctx.fillStyle = `rgba(228, 59, 68, ${strength})`;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  // 4) 2배로 확대해서 게임 Canvas 에 옮기고 글자 UI 를 올린다
+  ctx.drawImage(getVignette(), 0, 0);
+  drawLabels();
   drawHud();
+  drawMiniGame();
 }
 
 // ============================================================
@@ -2957,11 +3381,15 @@ function render() {
 function gameLoop(now) {
   const dt = Math.min((now - lastTime) / 1000, 0.05);
   lastTime = now;
+  animTime += dt;
 
   // 프롤로그가 끝난 뒤에만 실제 게임 실행
   if (state && tutorialFinished) {
     update(dt);
     render();
+  } else if (!tutorialFinished) {
+    // 프롤로그 그림도 움직이게 매 프레임 다시 그린다
+    drawTutorialScene(TUTORIAL_PAGES[tutorialPageIndex].scene, animTime);
   }
   requestAnimationFrame(gameLoop);
 }
@@ -3091,8 +3519,50 @@ function releaseDirection(direction) {
 // 페이지 로드
 // ============================================================
 
+// 도트 글꼴을 기다린다 (실패해도 기본 글꼴로 계속 진행)
+function loadFonts() {
+  if (!document.fonts) {
+    return Promise.resolve();
+  }
+  return Promise.all([
+    document.fonts.load("12px Galmuri11"),
+    document.fonts.load("bold 12px Galmuri11"),
+  ]).catch(() => {});
+}
+
+// HTML 에 data-sprite 로 적어 둔 자리에 도트 아이콘을 넣는다
+function fillSpriteIcons() {
+  document.querySelectorAll("[data-sprite]").forEach((element) => {
+    element.outerHTML = Sprites.icon(element.dataset.sprite, Number(element.dataset.scale || 1), "icon");
+  });
+}
+
+function showLoadError(error) {
+  setMessage("⚠️ 게임 에셋을 불러오지 못했습니다. " + error.message);
+  prologueOverlay.style.display = "none";
+  overlayBox.innerHTML = `
+        <div class="overlay-title">
+            LOAD ERROR
+        </div>
+        <div class="overlay-text">
+            ${error.message}
+            <br><br>
+            web/assets 폴더가 index.html 옆에 있는지 확인해 줘.
+        </div>
+        <button onclick="location.reload()">
+            다시 불러오기
+        </button>
+    `;
+  overlay.style.display = "flex";
+}
+
 window.addEventListener("load", () => {
-  // 게임을 바로 시작하지 않고 프롤로그부터 보여준다.
-  showPrologue();
-  requestAnimationFrame(gameLoop);
+  // 스프라이트와 글꼴을 먼저 불러온 뒤 프롤로그부터 보여준다.
+  Promise.all([Sprites.load(), loadFonts()])
+    .then(() => {
+      fillSpriteIcons();
+      showPrologue();
+      requestAnimationFrame(gameLoop);
+    })
+    .catch(showLoadError);
 });
