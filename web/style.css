@@ -1,3 +1,49 @@
+/* ============================================================
+   도트 글꼴 (Galmuri · SIL OFL 1.1 · assets/fonts/OFL.txt)
+   로컬 파일을 못 읽으면 CDN 에서 받아 온다.
+============================================================ */
+
+@font-face {
+    font-family: "Galmuri11";
+    font-weight: 400;
+    font-display: swap;
+    src:
+        url("assets/fonts/Galmuri11.woff2") format("woff2"),
+        url("https://cdn.jsdelivr.net/npm/galmuri@2.40.3/dist/Galmuri11.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Galmuri11";
+    font-weight: 700;
+    font-display: swap;
+    src:
+        url("assets/fonts/Galmuri11-Bold.woff2") format("woff2"),
+        url("https://cdn.jsdelivr.net/npm/galmuri@2.40.3/dist/Galmuri11-Bold.woff2") format("woff2");
+}
+
+
+/* ============================================================
+   색 (스프라이트와 같은 팔레트)
+============================================================ */
+
+:root {
+    --bg: #0c0e1c;
+    --panel: #181c33;
+    --panel-2: #20254a;
+    --edge: #0b0c18;
+    --line: #3a4466;
+    --line-hi: #5a6988;
+    --ink: #e8ecf6;
+    --muted: #8b9bb4;
+    --cyan: #2ce8f5;
+    --amber: #feae34;
+    --yellow: #fee761;
+    --red: #e43b44;
+    --green: #63c74d;
+
+    --font: "Galmuri11", "Malgun Gothic", sans-serif;
+}
+
 * {
     box-sizing: border-box;
     user-select: none;
@@ -8,18 +54,56 @@ body {
     margin: 0;
     padding: 0;
 
-    background: #dce7ea;
+    background:
+        linear-gradient(rgba(255, 255, 255, 0.025) 2px, transparent 2px) 0 0 / 32px 32px,
+        linear-gradient(90deg, rgba(255, 255, 255, 0.025) 2px, transparent 2px) 0 0 / 32px 32px,
+        radial-gradient(ellipse at top, #1b1f3d 0%, var(--bg) 60%);
+    background-color: var(--bg);
 
-    font-family:
-        Arial,
-        "Malgun Gothic",
-        sans-serif;
+    color: var(--ink);
 
-    overflow: hidden;
+    font-family: var(--font);
+    font-size: 12px;
+    line-height: 20px;
+
+    overflow: auto;
+}
+
+b {
+    font-weight: 700;
 }
 
 .wrap {
+    max-width: 1440px;
+
+    margin: 0 auto;
+
     padding: 12px;
+}
+
+
+/* ============================================================
+   도트 테두리 (모서리를 한 칸 깎은 창)
+============================================================ */
+
+.topbar,
+.game-area,
+.card,
+#messageBar,
+.help,
+.overlay-box,
+.prologue-box,
+.stage-card,
+.objective,
+.item,
+.log {
+    box-shadow:
+        0 -2px 0 0 var(--edge),
+        0 2px 0 0 var(--edge),
+        -2px 0 0 0 var(--edge),
+        2px 0 0 0 var(--edge),
+        inset 0 0 0 2px var(--line),
+        inset 0 4px 0 0 rgba(255, 255, 255, 0.05);
 }
 
 
@@ -28,36 +112,64 @@ body {
 ============================================================ */
 
 .topbar {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    margin: 2px 2px 14px;
+
+    padding: 12px 18px;
+
+    background: linear-gradient(180deg, #232850, #181c33);
+}
+
+.brand {
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+}
+
+/* 도트 십자 표시 */
+.brand-mark {
+    width: 28px;
+    height: 28px;
+
     background:
-        linear-gradient(
-            180deg,
-            #263f4a,
-            #1d333d
-        );
+        linear-gradient(var(--green), var(--green)) center / 8px 24px no-repeat,
+        linear-gradient(var(--green), var(--green)) center / 24px 8px no-repeat;
 
-    color: white;
-
-    border-radius: 16px;
-
-    padding: 14px 18px;
-
-    margin-bottom: 12px;
+    filter: drop-shadow(2px 2px 0 var(--edge));
 }
 
 .title {
-    font-size: 29px;
-
-    font-weight: 900;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 28px;
 
     letter-spacing: 2px;
+
+    color: #ffffff;
+
+    text-shadow: 2px 2px 0 var(--edge);
 }
 
 .subtitle {
-    margin-top: 5px;
+    margin-top: 4px;
 
-    font-size: 13px;
+    color: var(--muted);
+}
 
-    opacity: 0.9;
+.topbar-tag {
+    padding: 4px 10px;
+
+    background: var(--edge);
+
+    color: var(--cyan);
+
+    letter-spacing: 1px;
 }
 
 
@@ -68,46 +180,63 @@ body {
 .layout {
     display: flex;
 
-    gap: 12px;
+    gap: 14px;
 
-    align-items: flex-start;
+    align-items: stretch;
 }
 
 .game-area {
     position: relative;
 
+    margin: 2px;
+
     padding: 10px;
 
-    background: #edf4f6;
-
-    border: 2px solid #9db3bb;
-
-    border-radius: 16px;
+    background: var(--panel);
 }
 
 
 /* ============================================================
-   게임 메시지
+   게임 메시지 (대화창)
 ============================================================ */
 
 #messageBar {
-    min-height: 50px;
+    min-height: 48px;
+    overflow-wrap: anywhere;
 
-    margin-bottom: 8px;
+    margin: 2px 2px 10px;
 
-    padding: 10px 13px;
+    padding: 12px 16px 12px 34px;
 
-    background: #fff3d5;
+    position: relative;
 
-    border-left: 6px solid #d5ae45;
+    background: #10132a;
 
-    border-radius: 10px;
+    color: #f3f5fb;
+}
 
-    color: #594c29;
+#messageBar::before {
+    content: "";
 
-    font-size: 14px;
+    position: absolute;
 
-    line-height: 1.55;
+    left: 14px;
+    top: 18px;
+
+    width: 8px;
+    height: 8px;
+
+    background: var(--amber);
+
+    box-shadow: 2px 2px 0 var(--edge);
+
+    animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0.2;
+    }
 }
 
 
@@ -115,22 +244,32 @@ body {
    실제 게임 Canvas
 ============================================================ */
 
+.screen {
+    position: relative;
+
+    width: 1062px;
+
+    padding: 3px;
+
+    background: var(--edge);
+}
+
 #game {
     display: block;
 
     width: 1056px;
     height: 640px;
 
-    border: 3px solid #688792;
-
-    border-radius: 8px;
-
-    background: #132832;
+    background: #0b0c18;
 
     image-rendering: pixelated;
     image-rendering: crisp-edges;
 
     outline: none;
+}
+
+#game:focus-visible {
+    outline: 2px solid var(--amber);
 }
 
 
@@ -139,19 +278,55 @@ body {
 ============================================================ */
 
 .help {
-    margin-top: 8px;
+    display: flex;
 
-    padding: 9px 12px;
+    align-items: center;
+    justify-content: space-between;
 
-    background: #e4eff2;
+    gap: 12px;
 
-    border-radius: 10px;
+    margin: 12px 2px 2px;
 
-    color: #2b4751;
+    padding: 10px 14px;
 
-    font-size: 13px;
+    background: #10132a;
 
-    line-height: 1.6;
+    color: var(--muted);
+}
+
+.help-keys {
+    display: grid;
+
+    grid-template-columns: auto auto;
+
+    gap: 8px 28px;
+}
+
+kbd {
+    display: inline-block;
+
+    min-width: 22px;
+
+    margin-right: 2px;
+
+    padding: 0 5px;
+
+    background: #c0cbdc;
+
+    color: #181425;
+
+    font-family: var(--font);
+    font-size: 12px;
+    line-height: 18px;
+
+    text-align: center;
+
+    box-shadow:
+        0 2px 0 0 #5a6988,
+        0 -2px 0 0 var(--edge),
+        2px 0 0 0 var(--edge),
+        -2px 0 0 0 var(--edge),
+        0 4px 0 0 var(--edge);
 }
 
 
@@ -159,93 +334,299 @@ body {
    오른쪽 정보창
 ============================================================ */
 
+/* 정보창은 게임 화면 높이에 맞추고, 남는 공간은 야간 기록 카드가 채운다 */
 .side {
+    display: flex;
+
+    flex-direction: column;
+
     width: 290px;
 
     flex: 0 0 290px;
 }
 
+.log-card {
+    display: flex;
+
+    flex-direction: column;
+
+    flex: 1 1 0;
+
+    min-height: 76px;
+
+    margin-bottom: 2px;
+}
+
+#logBox {
+    flex: 1 1 0;
+
+    min-height: 0;
+
+    overflow-y: auto;
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-hi) transparent;
+}
+
 .card {
-    margin-bottom: 10px;
+    margin: 2px 2px 12px;
 
-    padding: 14px;
+    padding: 10px 14px 12px;
 
-    background: #fbfdfe;
-
-    border: 1px solid #acbec5;
-
-    border-radius: 14px;
+    background: var(--panel);
 }
 
 .card h3 {
-    margin: 0 0 10px 0;
+    display: flex;
 
-    color: #263e47;
+    align-items: center;
 
-    font-size: 17px;
+    gap: 8px;
+
+    margin: 0 0 8px 0;
+
+    color: var(--yellow);
+
+    font-size: 12px;
+    font-weight: 700;
+
+    letter-spacing: 1px;
+}
+
+.sprite {
+    display: inline-block;
+
+    flex: none;
+
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+
+    background-repeat: no-repeat;
 }
 
 .stage-card {
-    padding: 11px;
+    padding: 10px 12px;
 
-    background: #263f49;
+    background: #10132a;
 
-    border-radius: 9px;
+    color: var(--muted);
+}
 
-    color: white;
+.stage-card b {
+    color: #ffffff;
+}
 
-    font-size: 13px;
-
-    line-height: 1.65;
+.stage-card p {
+    margin: 6px 0 0;
 }
 
 .objective {
-    padding: 10px;
+    padding: 10px 12px;
 
-    background: #e8f1fb;
+    background: #10132a;
 
-    border-left: 5px solid #6b8eb4;
-
-    border-radius: 9px;
-
-    color: #304c61;
-
-    font-size: 13px;
-
-    line-height: 1.7;
+    color: var(--ink);
 }
 
-.stat,
-.item {
-    margin-bottom: 7px;
+.objective b {
+    color: var(--amber);
+}
 
-    font-size: 13px;
+.stat-grid {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 8px;
+}
+
+.stat {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+
+    padding: 6px 10px 8px;
+
+    background: #10132a;
+
+    color: var(--muted);
+
+    box-shadow: 0 0 0 2px var(--edge);
+}
+
+.stat b {
+    color: #ffffff;
+    font-weight: 400;
+}
+
+.stat b.warn {
+    color: var(--red);
+}
+
+.hearts {
+    display: flex;
+
+    gap: 4px;
+}
+
+.meter {
+    position: relative;
+
+    width: 100%;
+    height: 12px;
+
+    margin-top: 4px;
+
+    background: #262b44;
+
+    box-shadow: 0 0 0 2px var(--edge);
+}
+
+.meter i {
+    display: block;
+
+    height: 100%;
+
+    background: var(--amber);
+
+    box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.3);
+}
+
+.meter.low i {
+    background: var(--red);
+}
+
+.badge {
+    align-self: flex-start;
+
+    padding: 0 8px;
+
+    background: #262b44;
+}
+
+.badge.danger {
+    background: var(--red);
+
+    animation: blink 0.5s steps(1) infinite;
+}
+
+.badge.hidden {
+    background: var(--line-hi);
 }
 
 .item {
-    padding: 7px 9px;
+    display: flex;
 
-    background: #edf4f6;
+    align-items: center;
 
-    border-radius: 8px;
+    gap: 10px;
+
+    margin: 2px 2px 6px;
+
+    padding: 2px 10px;
+
+    min-height: 28px;
+
+    background: #10132a;
+
+    color: var(--muted);
+}
+
+.item b {
+    margin-left: auto;
+
+    color: #ffffff;
+}
+
+.item-icon {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 20px;
+    height: 20px;
+
+    overflow: hidden;
+}
+
+.item-name {
+    flex: 1;
+}
+
+.check {
+    width: 12px;
+    height: 12px;
+
+    background: #262b44;
+
+    box-shadow: 0 0 0 2px var(--edge);
+}
+
+.item.done {
+    color: #ffffff;
+}
+
+.item.done .check {
+    background: var(--green);
+}
+
+.item.note {
+    color: var(--muted);
+}
+
+.item.note b {
+    margin-left: 4px;
+
+    color: var(--red);
+}
+
+.chips {
+    display: flex;
+
+    gap: 8px;
+
+    margin: 4px 2px 10px;
+}
+
+.chips .chip {
+    flex: 1;
+
+    padding: 4px 0;
+
+    background: #12305a;
+
+    color: var(--cyan);
+
+    font-weight: 700;
+
+    text-align: center;
+
+    box-shadow: 0 0 0 2px var(--edge);
+}
+
+.chips .chip.done {
+    background: #265c42;
+
+    color: var(--green);
 }
 
 .log {
-    margin-bottom: 5px;
+    margin: 2px 2px 6px;
 
-    padding: 7px;
+    padding: 6px 10px;
 
-    background: #283b44;
+    background: #10132a;
 
-    border-radius: 8px;
+    color: #c0cbdc;
 
-    color: #dbe8eb;
+    line-height: 18px;
+}
 
-    font-family: monospace;
-
-    font-size: 11px;
-
-    line-height: 1.5;
+.log:first-child {
+    color: var(--cyan);
 }
 
 
@@ -256,23 +637,56 @@ body {
 button {
     width: 100%;
 
-    padding: 11px;
+    padding: 10px 12px;
 
     border: none;
 
-    border-radius: 10px;
+    background: #3a4466;
 
-    background: #416675;
+    color: #ffffff;
 
-    color: white;
-
-    font-weight: 800;
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 700;
 
     cursor: pointer;
+
+    box-shadow:
+        0 -2px 0 0 var(--edge),
+        0 2px 0 0 var(--edge),
+        -2px 0 0 0 var(--edge),
+        2px 0 0 0 var(--edge),
+        inset 0 -4px 0 0 rgba(0, 0, 0, 0.3),
+        inset 0 2px 0 0 rgba(255, 255, 255, 0.15);
 }
 
 button:hover {
-    filter: brightness(1.08);
+    filter: brightness(1.15);
+}
+
+button:active {
+    transform: translateY(2px);
+
+    box-shadow:
+        0 -2px 0 0 var(--edge),
+        0 2px 0 0 var(--edge),
+        -2px 0 0 0 var(--edge),
+        2px 0 0 0 var(--edge),
+        inset 0 2px 0 0 rgba(0, 0, 0, 0.3);
+}
+
+.restart-button {
+    flex: none;
+
+    width: auto;
+
+    margin-left: auto;
+
+    padding: 8px 14px;
+
+    background: #6b2a3a;
+
+    line-height: 16px;
 }
 
 
@@ -283,11 +697,7 @@ button:hover {
 .overlay {
     position: absolute;
 
-    top: 68px;
-    left: 10px;
-
-    width: 1056px;
-    height: 640px;
+    inset: 3px;
 
     display: none;
 
@@ -295,46 +705,51 @@ button:hover {
     justify-content: center;
 
     background:
-        rgba(
-            5,
-            13,
-            19,
-            0.78
-        );
-
-    border-radius: 8px;
+        repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.18) 0 2px, transparent 2px 4px),
+        rgba(5, 6, 16, 0.8);
 
     z-index: 20;
 }
 
 .overlay-box {
-    width: 500px;
+    width: 520px;
+    max-width: 100%;
+    max-height: min(100%, calc(100dvh - 24px));
+    overflow-y: auto;
 
-    padding: 26px;
+    padding: 28px 30px;
 
-    background: white;
-
-    border-radius: 18px;
+    background: var(--panel);
 
     text-align: center;
 }
 
 .overlay-title {
-    margin-bottom: 12px;
+    margin-bottom: 14px;
 
-    color: #213942;
+    color: var(--yellow);
 
-    font-size: 32px;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 32px;
 
-    font-weight: 900;
+    text-shadow: 2px 2px 0 var(--edge);
 }
 
 .overlay-text {
-    margin-bottom: 18px;
+    margin-bottom: 20px;
 
-    color: #344e58;
+    color: var(--ink);
 
-    line-height: 1.8;
+    line-height: 22px;
+}
+
+.overlay-text b {
+    color: var(--cyan);
+}
+
+.overlay-box button {
+    background: #3e8948;
 }
 
 
@@ -345,11 +760,7 @@ button:hover {
 #prologueOverlay {
     position: absolute;
 
-    top: 10px;
-    left: 10px;
-
-    width: 1056px;
-    height: 698px;
+    inset: 0;
 
     display: none;
 
@@ -357,39 +768,21 @@ button:hover {
     justify-content: center;
 
     background:
-        rgba(
-            10,
-            23,
-            30,
-            0.96
-        );
-
-    border-radius: 12px;
+        repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0 2px, transparent 2px 4px),
+        rgba(8, 9, 20, 0.97);
 
     z-index: 100;
 }
 
 .prologue-box {
-    width: 850px;
+    width: 860px;
+    max-width: 100%;
+    max-height: min(100%, calc(100dvh - 24px));
+    overflow-y: auto;
 
-    min-height: 585px;
+    padding: 24px 38px 28px;
 
-    padding: 28px 34px;
-
-    background:
-        linear-gradient(
-            180deg,
-            #fafdfe,
-            #e9f1f4
-        );
-
-    border: 2px solid #78939e;
-
-    border-radius: 22px;
-
-    box-shadow:
-        0 20px 50px
-        rgba(0, 0, 0, 0.35);
+    background: var(--panel);
 }
 
 .prologue-top {
@@ -399,37 +792,41 @@ button:hover {
 
     align-items: center;
 
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .prologue-stage {
-    color: #68818b;
+    padding: 0 8px;
 
-    font-size: 12px;
+    background: var(--edge);
 
-    font-weight: 800;
+    color: var(--cyan);
 
     letter-spacing: 1px;
 }
 
 .prologue-title {
-    margin: 6px 0 10px 0;
+    margin: 10px 0;
 
-    color: #213a44;
+    color: #ffffff;
 
-    font-size: 28px;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 32px;
 
-    font-weight: 900;
+    text-shadow: 2px 2px 0 var(--edge);
 }
 
 .prologue-text {
-    min-height: 104px;
+    min-height: 120px;
 
-    color: #425c65;
+    color: #c0cbdc;
 
-    font-size: 14px;
+    line-height: 22px;
+}
 
-    line-height: 1.85;
+.prologue-text b {
+    color: var(--amber);
 }
 
 #tutorialCanvas {
@@ -440,43 +837,43 @@ button:hover {
 
     margin: 16px auto;
 
-    background:
-        #c4d2d6;
-
-    border: 2px solid #8299a2;
-
-    border-radius: 14px;
+    background: #0b0c18;
 
     image-rendering: pixelated;
     image-rendering: crisp-edges;
+
+    box-shadow:
+        0 0 0 3px var(--edge),
+        0 0 0 5px var(--line);
 }
 
 .tutorial-tip {
-    min-height: 48px;
+    min-height: 44px;
 
-    margin-top: 8px;
+    margin: 2px 2px 0;
 
-    padding: 10px 13px;
+    padding: 10px 14px;
 
-    background: #fff6d8;
+    background: #2a2412;
 
-    border-left: 5px solid #e0bc54;
+    color: var(--yellow);
 
-    border-radius: 9px;
+    line-height: 20px;
 
-    color: #66562f;
-
-    font-size: 13px;
-
-    line-height: 1.6;
+    box-shadow:
+        0 -2px 0 0 var(--edge),
+        0 2px 0 0 var(--edge),
+        -2px 0 0 0 var(--edge),
+        2px 0 0 0 var(--edge),
+        inset 4px 0 0 0 var(--amber);
 }
 
 .prologue-buttons {
     display: flex;
 
-    gap: 10px;
+    gap: 14px;
 
-    margin-top: 16px;
+    margin-top: 18px;
 }
 
 .prologue-buttons button {
@@ -484,11 +881,11 @@ button:hover {
 }
 
 .secondary-button {
-    background: #8a9ba2;
+    background: #3a4466;
 }
 
 .start-button {
-    background: #367b62;
+    background: #3e8948;
 }
 
 
@@ -499,27 +896,22 @@ button:hover {
 .dpad {
     display: grid;
 
-    grid-template-columns:
-        46px
-        46px
-        46px;
+    grid-template-columns: repeat(3, 38px);
+    grid-template-rows: repeat(3, 32px);
 
-    grid-template-rows:
-        42px
-        42px
-        42px;
+    gap: 4px;
 
-    justify-content: center;
-
-    margin-top: 9px;
-
-    gap: 3px;
+    flex: none;
 }
 
 .dpad button {
     padding: 0;
 
-    font-size: 20px;
+    font-size: 16px;
+}
+
+.dpad .dpad-action {
+    background: #a22633;
 }
 
 .empty {
@@ -529,23 +921,67 @@ button:hover {
 
 /* ============================================================
    작은 화면 대응
+   정보창을 옆에 둔 채 게임 화면만 줄이고, 아주 좁을 때만 아래로 내린다.
 ============================================================ */
 
-@media(max-width:1450px) {
+@media (max-width: 1440px) {
+
+    .layout {
+        flex-direction: row;
+    }
+
+    .game-area {
+        flex: 1 1 auto;
+
+        min-width: 0;
+    }
+
+    .screen {
+        width: 100%;
+    }
+
+    #game {
+        width: 100%;
+
+        height: auto;
+    }
+
+    .help-keys {
+        grid-template-columns: auto;
+
+        gap: 4px;
+    }
+
+}
+
+@media (max-width: 980px) {
+
+    .topbar {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .title {
+        overflow-wrap: anywhere;
+    }
 
     .layout {
         flex-direction: column;
     }
 
+    .game-area,
     .side {
         width: 100%;
 
         flex: auto;
     }
 
-    #game {
+    .prologue-box,
+    #tutorialCanvas {
         width: 100%;
+    }
 
+    #tutorialCanvas {
         height: auto;
     }
 
