@@ -75,7 +75,7 @@ const GHOST_NEAR_DISTANCE = 1.5;
 const GHOST_REACTION_TIME = 0.4;
 const GHOST_SEARCH_TIME = 2;
 const GHOST_CORNER_GRACE = 2.5;
-const GHOST_CHASE_MULTIPLIER = 3.6;
+const GHOST_CHASE_MULTIPLIER = 2.4;
 const fogCanvas = document.createElement("canvas");
 const fogContext = fogCanvas.getContext("2d");
 
