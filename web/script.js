@@ -2067,7 +2067,16 @@ function updateGhosts(dt) {
   // 적 속도 증가 이벤트가 활성화된 경우
   const boosted = state.event.enemyBoost > 0 ? 1.5 : 1;
   ghosts.forEach((ghost) => {
-    const target = updateGhostAI(ghost, dt);
+    let target = updateGhostAI(ghost, dt);
+    if (target && (ghost.mode === "chase" || ghost.mode === "lost")) {
+      // 플레이어보다 큰 그림자도 벽에 걸리지 않고 마지막 목격 위치에 도착한다.
+      const tileX = Math.floor(target.x / TILE) * TILE;
+      const tileY = Math.floor(target.y / TILE) * TILE;
+      target = {
+        x: Math.max(tileX + ghost.w / 2, Math.min(target.x, tileX + TILE - ghost.w / 2)),
+        y: Math.max(tileY + ghost.h / 2, Math.min(target.y, tileY + TILE - ghost.h / 2)),
+      };
+    }
     const chasing = ghost.mode === "chase";
     const cx = ghost.x + ghost.w / 2;
     const cy = ghost.y + ghost.h / 2;
@@ -2264,17 +2273,17 @@ function update(dt) {
 // ============================================================
 
 function calculateRank() {
-  let points =
-    state.hearts * 120 +
-    (state.time / level().time) * 500 +
-    stageRecordCount() * 120;
+  // 1,000점 만점: 남은 체력 500점(4칸), 남은 시간 비율 500점.
+  const points =
+    state.hearts * 125 +
+    (state.time / level().time) * 500;
   if (points >= 900) {
     return "S";
   }
-  if (points >= 720) {
+  if (points >= 750) {
     return "A";
   }
-  if (points >= 540) {
+  if (points >= 550) {
     return "B";
   }
   return "C";
